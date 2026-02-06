@@ -107,39 +107,41 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative py-20 sm:py-32 overflow-hidden scroll-animate">
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent"></div>
+      <section className="relative pt-20 pb-32 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-background to-background"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <div className="inline-flex items-center gap-2 mb-6 px-4 py-2 bg-secondary rounded-full">
-                <Zap className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium text-secondary-foreground">{t.tagline}</span>
-              </div>
-              <h1 className="text-5xl sm:text-6xl font-bold text-foreground mb-6 leading-tight text-balance">
-                {t.hero}
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div className="flex flex-col justify-center">
+              <h1 className="text-6xl sm:text-7xl font-bold text-foreground mb-6 leading-tight text-balance">
+                Master English Vocabulary
               </h1>
-              <p className="text-lg text-muted-foreground mb-8 leading-relaxed">{t.description}</p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" className="bg-primary hover:bg-primary/90 text-lg">
-                  {t.startFree}
+              <p className="text-xl text-muted-foreground mb-10 leading-relaxed max-w-xl">
+                Learn English systematically with AI-powered lessons, voice input, and IELTS preparation. Master 5 new words daily with proven spaced repetition.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 mb-8">
+                <Button size="lg" className="bg-primary hover:bg-primary/90 text-lg px-8 py-6 rounded-full font-semibold">
+                  Start Learning Free
                 </Button>
                 <Button
                   size="lg"
                   variant="outline"
-                  className="text-lg border-primary text-primary hover:bg-primary/10 bg-transparent"
+                  className="text-lg border-2 border-foreground text-foreground hover:bg-foreground/5 bg-transparent rounded-full px-8 py-6 font-semibold"
                 >
                   Watch Demo
                 </Button>
               </div>
+              <p className="text-sm text-muted-foreground">No credit card required. Premium features after 7 days.</p>
             </div>
 
-            {/* Hero Visual */}
-            <div className="relative h-96 sm:h-full min-h-96 bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl flex items-center justify-center overflow-hidden">
-              <div className="relative z-10 text-center px-6">
-                <Brain className="w-24 h-24 text-primary mx-auto mb-4 opacity-50" />
-                <p className="text-foreground font-semibold text-lg">Learn Systematically</p>
-                <p className="text-muted-foreground text-sm mt-2">Spaced repetition + AI feedback</p>
+            {/* Hero Visual - Minimalist */}
+            <div className="relative h-96 sm:h-96">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/15 to-accent/15 rounded-3xl"></div>
+              <div className="relative z-10 h-full flex flex-col items-center justify-center px-8 text-center">
+                <div className="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center mb-6">
+                  <Brain className="w-10 h-10 text-primary" />
+                </div>
+                <p className="text-2xl font-semibold text-foreground mb-2">Adaptive Learning</p>
+                <p className="text-muted-foreground">AI-powered personalization</p>
               </div>
             </div>
           </div>
@@ -147,25 +149,20 @@ export default function Home() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-12 sm:py-16 border-y border-border">
+      <section className="py-16 sm:py-20 border-b border-border bg-secondary/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div className="text-center">
-              <div className="text-3xl sm:text-4xl font-bold text-primary mb-2">50K+</div>
-              <p className="text-sm text-muted-foreground">Words to Learn</p>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl sm:text-4xl font-bold text-primary mb-2">A1-C1</div>
-              <p className="text-sm text-muted-foreground">Proficiency Levels</p>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl sm:text-4xl font-bold text-primary mb-2">86%</div>
-              <p className="text-sm text-muted-foreground">Level-Up Success</p>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl sm:text-4xl font-bold text-primary mb-2">100K+</div>
-              <p className="text-sm text-muted-foreground">Active Learners</p>
-            </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+            {[
+              { stat: '50K+', label: 'Words to Master' },
+              { stat: '86%', label: 'Success Rate' },
+              { stat: '100K+', label: 'Active Learners' },
+              { stat: 'A1-C1', label: 'CEFR Levels' },
+            ].map((item, idx) => (
+              <div key={idx} className="text-center">
+                <div className="text-4xl sm:text-5xl font-bold text-primary mb-3">{item.stat}</div>
+                <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide">{item.label}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -173,129 +170,65 @@ export default function Home() {
       {/* Features Section */}
       <section id="features" className="py-20 sm:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-4">
-              Everything You Need to Learn <span className="text-primary">English Fast</span>
+          <div className="mb-20">
+            <h2 className="text-5xl sm:text-6xl font-bold text-foreground mb-6 max-w-3xl">
+              Powerful Features for Serious Learners
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Comprehensive features designed for systematic vocabulary growth and IELTS exam success
+            <p className="text-xl text-muted-foreground max-w-2xl">
+              Everything you need to master English vocabulary and ace your IELTS exam
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Feature 1 */}
-            <div className="bg-card border border-border rounded-xl p-8 hover:border-primary/50 hover:shadow-lg transition-all duration-300">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                <BookOpen className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-3">Smart Vocabulary Builder</h3>
-              <p className="text-muted-foreground mb-4">20 new words daily with two-section learning system: translation and contextual fill-in-the-blank exercises.</p>
-              <ul className="space-y-2">
-                <li className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                  <span>Audio pronunciation guide</span>
-                </li>
-                <li className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                  <span>Real-world example sentences</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* Feature 2 */}
-            <div className="bg-card border border-border rounded-xl p-8 hover:border-primary/50 hover:shadow-lg transition-all duration-300">
-              <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4">
-                <TrendingUp className="w-6 h-6 text-accent" />
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-3">Spaced Repetition Algorithm</h3>
-              <p className="text-muted-foreground mb-4">Advanced adaptive system that reviews words at optimal intervals for maximum retention and long-term memory.</p>
-              <ul className="space-y-2">
-                <li className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                  <span>Scientifically-proven method</span>
-                </li>
-                <li className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                  <span>Daily streak tracking</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="bg-card border border-border rounded-xl p-8 hover:border-primary/50 hover:shadow-lg transition-all duration-300">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                <Brain className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-3">Level Assessment</h3>
-              <p className="text-muted-foreground mb-4">Determine your English proficiency with intelligent level tests across A1 to C1 CEFR framework.</p>
-              <ul className="space-y-2">
-                <li className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                  <span>Initial proficiency test</span>
-                </li>
-                <li className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                  <span>Regular level-up challenges</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* Feature 4 */}
-            <div className="bg-card border border-border rounded-xl p-8 hover:border-primary/50 hover:shadow-lg transition-all duration-300">
-              <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4">
-                <Award className="w-6 h-6 text-accent" />
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-3">IELTS Practice Module</h3>
-              <p className="text-muted-foreground mb-4">Comprehensive exam preparation with Reading, Listening, Writing, and Speaking practice sections.</p>
-              <ul className="space-y-2">
-                <li className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                  <span>Full mock tests</span>
-                </li>
-                <li className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                  <span>AI feedback on writing & speaking</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* Feature 5 */}
-            <div className="bg-card border border-border rounded-xl p-8 hover:border-primary/50 hover:shadow-lg transition-all duration-300">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                <Headphones className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-3">Native Audio Lessons</h3>
-              <p className="text-muted-foreground mb-4">Learn authentic pronunciation and listening comprehension with professional native speaker audio.</p>
-              <ul className="space-y-2">
-                <li className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                  <span>Clear pronunciation guide</span>
-                </li>
-                <li className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                  <span>Speed adjustment options</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* Feature 6 */}
-            <div className="bg-card border border-border rounded-xl p-8 hover:border-primary/50 hover:shadow-lg transition-all duration-300">
-              <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4">
-                <TrendingUp className="w-6 h-6 text-accent" />
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-3">Progress Analytics</h3>
-              <p className="text-muted-foreground mb-4">Detailed statistics and insights into your learning journey with accuracy tracking and performance metrics.</p>
-              <ul className="space-y-2">
-                <li className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                  <span>Words learned dashboard</span>
-                </li>
-                <li className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                  <span>Accuracy percentage tracking</span>
-                </li>
-              </ul>
-            </div>
+          <div className="grid md:grid-cols-2 gap-12">
+            {[
+              {
+                icon: BookOpen,
+                title: 'Daily Vocabulary Builder',
+                description: 'Master 5 new words each day with translation, pronunciation, and contextual examples.',
+              },
+              {
+                icon: TrendingUp,
+                title: 'Spaced Repetition System',
+                description: 'AI-optimized recall schedule that maximizes long-term retention using neuroscience principles.',
+              },
+              {
+                icon: Brain,
+                title: 'Adaptive Level Tests',
+                description: 'Intelligent assessment across A1 to C1 CEFR levels with personalized learning paths.',
+              },
+              {
+                icon: Award,
+                title: 'IELTS Exam Prep',
+                description: 'Full practice tests, writing feedback, and speaking analysis from AI instructors.',
+              },
+              {
+                icon: Headphones,
+                title: 'Native Audio Training',
+                description: 'Professional pronunciation guides and listening comprehension with speed controls.',
+              },
+              {
+                icon: TrendingUp,
+                title: 'Progress Analytics',
+                description: 'Detailed dashboards tracking accuracy, streaks, words learned, and performance metrics.',
+              },
+            ].map((feature, idx) => {
+              const Icon = feature.icon
+              return (
+                <div key={idx} className="group">
+                  <div className="flex gap-4">
+                    <div className="flex-shrink-0">
+                      <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                        <Icon className="w-7 h-7 text-primary" />
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
+                      <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
           </div>
         </div>
       </section>
