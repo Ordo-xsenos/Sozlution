@@ -278,6 +278,11 @@ const translations = {
 export default function Home() {
   const [language, setLanguage] = useState<'en' | 'uz' | 'ru'>('en')
   const [expandedStep, setExpandedStep] = useState<number | null>(null)
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    setMousePos({ x: e.clientX, y: e.clientY })
+  }
   const t = translations[language]
 
   const features = [
@@ -359,7 +364,15 @@ export default function Home() {
   ]
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative z-10 overflow-hidden" onMouseMove={handleMouseMove}>
+      {/* Cursor glow effect */}
+      <div
+        className="cursor-glow"
+        style={{
+          left: `${mousePos.x}px`,
+          top: `${mousePos.y}px`,
+        }}
+      />
       {/* Navigation */}
       <nav className="sticky top-0 z-50 bg-background border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -371,18 +384,27 @@ export default function Home() {
               <span className="font-bold text-xl text-foreground">So&apos;zlution</span>
             </div>
             <div className="hidden md:flex items-center gap-8">
-              <Link href="#features" className="text-foreground hover:text-primary transition">
+              <button onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })} className="text-foreground hover:text-primary transition">
                 {t.features}
-              </Link>
-              <Link href="#how-it-works" className="text-foreground hover:text-primary transition">
+              </button>
+              <button onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })} className="text-foreground hover:text-primary transition">
                 {t.howItWorks}
-              </Link>
-              <Link href="#pricing" className="text-foreground hover:text-primary transition">
+              </button>
+              <button onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })} className="text-foreground hover:text-primary transition">
                 {t.pricing}
-              </Link>
-              <Link href="#testimonials" className="text-foreground hover:text-primary transition">
+              </button>
+              <button onClick={() => document.getElementById('testimonials')?.scrollIntoView({ behavior: 'smooth' })} className="text-foreground hover:text-primary transition">
                 {t.testimonials}
-              </Link>
+              </button>
+              <button onClick={() => document.getElementById('blog')?.scrollIntoView({ behavior: 'smooth' })} className="text-foreground hover:text-primary transition">
+                {t.blog}
+              </button>
+              <button onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })} className="text-foreground hover:text-primary transition">
+                {t.contact}
+              </button>
+              <button onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })} className="text-foreground hover:text-primary transition">
+                {t.about}
+              </button>
             </div>
             <div className="flex items-center gap-3">
               <div className="flex gap-2">
@@ -597,8 +619,8 @@ export default function Home() {
       </section>
 
       {/* Blog Section */}
-      <section className="py-20 sm:py-32 bg-secondary/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section id="blog" className="py-20 sm:py-32 bg-secondary/30">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-4">
               {t.blogArticles}
@@ -723,12 +745,12 @@ export default function Home() {
       </section>
 
       {/* Contact Section */}
-      <section className="py-20 sm:py-32 bg-secondary/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-4">
-              {t.contact1Title}
-            </h2>
+      <section id="contact" className="py-20 sm:py-32 bg-secondary/30">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-4">
+            {t.contact1Title}
+          </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               {t.contact1Desc}
             </p>
@@ -754,8 +776,8 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-card border-t border-border py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <footer id="about" className="bg-card border-t border-border py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
               <div className="flex items-center gap-2 mb-4">
