@@ -8,6 +8,8 @@ import { useRef, useEffect, useState } from 'react'
 export default function Home() {
   const [language, setLanguage] = useState<'en' | 'uz' | 'ru'>('en')
 
+  const [expandedStep, setExpandedStep] = useState<number | null>(null)
+
   const translations = {
     en: {
       tagline: 'Learn 5 new words daily',
@@ -22,10 +24,90 @@ export default function Home() {
       blog: 'Blog',
       contact: 'Contact',
       about: 'About',
+      noCardRequired: 'No credit card required. Premium features after 7 days.',
+      watchDemo: 'Watch Demo',
+      learnSystematically: 'Learn Systematically',
+      aiPowered: 'AI-powered personalization',
+      wordsToMaster: 'Words to Master',
+      successRate: 'Success Rate',
+      activeLearnersCount: 'Active Learners',
+      cefr: 'CEFR Levels',
+      powerfullFeatures: 'Powerful Features for Serious Learners',
+      allYouNeed: 'Everything you need to master English vocabulary and ace your IELTS exam',
+      dailyVocab: 'Daily Vocabulary Builder',
+      dailyVocabDesc: 'Master 5 new words each day with translation, pronunciation, and contextual examples.',
+      spacedRep: 'Spaced Repetition System',
+      spacedRepDesc: 'AI-optimized recall schedule that maximizes long-term retention using neuroscience principles.',
+      levelTests: 'Adaptive Level Tests',
+      levelTestsDesc: 'Intelligent assessment across A1 to C1 CEFR levels with personalized learning paths.',
+      ieltsPrep: 'IELTS Exam Prep',
+      ieltsPrepDesc: 'Full practice tests, writing feedback, and speaking analysis from AI instructors.',
+      nativeAudio: 'Native Audio Training',
+      nativeAudioDesc: 'Professional pronunciation guides and listening comprehension with speed controls.',
+      analytics: 'Progress Analytics',
+      analyticsDesc: 'Detailed dashboards tracking accuracy, streaks, words learned, and performance metrics.',
+      howItWorksTitle: 'How It Works',
+      howItWorksDesc: 'Simple steps to master English',
+      processSteps: 'Process Steps',
+      step1: 'Take Level Test',
+      step1Desc: 'Start with a comprehensive assessment to determine your current English proficiency level (A1-C1).',
+      step2: 'Learn Daily Words',
+      step2Desc: 'Master 5 vocabulary words per day through interactive lessons: translation and contextual usage.',
+      step3: 'Practice & Progress',
+      step3Desc: 'Maintain your streak, track your progress, and reach 86% mastery level to unlock the Level-Up test.',
+      step4: 'Rise Your Level',
+      step4Desc: 'Successfully complete level challenges to advance through CEFR proficiency tiers.',
+      step5: 'Practice IELTS',
+      step5Desc: 'Prepare for your IELTS exam with full mock tests and specialized practice sections.',
+      step6: 'Achieve Your Goal',
+      step6Desc: 'Reach your target proficiency level and pass IELTS with confidence through consistent learning.',
+      studentSuccessStories: 'Student Success Stories',
+      realLearners: 'Real learners sharing their English mastery journey with So\'zlution',
+      successStory1: 'I improved from B1 to C1 in just 4 months. The spaced repetition system really works!',
+      successStory1Name: 'Ayten Abdurahimova',
+      successStory1Role: 'IELTS Exam Passer',
+      successStory2: 'The voice input feature helped me with pronunciation. Now I speak English confidently.',
+      successStory2Name: 'Muhammad Karim',
+      successStory2Role: 'Business Professional',
+      successStory3: 'Best learning app I\'ve tried. The AI feedback on writing is incredibly helpful.',
+      successStory3Name: 'Dildora Shodmonova',
+      successStory3Role: 'University Student',
+      blogArticles: 'Learn from Our 10,000+ Articles',
+      blogExcerpt: 'English learning tips, vocabulary insights, and IELTS strategies from our expert team',
+      blogTitle1: 'The Science Behind Spaced Repetition',
+      blogExcerpt1: 'Discover how spaced repetition leverages neuroscience to make vocabulary stick permanently.',
+      blogDate1: 'Feb 1, 2024',
+      blogTitle2: 'IELTS Writing Tips from Top Scorers',
+      blogExcerpt2: 'Learn strategies that helped our users achieve high scores in IELTS writing exams.',
+      blogDate2: 'Jan 28, 2024',
+      blogTitle3: 'Pronunciation Guide: Common Mistakes',
+      blogExcerpt3: 'Master difficult English sounds with native speaker audio and detailed explanations.',
+      blogDate3: 'Jan 25, 2024',
+      pricing1: 'Classic',
+      pricing2: 'Premium',
+      pricingSubtitle1: 'Perfect for self-paced learners',
+      pricingSubtitle2: 'For serious IELTS learners',
+      pricingFree: 'Free',
+      pricingForever: 'Forever',
+      pricing99: '$9.99',
+      pricingMonth: '/month',
+      pricing1Include: '20 words daily',
+      pricing2Include: 'Everything in Classic',
+      readyToMaster: 'Ready to Master English?',
+      join100k: 'Join 100,000+ learners who are systematically building their English vocabulary and acing their IELTS exams with So\'zlution.',
+      contact1Title: 'Contact So\'zlution',
+      contact1Desc: 'We care about you. Get in touch with any questions or feedback',
+      contactPhone: 'Phone',
+      contactTelegram: 'Telegram',
+      contactWebsite: 'Website',
+      allRightsReserved: 'All rights reserved.',
+      product: 'Product',
+      company: 'Company',
+      followUs: 'Follow Us',
     },
     uz: {
       tagline: 'Har kuni 5 ta yangi so\'z o\'rganing',
-      hero: 'Ingliz tilini spaced repetition bilan o\'zlashtiring',
+      hero: 'Ingliz tilini Spaced Repetition bilan o\'zlashtiring',
       description: 'AI-powered darslar, ovozli kiritish va IELTS tayyorgarligi bilan ingliz tilini tizimli o\'rganing.',
       features: 'Xususiyatlar',
       howItWorks: 'Qanday ishlaydi',
@@ -36,6 +118,86 @@ export default function Home() {
       blog: 'Blog',
       contact: 'Aloqa',
       about: 'Biz haqida',
+      noCardRequired: 'Kredit kartasi talab qilinmaydi. Premium xususiyatlar 7 kundan keyin.',
+      watchDemo: 'Demo ko\'ring',
+      learnSystematically: 'Tizimli o\'rganing',
+      aiPowered: 'Sun\'iy intellekt tomonidan shaxsiylashtirish',
+      wordsToMaster: 'o\'zlashtirish uchun so\'zlar',
+      successRate: 'Muvaffaqiyat darajasi',
+      activeLearnersCount: 'Faol ta\'lim qiluvchilar',
+      cefr: 'CEFR darajalari',
+      powerfullFeatures: 'Jiddiy ta\'lim qiluvchilar uchun kuchli xususiyatlar',
+      allYouNeed: 'Ingliz tilini o\'zlashtirish va IELTS imtihonida muvaffaq bo\'lish uchun kerak bo\'lgan hamma narsa',
+      dailyVocab: 'Kunlik so\'z boyitish',
+      dailyVocabDesc: 'Har kuni 5 ta so\'zni tarjima, talaffuz va kontekstual misollari bilan o\'zlashtiring.',
+      spacedRep: 'Spaced Repetition tizimi',
+      spacedRepDesc: 'Sun\'iy intellekt tomonidan optimallashtirish uchun tuzilgan eslashni ko\'pnik vaqt uchun saqlaydi.',
+      levelTests: 'Adaptiv darajali testlar',
+      levelTestsDesc: 'A1 dan C1 gacha CEFR darajalari bo\'yicha intelligent baholash va shaxsiy ta\'lim yo\'llari.',
+      ieltsPrep: 'IELTS imtihon tayyorgarligi',
+      ieltsPrepDesc: 'To\'liq amaliy testlar, yozish bo\'yicha fikr-mulohaza va AI instruktorlardan nutq tahlili.',
+      nativeAudio: 'Native audio o\'qitish',
+      nativeAudioDesc: 'Professional talaffuz qo\'llanmalari va tezlik boshqaruvi bilan tinglash tushunchasi.',
+      analytics: 'Taraqqiyot tahlilotikasi',
+      analyticsDesc: 'Aniqlik, soatlar, o\'rganilgan so\'zlar va samaradorlik metrikalarini kuzatadigan batafsil boshqaruvchi paneeli.',
+      howItWorksTitle: 'Qanday ishlaydi',
+      howItWorksDesc: 'Ingliz tilini o\'zlashtirish uchun oddiy qadamlar',
+      processSteps: 'Jarayon bosqichlari',
+      step1: 'Darajani aniqlash testi',
+      step1Desc: 'Sizning hozirgi Ingliz tilini o\'zlashtirish darajasini aniqlash uchun keng qamrovli baholash bilan boshlang (A1-C1).',
+      step2: 'Kunlik so\'zlarni o\'rganing',
+      step2Desc: 'Har kuni 5 ta so\'z bilimini interaktiv darslar orqali o\'zlashtiring: tarjima va kontekstual foydalanish.',
+      step3: 'Amaliyot va taraqqiyot',
+      step3Desc: 'Soatlaringizni saqlang, taraqqiyotingizni kuzatib boring va 86% o\'zlashtirish darajasiga erishing.',
+      step4: 'Darajangizni ko\'taring',
+      step4Desc: 'Darajani o\'zlashtirish sinov sinov qilish orqali CEFR malakadorlik darajasini bosqichma-bosqich ko\'taring.',
+      step5: 'IELTS amaliyoti',
+      step5Desc: 'IELTS imtihoniga to\'liq amaliy testlar va ixtisoslashtirilgan amaliyot bo\'limlari bilan tayyorlaning.',
+      step6: 'O\'z maqsalingizga erishing',
+      step6Desc: 'Tizimli ta\'lim orqali maqsad darajasiga erishing va IELTS imtihonini osonlik bilan o\'tib ketaveringiz.',
+      studentSuccessStories: 'Talabalar muvaffaqiyatining hikoyalari',
+      realLearners: 'So\'zlution bilan ingliz tilini o\'zlashtirish sayohatingizni ulashayotgan haqiqiy ta\'lim qiluvchilar',
+      successStory1: 'Men B1 dan C1 ga 4 oy ichida o\'sdim. Spaced repetition tizimi haqiqatan ham ishlaydi!',
+      successStory1Name: 'Ayten Abdurahimova',
+      successStory1Role: 'IELTS imtihon topshirgani',
+      successStory2: 'Ovozli kiritish xususiyati mani talaffuz bilan yordam berdi. Endi men ingliz tilida ishonch bilan gaplashaman.',
+      successStory2Name: 'Muhammad Karim',
+      successStory2Role: 'Biznes mutaxassisi',
+      successStory3: 'Sinovdan o\'tgan eng yaxshi ta\'lim ilovalari. AI yozish bo\'yicha fikr-mulohaza juda foydali.',
+      successStory3Name: 'Dildora Shodmonova',
+      successStory3Role: 'Universitet talabasiy',
+      blogArticles: '10,000+ maqolalardan o\'rganing',
+      blogExcerpt: 'Ingliz tili o\'qitish maslahatlar, so\'z xavfi va IELTS strategiyalar bizning mutaxassis jamoasi tomonidan',
+      blogTitle1: 'Spaced Repetition orqasidagi fan',
+      blogExcerpt1: 'Spaced repetition qanday neyrobiologiya bilan so\'zlar qolayotganini o\'rtadi.',
+      blogDate1: 'Feb 1, 2024',
+      blogTitle2: 'En\'anali ko\'rsatkichlar orasidan IELTS yozish maslahatlar',
+      blogExcerpt2: 'IELTS yozish imtihonida yuqori ballga yetishtirilgan strategiyalarni o\'rganing.',
+      blogDate2: 'Jan 28, 2024',
+      blogTitle3: 'Talaffuz qo\'llanmasi: keng tarqalgan xatolar',
+      blogExcerpt3: 'Qiyin Ingliz tillarini native speaker audio va batafsil tushuntirishlar bilan o\'zlashtiring.',
+      blogDate3: 'Jan 25, 2024',
+      pricing1: 'Klassik',
+      pricing2: 'Premium',
+      pricingSubtitle1: 'O\'z tempi bilan o\'rganadigon ta\'lim qiluvchilar uchun',
+      pricingSubtitle2: 'Jiddiy IELTS ta\'lim qiluvchilar uchun',
+      pricingFree: 'Bepul',
+      pricingForever: 'Abadiy',
+      pricing99: '$9.99',
+      pricingMonth: '/oy',
+      pricing1Include: 'Har kuni 20 so\'z',
+      pricing2Include: 'Klassikda hamma nars',
+      readyToMaster: 'Ingliz tilini o\'zlashtirishga tayyor musiz?',
+      join100k: '100,000+ ta\'lim qiluvchilar So\'zlution bilan ingliz tilini o\'zlashtirish va IELTS imtihoniga muvaffaq bo\'lishdagi So\'zlution bilan qo\'shiling.',
+      contact1Title: 'So\'zlution bilan aloqa',
+      contact1Desc: 'Biz sizni g\'amxoramiz. Savollar yoki fikr-mulohaza uchun bog\'laning',
+      contactPhone: 'Telefon',
+      contactTelegram: 'Telegram',
+      contactWebsite: 'Veb-sayt',
+      allRightsReserved: 'Barcha huquqlar himoyalangan.',
+      product: 'Mahsulot',
+      company: 'Kompaniya',
+      followUs: 'Bizni kuzatib boring',
     },
     ru: {
       tagline: 'Учите 5 новых слов каждый день',
@@ -50,6 +212,86 @@ export default function Home() {
       blog: 'Блог',
       contact: 'Контакты',
       about: 'О нас',
+      noCardRequired: 'Кредитная карта не требуется. Премиум-функции через 7 дней.',
+      watchDemo: 'Смотреть демо',
+      learnSystematically: 'Учитесь систематически',
+      aiPowered: 'Персонализация на основе ИИ',
+      wordsToMaster: 'Слов для изучения',
+      successRate: 'Уровень успеха',
+      activeLearnersCount: 'Активных учащихся',
+      cefr: 'Уровни CEFR',
+      powerfullFeatures: 'Мощные функции для серьезных учащихся',
+      allYouNeed: 'Все, что вам нужно для овладения английским словарем и успешной сдачи экзамена IELTS',
+      dailyVocab: 'Ежедневное изучение словарного запаса',
+      dailyVocabDesc: 'Овладейте 5 словами в день с переводом, произношением и примерами в контексте.',
+      spacedRep: 'Система распределенного повторения',
+      spacedRepDesc: 'Оптимизированное ИИ расписание повторений, которое максимизирует долговременное сохранение, используя принципы нейробиологии.',
+      levelTests: 'Адаптивные тесты уровня',
+      levelTestsDesc: 'Интеллектуальное оценивание по уровням CEFR с A1 по C1 и персонализированные траектории обучения.',
+      ieltsPrep: 'Подготовка к экзамену IELTS',
+      ieltsPrepDesc: 'Полные практические тесты, отзывы по письму и анализ речи от преподавателей на основе ИИ.',
+      nativeAudio: 'Обучение нативному аудио',
+      nativeAudioDesc: 'Профессиональные руководства по произношению и понимание на слух с элементами управления скоростью.',
+      analytics: 'Аналитика прогресса',
+      analyticsDesc: 'Подробные панели инструментов, отслеживающие точность, серии, изученные слова и метрики производительности.',
+      howItWorksTitle: 'Как это работает',
+      howItWorksDesc: 'Простые шаги для овладения английским языком',
+      processSteps: 'Этапы процесса',
+      step1: 'Тест определения уровня',
+      step1Desc: 'Начните с комплексной оценки, чтобы определить ваш текущий уровень владения английским языком (A1-C1).',
+      step2: 'Учите ежедневные слова',
+      step2Desc: 'Овладейте 5 словами в день через интерактивные уроки: перевод и использование в контексте.',
+      step3: 'Практика и прогресс',
+      step3Desc: 'Сохраняйте свою серию, отслеживайте прогресс и достигайте 86% уровня владения для разблокировки теста повышения уровня.',
+      step4: 'Повысьте уровень',
+      step4Desc: 'Успешно завершите испытания уровня, чтобы продвинуться по уровням мастерства CEFR.',
+      step5: 'Практика IELTS',
+      step5Desc: 'Подготовьтесь к экзамену IELTS с полными практическими тестами и специализированными разделами практики.',
+      step6: 'Достигните своей цели',
+      step6Desc: 'Достигните целевого уровня владения и пройдите IELTS с уверенностью благодаря последовательному обучению.',
+      studentSuccessStories: 'Истории успеха учащихся',
+      realLearners: 'Настоящие учащиеся, делящиеся своим путем овладения английским языком с So\'zlution',
+      successStory1: 'Я улучшился с B1 на C1 всего за 4 месяца. Система распределенного повторения действительно работает!',
+      successStory1Name: 'Айтен Абдурахимова',
+      successStory1Role: 'Сдавший экзамен IELTS',
+      successStory2: 'Функция голосового ввода помогла мне с произношением. Теперь я уверенно говорю по-английски.',
+      successStory2Name: 'Мухаммад Карим',
+      successStory2Role: 'Бизнес-профессионал',
+      successStory3: 'Лучшее приложение для обучения из всех, что я пробовал. Отзывы ИИ по письму невероятно полезны.',
+      successStory3Name: 'Дилдора Шодмонова',
+      successStory3Role: 'Студентка университета',
+      blogArticles: 'Учитесь из наших 10,000+ статей',
+      blogExcerpt: 'Советы по изучению английского языка, идеи по словарю и стратегии IELTS от нашей команды экспертов',
+      blogTitle1: 'Наука распределенного повторения',
+      blogExcerpt1: 'Откройте, как распределенное повторение использует нейробиологию для постоянного запоминания слов.',
+      blogDate1: 'Feb 1, 2024',
+      blogTitle2: 'Советы по написанию IELTS от лучших учащихся',
+      blogExcerpt2: 'Изучите стратегии, которые помогли нашим пользователям получить высокие баллы на письменном экзамене IELTS.',
+      blogDate2: 'Jan 28, 2024',
+      blogTitle3: 'Руководство по произношению: распространенные ошибки',
+      blogExcerpt3: 'Овладейте сложными английскими звуками с помощью аудио носителя языка и подробных объяснений.',
+      blogDate3: 'Jan 25, 2024',
+      pricing1: 'Классический',
+      pricing2: 'Премиум',
+      pricingSubtitle1: 'Идеально для самостоятельного обучения',
+      pricingSubtitle2: 'Для серьезных учащихся IELTS',
+      pricingFree: 'Бесплатно',
+      pricingForever: 'Навсегда',
+      pricing99: '$9.99',
+      pricingMonth: '/месяц',
+      pricing1Include: '20 слов в день',
+      pricing2Include: 'Все в классическом',
+      readyToMaster: 'Готовы овладеть английским?',
+      join100k: 'Присоединитесь к 100 000+ учащимся, которые систематически развивают словарный запас английского языка и блестяще сдают экзамен IELTS с помощью So\'zlution.',
+      contact1Title: 'Контактная информация So\'zlution',
+      contact1Desc: 'Мы заботимся о вас. Свяжитесь с нами с любыми вопросами или отзывами',
+      contactPhone: 'Телефон',
+      contactTelegram: 'Telegram',
+      contactWebsite: 'Веб-сайт',
+      allRightsReserved: 'Все права защищены.',
+      product: 'Продукт',
+      company: 'Компания',
+      followUs: 'Следите за нами',
     },
   }
 
@@ -113,24 +355,24 @@ export default function Home() {
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div className="flex flex-col justify-center">
               <h1 className="text-6xl sm:text-7xl font-bold text-foreground mb-6 leading-tight text-balance">
-                Master English Vocabulary
+                {t.hero}
               </h1>
               <p className="text-xl text-muted-foreground mb-10 leading-relaxed max-w-xl">
-                Learn English systematically with AI-powered lessons, voice input, and IELTS preparation. Master 5 new words daily with proven spaced repetition.
+                {t.description}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
                 <Button size="lg" className="bg-primary hover:bg-primary/90 text-lg px-8 py-6 rounded-full font-semibold">
-                  Start Learning Free
+                  {t.startFree}
                 </Button>
                 <Button
                   size="lg"
                   variant="outline"
                   className="text-lg border-2 border-foreground text-foreground hover:bg-foreground/5 bg-transparent rounded-full px-8 py-6 font-semibold"
                 >
-                  Watch Demo
+                  {t.watchDemo}
                 </Button>
               </div>
-              <p className="text-sm text-muted-foreground">No credit card required. Premium features after 7 days.</p>
+              <p className="text-sm text-muted-foreground">{t.noCardRequired}</p>
             </div>
 
             {/* Hero Visual - Minimalist */}
@@ -140,8 +382,8 @@ export default function Home() {
                 <div className="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center mb-6">
                   <Brain className="w-10 h-10 text-primary" />
                 </div>
-                <p className="text-2xl font-semibold text-foreground mb-2">Adaptive Learning</p>
-                <p className="text-muted-foreground">AI-powered personalization</p>
+                <p className="text-2xl font-semibold text-foreground mb-2">{t.learnSystematically}</p>
+                <p className="text-muted-foreground">{t.aiPowered}</p>
               </div>
             </div>
           </div>
@@ -172,10 +414,10 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-20">
             <h2 className="text-5xl sm:text-6xl font-bold text-foreground mb-6 max-w-3xl">
-              Powerful Features for Serious Learners
+              {t.powerfullFeatures}
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl">
-              Everything you need to master English vocabulary and ace your IELTS exam
+              {t.allYouNeed}
             </p>
           </div>
 
@@ -183,33 +425,33 @@ export default function Home() {
             {[
               {
                 icon: BookOpen,
-                title: 'Daily Vocabulary Builder',
-                description: 'Master 5 new words each day with translation, pronunciation, and contextual examples.',
+                title: t.dailyVocab,
+                description: t.dailyVocabDesc,
               },
               {
                 icon: TrendingUp,
-                title: 'Spaced Repetition System',
-                description: 'AI-optimized recall schedule that maximizes long-term retention using neuroscience principles.',
+                title: t.spacedRep,
+                description: t.spacedRepDesc,
               },
               {
                 icon: Brain,
-                title: 'Adaptive Level Tests',
-                description: 'Intelligent assessment across A1 to C1 CEFR levels with personalized learning paths.',
+                title: t.levelTests,
+                description: t.levelTestsDesc,
               },
               {
                 icon: Award,
-                title: 'IELTS Exam Prep',
-                description: 'Full practice tests, writing feedback, and speaking analysis from AI instructors.',
+                title: t.ieltsPrep,
+                description: t.ieltsPrepDesc,
               },
               {
                 icon: Headphones,
-                title: 'Native Audio Training',
-                description: 'Professional pronunciation guides and listening comprehension with speed controls.',
+                title: t.nativeAudio,
+                description: t.nativeAudioDesc,
               },
               {
                 icon: TrendingUp,
-                title: 'Progress Analytics',
-                description: 'Detailed dashboards tracking accuracy, streaks, words learned, and performance metrics.',
+                title: t.analytics,
+                description: t.analyticsDesc,
               },
             ].map((feature, idx) => {
               const Icon = feature.icon
@@ -234,83 +476,55 @@ export default function Home() {
       </section>
 
       {/* How it Works Section */}
-      <section id="how-it-works" className="py-20 sm:py-32 bg-secondary/30">
+      <section id="how-it-works" className="py-20 sm:py-32 bg-secondary/30 scroll-animate">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-4">
-              How So&apos;zlution <span className="text-primary">Works</span>
+          <div className="mb-16">
+            <h2 className="text-5xl sm:text-6xl font-bold text-foreground mb-6">
+              {t.howItWorksTitle}
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              A simple, systematic approach to English mastery
+            <p className="text-xl text-muted-foreground max-w-2xl">
+              {t.howItWorksDesc}
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Step 1 */}
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-2xl mb-6 mx-auto">
-                1
+          <div className="space-y-4">
+            {[
+              { step: 1, title: t.step1, desc: t.step1Desc },
+              { step: 2, title: t.step2, desc: t.step2Desc },
+              { step: 3, title: t.step3, desc: t.step3Desc },
+              { step: 4, title: t.step4, desc: t.step4Desc },
+              { step: 5, title: t.step5, desc: t.step5Desc },
+              { step: 6, title: t.step6, desc: t.step6Desc },
+            ].map((item, idx) => (
+              <div
+                key={idx}
+                className="bg-card border border-border rounded-xl overflow-hidden hover:border-primary/50 transition-all"
+              >
+                <button
+                  onClick={() => setExpandedStep(expandedStep === idx ? null : idx)}
+                  className="w-full px-6 py-6 flex items-center justify-between hover:bg-secondary/50 transition-colors"
+                >
+                  <div className="flex items-center gap-4 text-left">
+                    <div className="w-14 h-14 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-xl flex-shrink-0">
+                      {item.step}
+                    </div>
+                    <h3 className="text-xl font-semibold text-foreground">{item.title}</h3>
+                  </div>
+                  <div
+                    className={`text-primary transition-transform ${
+                      expandedStep === idx ? 'rotate-180' : ''
+                    }`}
+                  >
+                    ▼
+                  </div>
+                </button>
+                {expandedStep === idx && (
+                  <div className="px-6 pb-6 border-t border-border bg-secondary/30">
+                    <p className="text-muted-foreground leading-relaxed">{item.desc}</p>
+                  </div>
+                )}
               </div>
-              <h3 className="text-xl font-semibold text-foreground mb-3">Take Level Test</h3>
-              <p className="text-muted-foreground leading-relaxed">
-                Start with a comprehensive 20-question assessment to determine your current English proficiency level (A1-C1).
-              </p>
-            </div>
-
-            {/* Step 2 */}
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-2xl mb-6 mx-auto">
-                2
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-3">Learn Daily Words</h3>
-              <p className="text-muted-foreground leading-relaxed">
-                Master 20 vocabulary words per day through the two-section learning system: translation and contextual usage.
-              </p>
-            </div>
-
-            {/* Step 3 */}
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-2xl mb-6 mx-auto">
-                3
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-3">Practice & Progress</h3>
-              <p className="text-muted-foreground leading-relaxed">
-                Maintain your streak, track your progress, and reach 86% mastery level to unlock the Level-Up test.
-              </p>
-            </div>
-
-            {/* Step 4 */}
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-2xl mb-6 mx-auto">
-                4
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-3">Rise Your Level</h3>
-              <p className="text-muted-foreground leading-relaxed">
-                Successfully complete level challenges to advance through CEFR proficiency tiers and unlock premium content.
-              </p>
-            </div>
-
-            {/* Step 5 */}
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-2xl mb-6 mx-auto">
-                5
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-3">Practice IELTS</h3>
-              <p className="text-muted-foreground leading-relaxed">
-                Prepare for your IELTS exam with full mock tests, reading, listening, writing, and speaking practice sections.
-              </p>
-            </div>
-
-            {/* Step 6 */}
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-2xl mb-6 mx-auto">
-                6
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-3">Achieve Your Goal</h3>
-              <p className="text-muted-foreground leading-relaxed">
-                Reach your target proficiency level and pass IELTS with confidence through consistent, systematic learning.
-              </p>
-            </div>
+            ))}
           </div>
         </div>
       </section>
@@ -323,19 +537,77 @@ export default function Home() {
               Simple, Transparent <span className="text-primary">Pricing</span>
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Start free, upgrade anytime. No hidden fees.
+              {language === 'uz' ? 'Bepul boshlang, istalgan vaqtda yangilanish. Yashirin to\'lov yo\'q.' : language === 'ru' ? 'Начните бесплатно, обновляйте в любое время. Нет скрытых платежей.' : 'Start free, upgrade anytime. No hidden fees.'}
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 max-w-2xl mx-auto">
             {/* Classic Plan */}
             <div className="bg-card border border-border rounded-xl p-8">
-              <h3 className="text-2xl font-bold text-foreground mb-2">Classic</h3>
-              <p className="text-muted-foreground mb-6">Perfect for self-paced learners</p>
+              <h3 className="text-2xl font-bold text-foreground mb-2">{t.pricing1}</h3>
+              <p className="text-muted-foreground mb-6">{t.pricingSubtitle1}</p>
               <div className="mb-6">
-                <span className="text-4xl font-bold text-foreground">Free</span>
-                <p className="text-muted-foreground mt-2">Forever</p>
+                <span className="text-4xl font-bold text-foreground">{t.pricingFree}</span>
+                <p className="text-muted-foreground mt-2">{t.pricingForever}</p>
               </div>
+              <Button variant="outline" className="w-full mb-8 border-primary text-primary hover:bg-primary/10 bg-transparent">
+                {t.startFree}
+              </Button>
+              <ul className="space-y-3">
+                <li className="flex items-center gap-2">
+                  <Check className="w-5 h-5 text-primary flex-shrink-0" />
+                  <span className="text-foreground">{t.pricing1Include}</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-5 h-5 text-primary flex-shrink-0" />
+                  <span className="text-foreground">{t.spacedRep}</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-5 h-5 text-primary flex-shrink-0" />
+                  <span className="text-foreground">1 {language === 'uz' ? 'to\'liq' : language === 'ru' ? 'полный' : 'full'} mock test/{language === 'uz' ? 'kun' : language === 'ru' ? 'день' : 'day'}</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-5 h-5 text-primary flex-shrink-0" />
+                  <span className="text-foreground">{language === 'uz' ? 'Taraqqiyot kuzatish' : language === 'ru' ? 'Отслеживание прогресса' : 'Progress tracking'}</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Premium Plan */}
+            <div className="bg-card border-2 border-primary rounded-xl p-8 relative shadow-lg">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                <span className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold">
+                  {language === 'uz' ? 'Eng mashhur' : language === 'ru' ? 'Самый популярный' : 'Most Popular'}
+                </span>
+              </div>
+              <h3 className="text-2xl font-bold text-foreground mb-2">{t.pricing2}</h3>
+              <p className="text-muted-foreground mb-6">{t.pricingSubtitle2}</p>
+              <div className="mb-6">
+                <span className="text-4xl font-bold text-foreground">{t.pricing99}</span>
+                <span className="text-muted-foreground">{t.pricingMonth}</span>
+              </div>
+              <Button className="w-full mb-8 bg-primary hover:bg-primary/90">
+                {language === 'uz' ? 'Bepul sinab ko\'ring' : language === 'ru' ? 'Начать бесплатную пробную версию' : 'Start Free Trial'}
+              </Button>
+              <ul className="space-y-3">
+                <li className="flex items-center gap-2">
+                  <Check className="w-5 h-5 text-primary flex-shrink-0" />
+                  <span className="text-foreground">{t.pricing2Include}</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-5 h-5 text-primary flex-shrink-0" />
+                  <span className="text-foreground">AI {language === 'uz' ? 'yozish' : language === 'ru' ? 'письмо' : 'writing'} {language === 'uz' ? 'fikri' : language === 'ru' ? 'отзыв' : 'feedback'}</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-5 h-5 text-primary flex-shrink-0" />
+                  <span className="text-foreground">AI {language === 'uz' ? 'soʻzlash tahlili' : language === 'ru' ? 'анализ речи' : 'speaking analysis'}</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-5 h-5 text-primary flex-shrink-0" />
+                  <span className="text-foreground">{language === 'uz' ? 'Cheksiz' : language === 'ru' ? 'Неограниченный' : 'Unlimited'} mock tests</span>
+                </li>
+              </ul>
+            </div>
               <Button variant="outline" className="w-full mb-8 border-primary text-primary hover:bg-primary/10 bg-transparent">
                 Get Started
               </Button>
@@ -403,31 +675,31 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-4">
-              Student <span className="text-primary">Success Stories</span>
+              {t.studentSuccessStories} <span className="text-primary"></span>
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Real learners sharing their English mastery journey with So&apos;zlution
+              {t.realLearners}
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
-                name: 'Ayten Abdurahimova',
-                role: 'IELTS Exam Passer',
-                content: 'I improved from B1 to C1 in just 4 months. The spaced repetition system really works!',
+                name: t.successStory1Name,
+                role: t.successStory1Role,
+                content: t.successStory1,
                 rating: 5,
               },
               {
-                name: 'Muhammad Karim',
-                role: 'Business Professional',
-                content: 'The voice input feature helped me with pronunciation. Now I speak English confidently.',
+                name: t.successStory2Name,
+                role: t.successStory2Role,
+                content: t.successStory2,
                 rating: 5,
               },
               {
-                name: 'Dildora Shodmonova',
-                role: 'University Student',
-                content: 'Best learning app I\'ve tried. The AI feedback on writing is incredibly helpful.',
+                name: t.successStory3Name,
+                role: t.successStory3Role,
+                content: t.successStory3,
                 rating: 5,
               },
             ].map((testimonial, idx) => (
@@ -457,29 +729,29 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-4">
-              Learn from Our <span className="text-primary">10,000+ Articles</span>
+              {t.blogArticles}
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              English learning tips, vocabulary insights, and IELTS strategies from our expert team
+              {t.blogExcerpt}
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
-                title: 'The Science Behind Spaced Repetition',
-                excerpt: 'Discover how spaced repetition leverages neuroscience to make vocabulary stick permanently.',
-                date: 'Feb 1, 2024',
+                title: t.blogTitle1,
+                excerpt: t.blogExcerpt1,
+                date: t.blogDate1,
               },
               {
-                title: 'IELTS Writing Tips from Top Scorers',
-                excerpt: 'Learn strategies that helped our users achieve high scores in IELTS writing exams.',
-                date: 'Jan 28, 2024',
+                title: t.blogTitle2,
+                excerpt: t.blogExcerpt2,
+                date: t.blogDate2,
               },
               {
-                title: 'Pronunciation Guide: Common Mistakes',
-                excerpt: 'Master difficult English sounds with native speaker audio and detailed explanations.',
-                date: 'Jan 25, 2024',
+                title: t.blogTitle3,
+                excerpt: t.blogExcerpt3,
+                date: t.blogDate3,
               },
             ].map((post, idx) => (
               <Link
@@ -501,23 +773,23 @@ export default function Home() {
       {/* CTA Section */}
       <section className="py-20 sm:py-32 bg-primary text-primary-foreground scroll-animate">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl sm:text-5xl font-bold mb-6">Ready to Master English?</h2>
+          <h2 className="text-4xl sm:text-5xl font-bold mb-6">{t.readyToMaster}</h2>
           <p className="text-lg mb-8 opacity-90 max-w-2xl mx-auto">
-            Join 100,000+ learners who are systematically building their English vocabulary and acing their IELTS exams with So&apos;zlution.
+            {t.join100k}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
               size="lg"
               className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 text-lg font-semibold"
             >
-              Start Learning Free
+              {t.startFree}
             </Button>
             <Button
               size="lg"
               variant="outline"
               className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10 text-lg font-semibold bg-transparent"
             >
-              Schedule Demo
+              {language === 'uz' ? 'Demo rejalashtiring' : language === 'ru' ? 'Запланировать демо' : 'Schedule Demo'}
             </Button>
           </div>
         </div>
@@ -528,27 +800,27 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-4">
-              Contact <span className="text-primary">So&apos;zlution</span>
+              {t.contact1Title}
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              We care about you. Get in touch with any questions or feedback
+              {t.contact1Desc}
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-3xl mx-auto">
             <div className="bg-card border border-border rounded-xl p-8 text-center hover:border-primary/50 transition-all">
               <Phone className="w-12 h-12 text-primary mx-auto mb-4" />
-              <h3 className="font-semibold text-foreground mb-2">Phone</h3>
+              <h3 className="font-semibold text-foreground mb-2">{t.contactPhone}</h3>
               <p className="text-muted-foreground">+998 71 123 45 67</p>
             </div>
             <div className="bg-card border border-border rounded-xl p-8 text-center hover:border-primary/50 transition-all">
               <Send className="w-12 h-12 text-primary mx-auto mb-4" />
-              <h3 className="font-semibold text-foreground mb-2">Telegram</h3>
+              <h3 className="font-semibold text-foreground mb-2">{t.contactTelegram}</h3>
               <p className="text-muted-foreground">@sozlution_support</p>
             </div>
             <div className="bg-card border border-border rounded-xl p-8 text-center hover:border-primary/50 transition-all">
               <Globe className="w-12 h-12 text-primary mx-auto mb-4" />
-              <h3 className="font-semibold text-foreground mb-2">Website</h3>
+              <h3 className="font-semibold text-foreground mb-2">{t.contactWebsite}</h3>
               <p className="text-muted-foreground">www.sozlution.uz</p>
             </div>
           </div>
@@ -569,47 +841,47 @@ export default function Home() {
               <p className="text-sm text-muted-foreground">Master English with AI-powered spaced repetition and IELTS preparation.</p>
             </div>
             <div>
-              <h4 className="font-semibold text-foreground mb-4">Product</h4>
+              <h4 className="font-semibold text-foreground mb-4">{t.product}</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li>
                   <Link href="#features" className="hover:text-primary transition">
-                    Features
+                    {t.features}
                   </Link>
                 </li>
                 <li>
                   <Link href="#pricing" className="hover:text-primary transition">
-                    Pricing
+                    {t.pricing}
                   </Link>
                 </li>
                 <li>
                   <Link href="#how-it-works" className="hover:text-primary transition">
-                    How It Works
+                    {t.howItWorks}
                   </Link>
                 </li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-foreground mb-4">Company</h4>
+              <h4 className="font-semibold text-foreground mb-4">{t.company}</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li>
                   <Link href="#" className="hover:text-primary transition">
-                    About Us
+                    {t.about}
                   </Link>
                 </li>
                 <li>
                   <Link href="#" className="hover:text-primary transition">
-                    Blog
+                    {t.blog}
                   </Link>
                 </li>
                 <li>
                   <Link href="#" className="hover:text-primary transition">
-                    Contact
+                    {t.contact}
                   </Link>
                 </li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-foreground mb-4">Follow Us</h4>
+              <h4 className="font-semibold text-foreground mb-4">{t.followUs}</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li>
                   <Link href="#" className="hover:text-primary transition flex items-center gap-2">
@@ -631,13 +903,13 @@ export default function Home() {
           </div>
 
           <div className="border-t border-border pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-            <p>&copy; 2024 So&apos;zlution. Professional and clean design.</p>
+            <p>&copy; 2024 So&apos;zlution. {t.allRightsReserved}</p>
             <div className="flex gap-6">
               <Link href="#" className="hover:text-foreground transition">
-                Privacy Policy
+                {language === 'uz' ? 'Shaxsiylik siyosati' : language === 'ru' ? 'Политика конфиденциальности' : 'Privacy Policy'}
               </Link>
               <Link href="#" className="hover:text-foreground transition">
-                Terms of Service
+                {language === 'uz' ? 'Foydalanish shartlari' : language === 'ru' ? 'Условия обслуживания' : 'Terms of Service'}
               </Link>
             </div>
           </div>
