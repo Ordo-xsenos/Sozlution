@@ -7,7 +7,7 @@ import { useState } from 'react'
 
 const translations = {
   en: {
-    tagline: 'Learn 5 new words daily',
+    tagline: 'Learn 20 new words daily',
     hero: 'Master English Vocabulary with Spaced Repetition',
     description: 'Learn English systematically with AI-powered lessons, voice input, and IELTS preparation.',
     features: 'Features',
@@ -26,7 +26,7 @@ const translations = {
     powerfullFeatures: 'Powerful Features for Serious Learners',
     allYouNeed: 'Everything you need to master English vocabulary and ace your IELTS exam',
     dailyVocab: 'Daily Vocabulary Builder',
-    dailyVocabDesc: 'Master 5 new words each day with translation, pronunciation, and contextual examples.',
+    dailyVocabDesc: 'Master 20 new words each day with translation, pronunciation, and contextual examples.',
     spacedRep: 'Spaced Repetition System',
     spacedRepDesc: 'AI-optimized recall schedule that maximizes long-term retention using neuroscience principles.',
     levelTests: 'Adaptive Level Tests',
@@ -42,7 +42,7 @@ const translations = {
     step1: 'Take Level Test',
     step1Desc: 'Start with a comprehensive assessment to determine your current English proficiency level (A1-C1).',
     step2: 'Learn Daily Words',
-    step2Desc: 'Master 5 vocabulary words per day through interactive lessons: translation and contextual usage.',
+    step2Desc: 'Master 20 vocabulary words per day through interactive lessons: translation and contextual usage.',
     step3: 'Practice & Progress',
     step3Desc: 'Maintain your streak, track your progress, and reach 86% mastery level to unlock the Level-Up test.',
     step4: 'Rise Your Level',
@@ -79,7 +79,7 @@ const translations = {
     pricingSubtitle2: 'For serious IELTS learners',
     pricingFree: 'Free',
     pricingForever: 'Forever',
-    pricing99: '$9.99',
+    pricing99: '$4.99',
     pricingMonth: '/month',
     pricing1Include: '20 words daily',
     pricing2Include: 'Everything in Classic',
@@ -96,7 +96,7 @@ const translations = {
     followUs: 'Follow Us',
   },
   uz: {
-    tagline: 'Har kuni 5 ta yangi so\'z o\'rganing',
+    tagline: 'Har kuni 20 ta yangi so\'z o\'rganing',
     hero: 'Ingliz tilini Spaced Repetition bilan o\'zlashtiring',
     description: 'AI-powered darslar, ovozli kiritish va IELTS tayyorgarligi bilan ingliz tilini tizimli o\'rganing.',
     features: 'Xususiyatlar',
@@ -168,7 +168,7 @@ const translations = {
     pricingSubtitle2: 'Jiddiy IELTS ta\'lim qiluvchilar uchun',
     pricingFree: 'Bepul',
     pricingForever: 'Abadiy',
-    pricing99: '$9.99',
+    pricing99: '$4.99',
     pricingMonth: '/oy',
     pricing1Include: 'Har kuni 20 so\'z',
     pricing2Include: 'Klassikda hamma nars',
@@ -185,7 +185,7 @@ const translations = {
     followUs: 'Bizni kuzatib boring',
   },
   ru: {
-    tagline: 'Учите 5 новых слов каждый день',
+    tagline: 'Учите 20 новых слов каждый день',
     hero: 'Овладейте английским словарем с повторением',
     description: 'Систематически изучайте английский с помощью уроков на основе ИИ, голосового ввода и подготовки к IELTS.',
     features: 'Функции',
@@ -257,7 +257,7 @@ const translations = {
     pricingSubtitle2: 'Для серьезных учащихся IELTS',
     pricingFree: 'Бесплатно',
     pricingForever: 'Навсегда',
-    pricing99: '$9.99',
+    pricing99: '$4.99',
     pricingMonth: '/месяц',
     pricing1Include: '20 слов в день',
     pricing2Include: 'Все в классическом',
@@ -505,7 +505,7 @@ export default function Home() {
       {/* How it Works Section */}
       <section id="how-it-works" className="py-20 sm:py-32 bg-secondary/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-16">
+          <div className="mb-20">
             <h2 className="text-5xl sm:text-6xl font-bold text-foreground mb-6">
               {t.howItWorksTitle}
             </h2>
@@ -513,37 +513,53 @@ export default function Home() {
               {t.howItWorksDesc}
             </p>
           </div>
-          <div className="space-y-4">
-            {steps.map((item, idx) => (
-              <div
-                key={idx}
-                className="bg-card border border-border rounded-xl overflow-hidden hover:border-primary/50 transition-all"
-              >
-                <button
-                  onClick={() => setExpandedStep(expandedStep === idx ? null : idx)}
-                  className="w-full px-6 py-6 flex items-center justify-between hover:bg-secondary/50 transition-colors"
-                >
-                  <div className="flex items-center gap-4 text-left">
-                    <div className="w-14 h-14 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-xl flex-shrink-0">
-                      {item.step}
+
+          {/* Timeline Container */}
+          <div className="relative">
+            {/* Vertical line for desktop (hidden on mobile) */}
+            <div className="hidden lg:block absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-gradient-to-b from-primary via-accent to-primary opacity-30"></div>
+
+            {/* Timeline Items */}
+            <div className="space-y-12 lg:space-y-16">
+              {steps.map((item, idx) => {
+                const colors = ['from-pink-500 to-pink-600', 'from-cyan-500 to-cyan-600', 'from-yellow-500 to-yellow-600', 'from-purple-500 to-purple-600', 'from-orange-500 to-orange-600', 'from-indigo-500 to-indigo-600'];
+                const borderColors = ['border-pink-500', 'border-cyan-500', 'border-yellow-500', 'border-purple-500', 'border-orange-500', 'border-indigo-500'];
+                const circleColors = ['bg-pink-500', 'bg-cyan-500', 'bg-yellow-500', 'bg-purple-500', 'bg-orange-500', 'bg-indigo-500'];
+                const isLeft = idx % 2 === 0;
+
+                return (
+                  <div key={idx} className="timeline-item">
+                    <div className={`flex ${isLeft ? 'lg:flex-row' : 'lg:flex-row-reverse'} items-center gap-4 lg:gap-12`}>
+                      {/* Card Content */}
+                      <div className="w-full lg:w-1/2">
+                        <div className={`bg-card border-2 ${borderColors[idx]} rounded-2xl p-6 lg:p-8 hover:shadow-lg transition-all`}>
+                          <h3 className="text-xl font-bold text-foreground mb-3">{item.title}</h3>
+                          <p className="text-muted-foreground leading-relaxed text-sm lg:text-base">{item.desc}</p>
+                        </div>
+                      </div>
+
+                      {/* Center Circle */}
+                      <div className="hidden lg:flex justify-center items-center z-10">
+                        <div className={`w-16 h-16 rounded-full ${circleColors[idx]} text-white font-bold text-xl flex items-center justify-center shadow-lg border-4 border-background relative`}>
+                          {item.step}
+                        </div>
+                      </div>
+
+                      {/* Spacer for desktop */}
+                      <div className="hidden lg:block w-1/2"></div>
                     </div>
-                    <h3 className="text-xl font-semibold text-foreground">{item.title}</h3>
+
+                    {/* Mobile Step Number */}
+                    <div className="flex lg:hidden items-center gap-3 mb-4">
+                      <div className={`w-12 h-12 rounded-full ${circleColors[idx]} text-white font-bold text-lg flex items-center justify-center`}>
+                        {item.step}
+                      </div>
+                      <h3 className="text-lg font-bold text-foreground">{item.title}</h3>
+                    </div>
                   </div>
-                  <div
-                    className={`text-primary transition-transform ${
-                      expandedStep === idx ? 'rotate-180' : ''
-                    }`}
-                  >
-                    ▼
-                  </div>
-                </button>
-                {expandedStep === idx && (
-                  <div className="px-6 pb-6 border-t border-border bg-secondary/30">
-                    <p className="text-muted-foreground leading-relaxed">{item.desc}</p>
-                  </div>
-                )}
-              </div>
-            ))}
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>
