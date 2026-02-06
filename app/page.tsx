@@ -2,8 +2,8 @@
 
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Check, Zap, TrendingUp, Brain, Headphones, BookOpen, Award, Users, Globe, Phone, Send } from 'lucide-react'
-import { useRef, useEffect, useState } from 'react'
+import { Check, TrendingUp, Brain, Headphones, BookOpen, Award, Globe, Phone, Send } from 'lucide-react'
+import { useState } from 'react'
 
 export default function Home() {
   const [language, setLanguage] = useState<'en' | 'uz' | 'ru'>('en')
@@ -240,7 +240,7 @@ export default function Home() {
       step1: 'Тест определения уровня',
       step1Desc: 'Начните с комплексной оценки, чтобы определить ваш текущий уровень владения английским языком (A1-C1).',
       step2: 'Учите ежедневные слова',
-      step2Desc: 'Овладейте 5 словами в день через интерактивные уроки: перевод и использование в контексте.',
+      step2Desc: 'Овладейте 5 словами в день чере�� интерактивные уроки: перевод и использование в контексте.',
       step3: 'Практика и прогресс',
       step3Desc: 'Сохраняйте свою серию, отслеживайте прогресс и достигайте 86% уровня владения для разблокировки теста повышения уровня.',
       step4: 'Повысьте уровень',
