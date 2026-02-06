@@ -4,11 +4,57 @@
 
 body {
   font-family: Arial, Helvetica, sans-serif;
+  scroll-behavior: smooth;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  .scroll-animate {
+    animation: fadeInUp 0.8s ease-out 0.1s both;
+  }
+
+  .scroll-animate:nth-child(odd) {
+    animation: slideInLeft 0.8s ease-out 0.1s both;
+  }
+
+  .scroll-animate:nth-child(even) {
+    animation: slideInRight 0.8s ease-out 0.1s both;
   }
 }
 

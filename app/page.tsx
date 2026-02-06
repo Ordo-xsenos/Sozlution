@@ -2,9 +2,59 @@
 
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Check, Zap, TrendingUp, Brain, Headphones, BookOpen, Award, Users } from 'lucide-react'
+import { Check, Zap, TrendingUp, Brain, Headphones, BookOpen, Award, Users, Globe, Phone, Send } from 'lucide-react'
+import { useRef, useEffect, useState } from 'react'
 
 export default function Home() {
+  const [language, setLanguage] = useState<'en' | 'uz' | 'ru'>('en')
+
+  const translations = {
+    en: {
+      tagline: 'Learn 5 new words daily',
+      hero: 'Master English Vocabulary with Spaced Repetition',
+      description: 'Learn English systematically with AI-powered lessons, voice input, and IELTS preparation.',
+      features: 'Features',
+      howItWorks: 'How it works',
+      pricing: 'Pricing',
+      signIn: 'Sign In',
+      startFree: 'Get Started Free',
+      testimonials: 'Testimonials',
+      blog: 'Blog',
+      contact: 'Contact',
+      about: 'About',
+    },
+    uz: {
+      tagline: 'Har kuni 5 ta yangi so\'z o\'rganing',
+      hero: 'Ingliz tilini spaced repetition bilan o\'zlashtiring',
+      description: 'AI-powered darslar, ovozli kiritish va IELTS tayyorgarligi bilan ingliz tilini tizimli o\'rganing.',
+      features: 'Xususiyatlar',
+      howItWorks: 'Qanday ishlaydi',
+      pricing: 'Narxlar',
+      signIn: 'Kirish',
+      startFree: 'Bepul boshlang',
+      testimonials: 'Sharhlar',
+      blog: 'Blog',
+      contact: 'Aloqa',
+      about: 'Biz haqida',
+    },
+    ru: {
+      tagline: 'Учите 5 новых слов каждый день',
+      hero: 'Овладейте английским словарем с повторением',
+      description: 'Систематически изучайте английский с помощью уроков на основе ИИ, голосового ввода и подготовки к IELTS.',
+      features: 'Функции',
+      howItWorks: 'Как это работает',
+      pricing: 'Цены',
+      signIn: 'Вход',
+      startFree: 'Начать бесплатно',
+      testimonials: 'Отзывы',
+      blog: 'Блог',
+      contact: 'Контакты',
+      about: 'О нас',
+    },
+  }
+
+  const t = translations[language]
+
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
@@ -19,44 +69,60 @@ export default function Home() {
             </div>
             <div className="hidden md:flex items-center gap-8">
               <Link href="#features" className="text-foreground hover:text-primary transition">
-                Features
+                {t.features}
               </Link>
               <Link href="#how-it-works" className="text-foreground hover:text-primary transition">
-                How it works
+                {t.howItWorks}
               </Link>
               <Link href="#pricing" className="text-foreground hover:text-primary transition">
-                Pricing
+                {t.pricing}
+              </Link>
+              <Link href="#testimonials" className="text-foreground hover:text-primary transition">
+                {t.testimonials}
               </Link>
             </div>
             <div className="flex items-center gap-3">
+              <div className="flex gap-2">
+                {(['en', 'uz', 'ru'] as const).map((lang) => (
+                  <button
+                    key={lang}
+                    onClick={() => setLanguage(lang)}
+                    className={`px-2 py-1 rounded text-sm font-medium transition ${
+                      language === lang
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                    }`}
+                  >
+                    {lang.toUpperCase()}
+                  </button>
+                ))}
+              </div>
               <Button variant="outline" className="hidden sm:inline-flex bg-transparent">
-                Sign In
+                {t.signIn}
               </Button>
-              <Button className="bg-primary hover:bg-primary/90">Get Started Free</Button>
+              <Button className="bg-primary hover:bg-primary/90">{t.startFree}</Button>
             </div>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="relative py-20 sm:py-32 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="relative py-20 sm:py-32 overflow-hidden scroll-animate">
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <div className="inline-flex items-center gap-2 mb-6 px-4 py-2 bg-secondary rounded-full">
                 <Zap className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium text-secondary-foreground">AI-Powered Learning System</span>
+                <span className="text-sm font-medium text-secondary-foreground">{t.tagline}</span>
               </div>
               <h1 className="text-5xl sm:text-6xl font-bold text-foreground mb-6 leading-tight text-balance">
-                Master English Vocabulary with{' '}
-                <span className="text-primary">Spaced Repetition</span>
+                {t.hero}
               </h1>
-              <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
-                So&apos;zlution combines adaptive learning, IELTS preparation, and scientifically-proven spaced repetition to systematically build your English vocabulary from A1 to C1.
-              </p>
+              <p className="text-lg text-muted-foreground mb-8 leading-relaxed">{t.description}</p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button size="lg" className="bg-primary hover:bg-primary/90 text-lg">
-                  Start Learning Free
+                  {t.startFree}
                 </Button>
                 <Button
                   size="lg"
@@ -66,16 +132,14 @@ export default function Home() {
                   Watch Demo
                 </Button>
               </div>
-              <p className="text-sm text-muted-foreground mt-6">No credit card required. Try for free today.</p>
             </div>
 
-            {/* Hero Image Placeholder */}
+            {/* Hero Visual */}
             <div className="relative h-96 sm:h-full min-h-96 bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl flex items-center justify-center overflow-hidden">
-              <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
               <div className="relative z-10 text-center px-6">
                 <Brain className="w-24 h-24 text-primary mx-auto mb-4 opacity-50" />
-                <p className="text-foreground font-semibold text-lg">Interactive Learning Experience</p>
-                <p className="text-muted-foreground text-sm mt-2">Personalized vocabulary lessons & IELTS practice</p>
+                <p className="text-foreground font-semibold text-lg">Learn Systematically</p>
+                <p className="text-muted-foreground text-sm mt-2">Spaced repetition + AI feedback</p>
               </div>
             </div>
           </div>
@@ -401,8 +465,108 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Testimonials Section */}
+      <section id="testimonials" className="py-20 sm:py-32 bg-secondary/30 scroll-animate">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-4">
+              Student <span className="text-primary">Success Stories</span>
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Real learners sharing their English mastery journey with So&apos;zlution
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                name: 'Ayten Abdurahimova',
+                role: 'IELTS Exam Passer',
+                content: 'I improved from B1 to C1 in just 4 months. The spaced repetition system really works!',
+                rating: 5,
+              },
+              {
+                name: 'Muhammad Karim',
+                role: 'Business Professional',
+                content: 'The voice input feature helped me with pronunciation. Now I speak English confidently.',
+                rating: 5,
+              },
+              {
+                name: 'Dildora Shodmonova',
+                role: 'University Student',
+                content: 'Best learning app I\'ve tried. The AI feedback on writing is incredibly helpful.',
+                rating: 5,
+              },
+            ].map((testimonial, idx) => (
+              <div key={idx} className="bg-card border border-border rounded-xl p-8 hover:border-primary/50 transition-all">
+                <div className="flex gap-1 mb-4">
+                  {Array(testimonial.rating)
+                    .fill(0)
+                    .map((_, i) => (
+                      <span key={i} className="text-accent">
+                        ★
+                      </span>
+                    ))}
+                </div>
+                <p className="text-muted-foreground mb-4 italic">{testimonial.content}</p>
+                <div>
+                  <p className="font-semibold text-foreground">{testimonial.name}</p>
+                  <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Blog Section */}
+      <section className="py-20 sm:py-32 scroll-animate">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-4">
+              Learn from Our <span className="text-primary">10,000+ Articles</span>
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              English learning tips, vocabulary insights, and IELTS strategies from our expert team
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                title: 'The Science Behind Spaced Repetition',
+                excerpt: 'Discover how spaced repetition leverages neuroscience to make vocabulary stick permanently.',
+                date: 'Feb 1, 2024',
+              },
+              {
+                title: 'IELTS Writing Tips from Top Scorers',
+                excerpt: 'Learn strategies that helped our users achieve high scores in IELTS writing exams.',
+                date: 'Jan 28, 2024',
+              },
+              {
+                title: 'Pronunciation Guide: Common Mistakes',
+                excerpt: 'Master difficult English sounds with native speaker audio and detailed explanations.',
+                date: 'Jan 25, 2024',
+              },
+            ].map((post, idx) => (
+              <Link
+                key={idx}
+                href="#"
+                className="group bg-card border border-border rounded-xl p-8 hover:border-primary/50 transition-all hover:shadow-lg"
+              >
+                <p className="text-sm text-muted-foreground mb-2">{post.date}</p>
+                <h3 className="text-xl font-semibold text-foreground mb-3 group-hover:text-primary transition">
+                  {post.title}
+                </h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">{post.excerpt}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
-      <section className="py-20 sm:py-32 bg-primary text-primary-foreground">
+      <section className="py-20 sm:py-32 bg-primary text-primary-foreground scroll-animate">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl sm:text-5xl font-bold mb-6">Ready to Master English?</h2>
           <p className="text-lg mb-8 opacity-90 max-w-2xl mx-auto">
@@ -426,8 +590,40 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Contact Section */}
+      <section className="py-20 sm:py-32 bg-secondary/30 scroll-animate">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-4">
+              Contact <span className="text-primary">So&apos;zlution</span>
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              We care about you. Get in touch with any questions or feedback
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 max-w-3xl mx-auto">
+            <div className="bg-card border border-border rounded-xl p-8 text-center hover:border-primary/50 transition-all">
+              <Phone className="w-12 h-12 text-primary mx-auto mb-4" />
+              <h3 className="font-semibold text-foreground mb-2">Phone</h3>
+              <p className="text-muted-foreground">+998 71 123 45 67</p>
+            </div>
+            <div className="bg-card border border-border rounded-xl p-8 text-center hover:border-primary/50 transition-all">
+              <Send className="w-12 h-12 text-primary mx-auto mb-4" />
+              <h3 className="font-semibold text-foreground mb-2">Telegram</h3>
+              <p className="text-muted-foreground">@sozlution_support</p>
+            </div>
+            <div className="bg-card border border-border rounded-xl p-8 text-center hover:border-primary/50 transition-all">
+              <Globe className="w-12 h-12 text-primary mx-auto mb-4" />
+              <h3 className="font-semibold text-foreground mb-2">Website</h3>
+              <p className="text-muted-foreground">www.sozlution.uz</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
-      <footer className="bg-card border-t border-border py-12">
+      <footer className="bg-card border-t border-border py-12 scroll-animate">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
@@ -437,24 +633,24 @@ export default function Home() {
                 </div>
                 <span className="font-bold text-foreground">So&apos;zlution</span>
               </div>
-              <p className="text-sm text-muted-foreground">Learn English. Master IELTS. Achieve your goals.</p>
+              <p className="text-sm text-muted-foreground">Master English with AI-powered spaced repetition and IELTS preparation.</p>
             </div>
             <div>
               <h4 className="font-semibold text-foreground mb-4">Product</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li>
-                  <Link href="#" className="hover:text-primary transition">
+                  <Link href="#features" className="hover:text-primary transition">
                     Features
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="hover:text-primary transition">
+                  <Link href="#pricing" className="hover:text-primary transition">
                     Pricing
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="hover:text-primary transition">
-                    IELTS Prep
+                  <Link href="#how-it-works" className="hover:text-primary transition">
+                    How It Works
                   </Link>
                 </li>
               </ul>
@@ -464,7 +660,7 @@ export default function Home() {
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li>
                   <Link href="#" className="hover:text-primary transition">
-                    About
+                    About Us
                   </Link>
                 </li>
                 <li>
@@ -480,16 +676,21 @@ export default function Home() {
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-foreground mb-4">Legal</h4>
+              <h4 className="font-semibold text-foreground mb-4">Follow Us</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li>
-                  <Link href="#" className="hover:text-primary transition">
-                    Privacy Policy
+                  <Link href="#" className="hover:text-primary transition flex items-center gap-2">
+                    <Globe className="w-4 h-4" /> Facebook
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="hover:text-primary transition">
-                    Terms of Service
+                  <Link href="#" className="hover:text-primary transition flex items-center gap-2">
+                    <Send className="w-4 h-4" /> Telegram
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="hover:text-primary transition flex items-center gap-2">
+                    <Phone className="w-4 h-4" /> Instagram
                   </Link>
                 </li>
               </ul>
@@ -497,16 +698,13 @@ export default function Home() {
           </div>
 
           <div className="border-t border-border pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-            <p>&copy; 2024 So&apos;zlution. All rights reserved.</p>
+            <p>&copy; 2024 So&apos;zlution. Professional and clean design.</p>
             <div className="flex gap-6">
               <Link href="#" className="hover:text-foreground transition">
-                Twitter
+                Privacy Policy
               </Link>
               <Link href="#" className="hover:text-foreground transition">
-                LinkedIn
-              </Link>
-              <Link href="#" className="hover:text-foreground transition">
-                Facebook
+                Terms of Service
               </Link>
             </div>
           </div>
