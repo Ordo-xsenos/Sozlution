@@ -3,7 +3,7 @@
   "outputDirectory": ".next",
   "framework": "nextjs",
   "crons": [],
-  "env": [],
+  "env": {},
   "regions": [],
   "git": {
     "deploymentEnabled": true
