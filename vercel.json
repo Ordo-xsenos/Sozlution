@@ -2,9 +2,6 @@
   "buildCommand": "next build",
   "outputDirectory": ".next",
   "framework": "nextjs",
-  "crons": [],
-  "env": {},
-  "regions": [],
   "git": {
     "deploymentEnabled": true
   }
