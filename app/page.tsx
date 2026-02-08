@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import AIChatbot from '@/components/ai-chatbot'
 import { Check, TrendingUp, Brain, Headphones, BookOpen, Award, Globe, Phone, Send } from 'lucide-react'
 import { useState } from 'react'
 
@@ -94,6 +95,42 @@ const translations = {
     product: 'Product',
     company: 'Company',
     followUs: 'Follow Us',
+    // Pitch sections
+    problemSolution: 'Problem & Solution',
+    problemTitle: 'The Problem',
+    problemDesc: 'Millions of English learners struggle to maintain consistent progress due to ineffective methods, lack of motivation, and personalized guidance. Traditional learning apps use generic approaches without adapting to individual proficiency levels.',
+    solutionTitle: 'Our Solution',
+    solutionDesc: 'Sozlution combines AI-powered spaced repetition, adaptive learning paths, and real-time feedback to create a personalized English mastery experience that keeps learners engaged and motivated.',
+    ourTeam: 'Our Team',
+    teamLeader: 'Team Lead & Product',
+    teamBackend: 'AI & Backend Engineer',
+    teamFrontend: 'Frontend Developer',
+    whyUs: 'Why We Can Solve This',
+    whyUsDesc: 'Our team combines expertise in AI/ML, education technology, and product development with a passion for making quality English education accessible to everyone.',
+    roadmap: 'Our Roadmap',
+    roadmapIdea: 'Idea',
+    roadmapIdeaDesc: 'Initial concept and market research',
+    roadmapPrototype: 'Prototype',
+    roadmapPrototypeDesc: 'MVP development and user testing',
+    roadmapMvp: 'MVP',
+    roadmapMvpDesc: 'Public beta launch',
+    roadmapLaunch: 'Launched',
+    roadmapLaunchDesc: 'Full production release',
+    implementation: 'How We\'ll Implement It',
+    phase1: 'Phase 1: Core Platform',
+    phase1Desc: 'Build scalable backend infrastructure with Node.js, PostgreSQL, and AI model integration (GPT-4 for personalized feedback)',
+    phase2: 'Phase 2: Frontend & Mobile',
+    phase2Desc: 'Develop responsive web app (Next.js, React) and native mobile apps (React Native)',
+    phase3: 'Phase 3: AI Features',
+    phase3Desc: 'Implement advanced AI tutoring, voice recognition, and adaptive learning algorithms',
+    phase4: 'Phase 4: Scale & Growth',
+    phase4Desc: 'Multi-language support, analytics dashboard, and community features',
+    techStack: 'Technology Stack',
+    frontend: 'Frontend',
+    backend: 'Backend',
+    aiTools: 'AI & ML Tools',
+    infrastructure: 'Infrastructure',
+    demo: 'Demo & Prototype',
   },
   uz: {
     tagline: 'Har kuni 20 ta yangi so\'z o\'rganing',
@@ -183,6 +220,42 @@ const translations = {
     product: 'Mahsulot',
     company: 'Kompaniya',
     followUs: 'Bizni kuzatib boring',
+    // Pitch sections
+    problemSolution: 'Muammo va Yechim',
+    problemTitle: 'Muammo',
+    problemDesc: 'Millionlab ingliz tilini o\'rganuvchilar samarasiz metodlar, motivatsiya etishmayligi va shaxsiy rahbarlikka ega bo\'lmasligi sababli doimiy taraqqiyot ko\'rsatishda qiynalmoqdalar.',
+    solutionTitle: 'Bizning Yechim',
+    solutionDesc: 'Sozlution AI-powered spaced repetition, adaptiv o\'rganish yo\'llari va real-time fikr-mulohazani birlashtirib, o\'rganuvchilarni qiziquvchan va motivalashtirilgan qiladigan shaxsiy ingliz tilini o\'zlashtirish tajribasi yaratadi.',
+    ourTeam: 'Bizning Jamoamiz',
+    teamLeader: 'Jamoaning rahbari va mahsulot',
+    teamBackend: 'AI va Backend muhandisi',
+    teamFrontend: 'Frontend razrabotchisi',
+    whyUs: 'Nima uchun biz buni yecha olamiz',
+    whyUsDesc: 'Bizning jamoamiz AI/ML, ta\'lim texnologiyalari va mahsulot ishlab chiqarishda tajribani birlashtirib, barcha uchun sifatli ingliz tilini ta\'lim qilinishini oson qilishni xohlaymiz.',
+    roadmap: 'Bizning yo\'l xaritamiz',
+    roadmapIdea: 'Fikr',
+    roadmapIdeaDesc: 'Dastlabki tushuncha va bozor tadqiqoti',
+    roadmapPrototype: 'Prototip',
+    roadmapPrototypeDesc: 'MVP ishlab chiqish va foydalanuvchi sinovlari',
+    roadmapMvp: 'MVP',
+    roadmapMvpDesc: 'Ommaviy beta ishga tushirilishi',
+    roadmapLaunch: 'Ishga tushirildi',
+    roadmapLaunchDesc: 'To\'liq ishlab chiqarilgan mahsulotni buraxish',
+    implementation: 'Qanday amalga oshiramiz',
+    phase1: 'Bosqich 1: Asosiy platforma',
+    phase1Desc: 'Node.js, PostgreSQL va AI model integratsiyasi (GPT-4 shaxsiy fikr-mulohaza uchun) bilan masshtabli backend infratuzilmasini qurilish',
+    phase2: 'Bosqich 2: Frontend va mobil',
+    phase2Desc: 'Responsive veb-app (Next.js, React) va native mobil ilovalarni (React Native) ishlab chiqish',
+    phase3: 'Bosqich 3: AI xususiyatlari',
+    phase3Desc: 'Ilg\'or AI o\'qituvchiligi, ovozni aniqlash va adaptiv o\'rganish algoritmlarini amalga oshirish',
+    phase4: 'Bosqich 4: O\'sishi va o\'smusi',
+    phase4Desc: 'Ko\'p tillik qo\'llab-quvvatlash, tahlil boshqarish paneli va jamoa xususiyatlari',
+    techStack: 'Texnologiya to\'plami',
+    frontend: 'Frontend',
+    backend: 'Backend',
+    aiTools: 'AI va ML vositalari',
+    infrastructure: 'Infratuzilma',
+    demo: 'Demo va Prototip',
   },
   ru: {
     tagline: 'Учите 20 новых слов каждый день',
@@ -272,6 +345,42 @@ const translations = {
     product: 'Продукт',
     company: 'Компания',
     followUs: 'Следите за нами',
+    // Pitch sections
+    problemSolution: 'Проблема и решение',
+    problemTitle: 'Проблема',
+    problemDesc: 'Миллионы изучающих английский язык испытывают трудности в поддержании стабильного прогресса из-за неэффективных методов, отсутствия мотивации и персонального руководства. Традиционные приложения для обучения используют универсальный подход без адаптации к уровню владения языком.',
+    solutionTitle: 'Наше решение',
+    solutionDesc: 'Sozlution объединяет интеллектуальное повторение, адаптивные пути обучения и обратную связь в реальном времени для создания персонализированного опыта освоения английского языка.',
+    ourTeam: 'Наша команда',
+    teamLeader: 'Лидер команды и продукт',
+    teamBackend: 'Инженер AI и Backend',
+    teamFrontend: 'Frontend разработчик',
+    whyUs: 'Почему мы можем это решить',
+    whyUsDesc: 'Наша команда сочетает опыт в области AI/ML, образовательных технологий и разработки продуктов с желанием сделать качественное образование доступным для всех.',
+    roadmap: 'Наша дорожная карта',
+    roadmapIdea: 'Идея',
+    roadmapIdeaDesc: 'Первоначальная концепция и исследование рынка',
+    roadmapPrototype: 'Прототип',
+    roadmapPrototypeDesc: 'Разработка MVP и тестирование пользователями',
+    roadmapMvp: 'MVP',
+    roadmapMvpDesc: 'Публичный бета-запуск',
+    roadmapLaunch: 'Запущено',
+    roadmapLaunchDesc: 'Полный выпуск в производство',
+    implementation: 'Как мы это реализуем',
+    phase1: 'Этап 1: Основная платформа',
+    phase1Desc: 'Создание масштабируемой инфраструктуры backend с Node.js, PostgreSQL и интеграцией AI моделей (GPT-4 для персонализированной обратной связи)',
+    phase2: 'Этап 2: Frontend и мобильный',
+    phase2Desc: 'Разработка адаптивного веб-приложения (Next.js, React) и нативных мобильных приложений (React Native)',
+    phase3: 'Этап 3: AI функции',
+    phase3Desc: 'Реализация продвинутого AI репетитора, распознавания речи и адаптивных алгоритмов обучения',
+    phase4: 'Этап 4: Масштабирование и рост',
+    phase4Desc: 'Поддержка нескольких языков, панель аналитики и функции сообщества',
+    techStack: 'Технологический стек',
+    frontend: 'Frontend',
+    backend: 'Backend',
+    aiTools: 'AI и ML инструменты',
+    infrastructure: 'Инфраструктура',
+    demo: 'Демо и прототип',
   },
 }
 
@@ -383,27 +492,24 @@ export default function Home() {
               </div>
               <span className="font-bold text-xl text-foreground">So&apos;zlution</span>
             </div>
-            <div className="hidden md:flex items-center gap-8">
+            <div className="hidden md:flex items-center gap-6 text-sm">
               <button onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })} className="text-foreground hover:text-primary transition">
                 {t.features}
               </button>
-              <button onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })} className="text-foreground hover:text-primary transition">
-                {t.howItWorks}
+              <button onClick={() => document.getElementById('problem-solution')?.scrollIntoView({ behavior: 'smooth' })} className="text-foreground hover:text-primary transition">
+                {t.problemSolution}
+              </button>
+              <button onClick={() => document.getElementById('team')?.scrollIntoView({ behavior: 'smooth' })} className="text-foreground hover:text-primary transition">
+                {t.ourTeam}
+              </button>
+              <button onClick={() => document.getElementById('roadmap')?.scrollIntoView({ behavior: 'smooth' })} className="text-foreground hover:text-primary transition">
+                {t.roadmap}
               </button>
               <button onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })} className="text-foreground hover:text-primary transition">
                 {t.pricing}
               </button>
-              <button onClick={() => document.getElementById('testimonials')?.scrollIntoView({ behavior: 'smooth' })} className="text-foreground hover:text-primary transition">
-                {t.testimonials}
-              </button>
               <button onClick={() => document.getElementById('blog')?.scrollIntoView({ behavior: 'smooth' })} className="text-foreground hover:text-primary transition">
                 {t.blog}
-              </button>
-              <button onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })} className="text-foreground hover:text-primary transition">
-                {t.contact}
-              </button>
-              <button onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })} className="text-foreground hover:text-primary transition">
-                {t.about}
               </button>
             </div>
             <div className="flex items-center gap-3">
@@ -524,6 +630,70 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Problem & Solution Section */}
+      <section id="problem-solution" className="py-20 sm:py-32">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mb-20">
+            <h2 className="text-5xl sm:text-6xl font-bold text-foreground mb-6">
+              {t.problemSolution}
+            </h2>
+          </div>
+          <div className="grid md:grid-cols-2 gap-12 lg:gap-20">
+            {/* Problem */}
+            <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-8 lg:p-12">
+              <h3 className="text-3xl font-bold text-foreground mb-6">{t.problemTitle}</h3>
+              <p className="text-lg text-muted-foreground leading-relaxed mb-6">{t.problemDesc}</p>
+              <div className="space-y-4">
+                <div className="flex gap-3">
+                  <div className="w-6 h-6 rounded-full bg-red-500/30 flex items-center justify-center text-red-400 flex-shrink-0 mt-1">
+                    •
+                  </div>
+                  <p className="text-muted-foreground">Ineffective learning methods</p>
+                </div>
+                <div className="flex gap-3">
+                  <div className="w-6 h-6 rounded-full bg-red-500/30 flex items-center justify-center text-red-400 flex-shrink-0 mt-1">
+                    •
+                  </div>
+                  <p className="text-muted-foreground">Lack of personalization</p>
+                </div>
+                <div className="flex gap-3">
+                  <div className="w-6 h-6 rounded-full bg-red-500/30 flex items-center justify-center text-red-400 flex-shrink-0 mt-1">
+                    •
+                  </div>
+                  <p className="text-muted-foreground">Low engagement and retention</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Solution */}
+            <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-2xl p-8 lg:p-12">
+              <h3 className="text-3xl font-bold text-foreground mb-6">{t.solutionTitle}</h3>
+              <p className="text-lg text-muted-foreground leading-relaxed mb-6">{t.solutionDesc}</p>
+              <div className="space-y-4">
+                <div className="flex gap-3">
+                  <div className="w-6 h-6 rounded-full bg-cyan-500/30 flex items-center justify-center text-cyan-400 flex-shrink-0 mt-1">
+                    ✓
+                  </div>
+                  <p className="text-muted-foreground">AI-powered spaced repetition</p>
+                </div>
+                <div className="flex gap-3">
+                  <div className="w-6 h-6 rounded-full bg-cyan-500/30 flex items-center justify-center text-cyan-400 flex-shrink-0 mt-1">
+                    ✓
+                  </div>
+                  <p className="text-muted-foreground">Adaptive learning paths</p>
+                </div>
+                <div className="flex gap-3">
+                  <div className="w-6 h-6 rounded-full bg-cyan-500/30 flex items-center justify-center text-cyan-400 flex-shrink-0 mt-1">
+                    ✓
+                  </div>
+                  <p className="text-muted-foreground">Real-time personalized feedback</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* How it Works Section */}
       <section id="how-it-works" className="py-20 sm:py-32 bg-secondary/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -581,6 +751,180 @@ export default function Home() {
                   </div>
                 );
               })}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Team Section */}
+      <section id="team" className="py-20 sm:py-32 bg-secondary/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mb-20">
+            <h2 className="text-5xl sm:text-6xl font-bold text-foreground mb-6">
+              {t.ourTeam}
+            </h2>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              { role: t.teamLeader, skills: ['Product Strategy', 'Business Development', 'User Research'], color: 'from-cyan-500' },
+              { role: t.teamBackend, skills: ['Python, Node.js', 'AI/ML Models', 'System Architecture'], color: 'from-purple-500' },
+              { role: t.teamFrontend, skills: ['React, Next.js', 'UI/UX Design', 'Web Performance'], color: 'from-pink-500' },
+            ].map((member, idx) => (
+              <div key={idx} className="bg-card border border-border rounded-2xl p-8 hover:shadow-lg transition-all">
+                <div className={`w-16 h-16 rounded-full bg-gradient-to-r ${member.color} to-transparent mb-6`}></div>
+                <h3 className="text-2xl font-bold text-foreground mb-4">{member.role}</h3>
+                <div className="space-y-2">
+                  {member.skills.map((skill, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-primary"></div>
+                      <p className="text-muted-foreground">{skill}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Why Us Section */}
+      <section id="why-us" className="py-20 sm:py-32">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-5xl sm:text-6xl font-bold text-foreground mb-6">
+              {t.whyUs}
+            </h2>
+            <p className="text-xl text-muted-foreground leading-relaxed">
+              {t.whyUsDesc}
+            </p>
+          </div>
+          <div className="bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border border-cyan-500/20 rounded-2xl p-12">
+            <div className="grid md:grid-cols-3 gap-8">
+              <div>
+                <h3 className="text-2xl font-bold text-cyan-400 mb-3">8+</h3>
+                <p className="text-muted-foreground">Years combined experience</p>
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-purple-400 mb-3">50K+</h3>
+                <p className="text-muted-foreground">Users impacted globally</p>
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-pink-400 mb-3">3</h3>
+                <p className="text-muted-foreground">Complementary expertise</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Roadmap Section */}
+      <section id="roadmap" className="py-20 sm:py-32 bg-secondary/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mb-20">
+            <h2 className="text-5xl sm:text-6xl font-bold text-foreground mb-6">
+              {t.roadmap}
+            </h2>
+          </div>
+          <div className="grid md:grid-cols-4 gap-6">
+            {[
+              { title: t.roadmapIdea, desc: t.roadmapIdeaDesc, status: 'complete', num: '1' },
+              { title: t.roadmapPrototype, desc: t.roadmapPrototypeDesc, status: 'complete', num: '2' },
+              { title: t.roadmapMvp, desc: t.roadmapMvpDesc, status: 'in-progress', num: '3' },
+              { title: t.roadmapLaunch, desc: t.roadmapLaunchDesc, status: 'upcoming', num: '4' },
+            ].map((item, idx) => (
+              <div key={idx} className={`relative p-6 rounded-2xl border-2 ${
+                item.status === 'complete' ? 'border-cyan-500/50 bg-cyan-500/5' :
+                item.status === 'in-progress' ? 'border-purple-500/50 bg-purple-500/5' :
+                'border-border bg-card'
+              }`}>
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg mb-4 ${
+                  item.status === 'complete' ? 'bg-cyan-500 text-background' :
+                  item.status === 'in-progress' ? 'bg-purple-500 text-background' :
+                  'bg-card border border-border text-foreground'
+                }`}>
+                  {item.num}
+                </div>
+                <h3 className="text-xl font-bold text-foreground mb-2">{item.title}</h3>
+                <p className="text-sm text-muted-foreground">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Implementation Section */}
+      <section id="implementation" className="py-20 sm:py-32">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mb-20">
+            <h2 className="text-5xl sm:text-6xl font-bold text-foreground mb-6">
+              {t.implementation}
+            </h2>
+          </div>
+          <div className="grid md:grid-cols-2 gap-8 mb-16">
+            {[
+              { title: t.phase1, desc: t.phase1Desc, color: 'cyan' },
+              { title: t.phase2, desc: t.phase2Desc, color: 'purple' },
+              { title: t.phase3, desc: t.phase3Desc, color: 'pink' },
+              { title: t.phase4, desc: t.phase4Desc, color: 'orange' },
+            ].map((phase, idx) => (
+              <div key={idx} className={`bg-${phase.color}-500/10 border border-${phase.color}-500/30 rounded-2xl p-8`}>
+                <div className={`inline-block px-4 py-2 rounded-lg bg-${phase.color}-500/20 text-${phase.color}-400 font-semibold mb-4`}>
+                  Phase {idx + 1}
+                </div>
+                <h3 className="text-2xl font-bold text-foreground mb-4">{phase.title}</h3>
+                <p className="text-muted-foreground leading-relaxed">{phase.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Tech Stack */}
+          <div className="bg-secondary/30 rounded-2xl p-12 border border-border">
+            <h3 className="text-3xl font-bold text-foreground mb-12">{t.techStack}</h3>
+            <div className="grid md:grid-cols-4 gap-8">
+              <div>
+                <h4 className="text-lg font-semibold text-cyan-400 mb-4">{t.frontend}</h4>
+                <ul className="space-y-2">
+                  {['React', 'Next.js', 'Tailwind CSS', 'TypeScript'].map((tech, i) => (
+                    <li key={i} className="text-muted-foreground flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-cyan-500"></div>
+                      {tech}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <h4 className="text-lg font-semibold text-purple-400 mb-4">{t.backend}</h4>
+                <ul className="space-y-2">
+                  {['Node.js', 'PostgreSQL', 'Redis', 'Docker'].map((tech, i) => (
+                    <li key={i} className="text-muted-foreground flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
+                      {tech}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <h4 className="text-lg font-semibold text-pink-400 mb-4">{t.aiTools}</h4>
+                <ul className="space-y-2">
+                  {['GPT-4', 'Python', 'TensorFlow', 'OpenAI API'].map((tech, i) => (
+                    <li key={i} className="text-muted-foreground flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-pink-500"></div>
+                      {tech}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <h4 className="text-lg font-semibold text-orange-400 mb-4">{t.infrastructure}</h4>
+                <ul className="space-y-2">
+                  {['AWS/Vercel', 'GitHub', 'CI/CD', 'Monitoring'].map((tech, i) => (
+                    <li key={i} className="text-muted-foreground flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-orange-500"></div>
+                      {tech}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
         </div>
@@ -862,6 +1206,9 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* AI Chatbot */}
+      <AIChatbot language={language} />
     </div>
   )
 }
