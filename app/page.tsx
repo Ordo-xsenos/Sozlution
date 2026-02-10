@@ -566,6 +566,7 @@ export default function Home() {
 
   type StatItem =
     | {
+        type: 'count'
         id: string
         value: number
         suffix?: string
@@ -573,6 +574,7 @@ export default function Home() {
         label: string
       }
     | {
+        type: 'text'
         id: string
         text: string
         label: string
@@ -580,6 +582,7 @@ export default function Home() {
 
   const stats: StatItem[] = [
     {
+      type: 'count',
       id: 'words',
       value: 50000,
       suffix: '+',
@@ -587,18 +590,21 @@ export default function Home() {
       label: t.statsWords,
     },
     {
+      type: 'count',
       id: 'success',
       value: 90,
       suffix: '%',
       label: t.statsSuccess,
     },
     {
+      type: 'count',
       id: 'active',
       value: 10000000,
       formatter: (n: number) => `${Math.round(n / 1000000)}M`,
       label: t.statsActive,
     },
     {
+      type: 'text',
       id: 'cefr',
       text: 'A1-C1',
       label: t.statsCefr,
@@ -715,7 +721,7 @@ export default function Home() {
             {stats.map((item) => (
               <div key={item.id} className="text-center">
                 <div className="text-4xl sm:text-5xl font-bold text-primary mb-3">
-                  {'value' in item ? (
+                  {item.type === 'count' ? (
                     <CountUp
                       value={item.value}
                       suffix={item.suffix}
