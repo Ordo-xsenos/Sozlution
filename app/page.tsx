@@ -723,7 +723,7 @@ export default function Home() {
                 <div className="text-4xl sm:text-5xl font-bold text-primary mb-3">
                   {item.type === 'count' ? (
                     <CountUp
-                      value={item.value}
+                      value={item.value ?? 0}
                       suffix={item.suffix}
                       formatter={item.formatter}
                     />
