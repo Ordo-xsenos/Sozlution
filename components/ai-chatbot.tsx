@@ -136,29 +136,57 @@ export default function AIChatbot({ language = 'en' }: ChatbotProps) {
     setInput('')
     setIsLoading(true)
 
-    // Simulate AI response delay
-    setTimeout(() => {
-      let botResponse = t.responses.greeting
+    try {
+      const history = messages
+        .filter((msg) => msg.type === 'user' || msg.type === 'bot')
+        .slice(-6)
+        .map((msg) => ({
+          role: msg.type === 'user' ? 'user' : 'assistant',
+          text: msg.text,
+        }))
 
-      // Check for matching keywords
-      const lowerInput = messageText.toLowerCase()
-      for (const item of quickAnswers) {
-        if (item.keyword.some((keyword) => lowerInput.includes(keyword))) {
-          botResponse = item.response
-          break
-        }
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: messageText,
+          language,
+          history,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Chat request failed')
       }
 
+      const data = (await response.json()) as { reply?: string }
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'bot',
-        text: botResponse,
+        text: data.reply || t.responses.greeting,
         timestamp: new Date(),
       }
 
       setMessages((prev) => [...prev, botMessage])
+    } catch {
+      let fallback = t.responses.greeting
+      const lowerInput = messageText.toLowerCase()
+      for (const item of quickAnswers) {
+        if (item.keyword.some((keyword) => lowerInput.includes(keyword))) {
+          fallback = item.response
+          break
+        }
+      }
+      const botMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        type: 'bot',
+        text: fallback,
+        timestamp: new Date(),
+      }
+      setMessages((prev) => [...prev, botMessage])
+    } finally {
       setIsLoading(false)
-    }, 500)
+    }
   }
 
   if (!isOpen) {
@@ -259,7 +287,7 @@ export default function AIChatbot({ language = 'en' }: ChatbotProps) {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
                   placeholder={t.placeholder}
                   className="flex-1 bg-secondary border border-border rounded-lg px-4 py-2 text-foreground placeholder-muted-foreground focus:outline-none focus:border-cyan-500/50"
                   disabled={isLoading}

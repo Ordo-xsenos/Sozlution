@@ -4,7 +4,81 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import AIChatbot from '@/components/ai-chatbot'
 import { Check, TrendingUp, Brain, Headphones, BookOpen, Award, Globe, Phone, Send } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import ThemeToggle from '@/components/theme-toggle'
+
+type CountUpProps = {
+  value: number
+  suffix?: string
+  formatter?: (value: number) => string
+}
+
+function CountUp({ value, suffix = '', formatter }: CountUpProps) {
+  const [display, setDisplay] = useState(0)
+  const [started, setStarted] = useState(false)
+  const ref = useRef<HTMLSpanElement>(null)
+  const rafRef = useRef<number | null>(null)
+
+  useEffect(() => {
+    const node = ref.current
+    if (!node) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setStarted(true)
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.4 },
+    )
+
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (!started) return
+    const node = ref.current
+    if (!node) return
+
+    const update = () => {
+      const rect = node.getBoundingClientRect()
+      const viewport = window.innerHeight || 1
+      const elementCenter = rect.top + rect.height / 2
+      const start = viewport
+      const end = viewport / 2
+      const progressRaw = 1 - (elementCenter - end) / (start - end)
+      const progress = Math.min(Math.max(progressRaw, 0), 1)
+      const current = Math.round(value * progress)
+      setDisplay(current)
+    }
+
+    const onScroll = () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current)
+      rafRef.current = requestAnimationFrame(update)
+    }
+
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current)
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
+  }, [started, value])
+
+  const formatted = formatter ? formatter(display) : display.toString()
+
+  return (
+    <span ref={ref}>
+      {formatted}
+      {suffix}
+    </span>
+  )
+}
 
 const translations = {
   en: {
@@ -55,13 +129,13 @@ const translations = {
     studentSuccessStories: 'Student Success Stories',
     realLearners: 'Real learners sharing their English mastery journey with So\'zlution',
     successStory1: 'I improved from B1 to C1 in just 4 months. The spaced repetition system really works!',
-    successStory1Name: 'Ayten Abdurahimova',
+    successStory1Name: 'Абдухалилов Азимжон',
     successStory1Role: 'IELTS Exam Passer',
     successStory2: 'The voice input feature helped me with pronunciation. Now I speak English confidently.',
-    successStory2Name: 'Muhammad Karim',
+    successStory2Name: 'Файзуллавев Акбар',
     successStory2Role: 'Business Professional',
     successStory3: 'Best learning app I\'ve tried. The AI feedback on writing is incredibly helpful.',
-    successStory3Name: 'Dildora Shodmonova',
+    successStory3Name: 'Файзуллаев Муххаммадали',
     successStory3Role: 'University Student',
     blogArticles: 'Learn from Our 10,000+ Articles',
     blogExcerpt: 'English learning tips, vocabulary insights, and IELTS strategies from our expert team',
@@ -78,6 +152,10 @@ const translations = {
     pricing2: 'Premium',
     pricingSubtitle1: 'Perfect for self-paced learners',
     pricingSubtitle2: 'For serious IELTS learners',
+    pricingTitle: 'Simple, Transparent Pricing',
+    mostPopular: 'Most Popular',
+    pricingTitle: 'Simple, Transparent Pricing',
+    mostPopular: 'Most Popular',
     pricingFree: 'Free',
     pricingForever: 'Forever',
     pricing99: '$4.99',
@@ -92,6 +170,16 @@ const translations = {
     contactTelegram: 'Telegram',
     contactWebsite: 'Website',
     allRightsReserved: 'All rights reserved.',
+    statsWords: 'Words to Master',
+    statsSuccess: 'Success Rate',
+    statsActive: 'Active English Learners in Uzbekistan',
+    statsCefr: 'CEFR Levels',
+    problemPoint1: 'Ineffective learning methods',
+    problemPoint2: 'Lack of personalization',
+    problemPoint3: 'Low engagement and retention',
+    solutionPoint1: 'AI-powered spaced repetition',
+    solutionPoint2: 'Adaptive learning paths',
+    solutionPoint3: 'Real-time personalized feedback',
     product: 'Product',
     company: 'Company',
     followUs: 'Follow Us',
@@ -180,13 +268,13 @@ const translations = {
     studentSuccessStories: 'Talabalar muvaffaqiyatining hikoyalari',
     realLearners: 'So\'zlution bilan ingliz tilini o\'zlashtirish sayohatingizni ulashayotgan haqiqiy ta\'lim qiluvchilar',
     successStory1: 'Men B1 dan C1 ga 4 oy ichida o\'sdim. Spaced repetition tizimi haqiqatan ham ishlaydi!',
-    successStory1Name: 'Ayten Abdurahimova',
+    successStory1Name: 'Абдухалилов Азимжон',
     successStory1Role: 'IELTS imtihon topshirgani',
     successStory2: 'Ovozli kiritish xususiyati mani talaffuz bilan yordam berdi. Endi men ingliz tilida ishonch bilan gaplashaman.',
-    successStory2Name: 'Muhammad Karim',
+    successStory2Name: 'Файзуллавев Акбар',
     successStory2Role: 'Biznes mutaxassisi',
     successStory3: 'Sinovdan o\'tgan eng yaxshi ta\'lim ilovalari. AI yozish bo\'yicha fikr-mulohaza juda foydali.',
-    successStory3Name: 'Dildora Shodmonova',
+    successStory3Name: 'Файзуллаев Муххаммадали',
     successStory3Role: 'Universitet talabasiy',
     blogArticles: '10,000+ maqolalardan o\'rganing',
     blogExcerpt: 'Ingliz tili o\'qitish maslahatlar, so\'z xavfi va IELTS strategiyalar bizning mutaxassis jamoasi tomonidan',
@@ -203,6 +291,8 @@ const translations = {
     pricing2: 'Premium',
     pricingSubtitle1: 'O\'z tempi bilan o\'rganadigon ta\'lim qiluvchilar uchun',
     pricingSubtitle2: 'Jiddiy IELTS ta\'lim qiluvchilar uchun',
+    pricingTitle: 'Oddiy va shaffof narxlar',
+    mostPopular: 'Eng mashhur',
     pricingFree: 'Bepul',
     pricingForever: 'Abadiy',
     pricing99: '$4.99',
@@ -217,6 +307,16 @@ const translations = {
     contactTelegram: 'Telegram',
     contactWebsite: 'Veb-sayt',
     allRightsReserved: 'Barcha huquqlar himoyalangan.',
+    statsWords: 'O‘zlashtiriladigan so‘zlar',
+    statsSuccess: 'Muvaffaqiyat darajasi',
+    statsActive: 'O‘zbekistondagi faol ingliz tili o‘quvchilari',
+    statsCefr: 'CEFR darajalari',
+    problemPoint1: 'Samarasiz o‘rganish usullari',
+    problemPoint2: 'Shaxsiylashtirish yetishmasligi',
+    problemPoint3: 'Past motivatsiya va saqlab qolish',
+    solutionPoint1: 'AI asosidagi spaced repetition',
+    solutionPoint2: 'Adaptiv o‘rganish yo‘llari',
+    solutionPoint3: 'Real‑time shaxsiy fikr‑mulohaza',
     product: 'Mahsulot',
     company: 'Kompaniya',
     followUs: 'Bizni kuzatib boring',
@@ -305,13 +405,13 @@ const translations = {
     studentSuccessStories: 'Истории успеха учащихся',
     realLearners: 'Настоящие учащиеся, делящиеся своим путем овладения английским языком с So\'zlution',
     successStory1: 'Я улучшился с B1 на C1 всего за 4 месяца. Система распределенного повторения действительно работает!',
-    successStory1Name: 'Айтен Абдурахимова',
+    successStory1Name: 'Абдухалилов Азимжон',
     successStory1Role: 'Сдавший экзамен IELTS',
     successStory2: 'Функция голосового ввода помогла мне с произношением. Теперь я уверенно говорю по-английски.',
-    successStory2Name: 'Мухаммад Карим',
+    successStory2Name: 'Файзуллавев Акбар',
     successStory2Role: 'Бизнес-профессионал',
     successStory3: 'Лучшее приложение для обучения из всех, что я пробовал. Отзывы ИИ по письму невероятно полезны.',
-    successStory3Name: 'Дилдора Шодмонова',
+    successStory3Name: 'Файзуллаев Муххаммадали',
     successStory3Role: 'Студентка университета',
     blogArticles: 'Учитесь из наших 10,000+ статей',
     blogExcerpt: 'Советы по изучению английского языка, идеи по словарю и стратегии IELTS от нашей команды экспертов',
@@ -328,6 +428,8 @@ const translations = {
     pricing2: 'Премиум',
     pricingSubtitle1: 'Идеально для самостоятельного обучения',
     pricingSubtitle2: 'Для серьезных учащихся IELTS',
+    pricingTitle: 'Простые и прозрачные цены',
+    mostPopular: 'Самый популярный',
     pricingFree: 'Бесплатно',
     pricingForever: 'Навсегда',
     pricing99: '$4.99',
@@ -342,6 +444,16 @@ const translations = {
     contactTelegram: 'Telegram',
     contactWebsite: 'Веб-сайт',
     allRightsReserved: 'Все права защищены.',
+    statsWords: 'Слова для освоения',
+    statsSuccess: 'Уровень успеха',
+    statsActive: 'Активные изучающие английский в Узбекистане',
+    statsCefr: 'Уровни CEFR',
+    problemPoint1: 'Неэффективные методы обучения',
+    problemPoint2: 'Отсутствие персонализации',
+    problemPoint3: 'Низкая вовлеченность и удержание',
+    solutionPoint1: 'Spaced repetition на базе ИИ',
+    solutionPoint2: 'Адаптивные траектории обучения',
+    solutionPoint3: 'Персональная обратная связь в реальном времени',
     product: 'Продукт',
     company: 'Компания',
     followUs: 'Следите за нами',
@@ -454,21 +566,30 @@ export default function Home() {
     },
   ]
 
-  const blogs = [
+  const stats = [
     {
-      title: t.blogTitle1,
-      excerpt: t.blogExcerpt1,
-      date: t.blogDate1,
+      id: 'words',
+      value: 50000,
+      suffix: '+',
+      formatter: (n: number) => `${Math.max(0, Math.round(n / 1000))}K`,
+      label: t.statsWords,
     },
     {
-      title: t.blogTitle2,
-      excerpt: t.blogExcerpt2,
-      date: t.blogDate2,
+      id: 'success',
+      value: 90,
+      suffix: '%',
+      label: t.statsSuccess,
     },
     {
-      title: t.blogTitle3,
-      excerpt: t.blogExcerpt3,
-      date: t.blogDate3,
+      id: 'active',
+      value: 10000000,
+      formatter: (n: number) => `${Math.round(n / 1000000)}M`,
+      label: t.statsActive,
+    },
+    {
+      id: 'cefr',
+      text: 'A1-C1',
+      label: t.statsCefr,
     },
   ]
 
@@ -508,11 +629,9 @@ export default function Home() {
               <button onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })} className="text-foreground hover:text-primary transition">
                 {t.pricing}
               </button>
-              <button onClick={() => document.getElementById('blog')?.scrollIntoView({ behavior: 'smooth' })} className="text-foreground hover:text-primary transition">
-                {t.blog}
-              </button>
             </div>
             <div className="flex items-center gap-3">
+              <ThemeToggle />
               <div className="flex gap-2">
                 {(['en', 'uz', 'ru'] as const).map((lang) => (
                   <button
@@ -581,15 +700,22 @@ export default function Home() {
       <section className="py-16 sm:py-20 border-b border-border bg-secondary/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              { stat: '50K+', label: 'Words to Master' },
-              { stat: '86%', label: 'Success Rate' },
-              { stat: '100K+', label: 'Active Learners' },
-              { stat: 'A1-C1', label: 'CEFR Levels' },
-            ].map((item, idx) => (
-              <div key={idx} className="text-center">
-                <div className="text-4xl sm:text-5xl font-bold text-primary mb-3">{item.stat}</div>
-                <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide">{item.label}</p>
+            {stats.map((item) => (
+              <div key={item.id} className="text-center">
+                <div className="text-4xl sm:text-5xl font-bold text-primary mb-3">
+                  {'value' in item ? (
+                    <CountUp
+                      value={item.value}
+                      suffix={item.suffix}
+                      formatter={item.formatter}
+                    />
+                  ) : (
+                    item.text
+                  )}
+                </div>
+                <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                  {item.label}
+                </p>
               </div>
             ))}
           </div>
@@ -648,19 +774,19 @@ export default function Home() {
                   <div className="w-6 h-6 rounded-full bg-red-500/30 flex items-center justify-center text-red-400 flex-shrink-0 mt-1">
                     •
                   </div>
-                  <p className="text-muted-foreground">Ineffective learning methods</p>
+                  <p className="text-muted-foreground">{t.problemPoint1}</p>
                 </div>
                 <div className="flex gap-3">
                   <div className="w-6 h-6 rounded-full bg-red-500/30 flex items-center justify-center text-red-400 flex-shrink-0 mt-1">
                     •
                   </div>
-                  <p className="text-muted-foreground">Lack of personalization</p>
+                  <p className="text-muted-foreground">{t.problemPoint2}</p>
                 </div>
                 <div className="flex gap-3">
                   <div className="w-6 h-6 rounded-full bg-red-500/30 flex items-center justify-center text-red-400 flex-shrink-0 mt-1">
                     •
                   </div>
-                  <p className="text-muted-foreground">Low engagement and retention</p>
+                  <p className="text-muted-foreground">{t.problemPoint3}</p>
                 </div>
               </div>
             </div>
@@ -674,19 +800,19 @@ export default function Home() {
                   <div className="w-6 h-6 rounded-full bg-cyan-500/30 flex items-center justify-center text-cyan-400 flex-shrink-0 mt-1">
                     ✓
                   </div>
-                  <p className="text-muted-foreground">AI-powered spaced repetition</p>
+                  <p className="text-muted-foreground">{t.solutionPoint1}</p>
                 </div>
                 <div className="flex gap-3">
                   <div className="w-6 h-6 rounded-full bg-cyan-500/30 flex items-center justify-center text-cyan-400 flex-shrink-0 mt-1">
                     ✓
                   </div>
-                  <p className="text-muted-foreground">Adaptive learning paths</p>
+                  <p className="text-muted-foreground">{t.solutionPoint2}</p>
                 </div>
                 <div className="flex gap-3">
                   <div className="w-6 h-6 rounded-full bg-cyan-500/30 flex items-center justify-center text-cyan-400 flex-shrink-0 mt-1">
                     ✓
                   </div>
-                  <p className="text-muted-foreground">Real-time personalized feedback</p>
+                  <p className="text-muted-foreground">{t.solutionPoint3}</p>
                 </div>
               </div>
             </div>
@@ -801,11 +927,11 @@ export default function Home() {
           <div className="bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border border-cyan-500/20 rounded-2xl p-12">
             <div className="grid md:grid-cols-3 gap-8">
               <div>
-                <h3 className="text-2xl font-bold text-cyan-400 mb-3">8+</h3>
+                <h3 className="text-2xl font-bold text-cyan-400 mb-3">3+</h3>
                 <p className="text-muted-foreground">Years combined experience</p>
               </div>
               <div>
-                <h3 className="text-2xl font-bold text-purple-400 mb-3">50K+</h3>
+                <h3 className="text-2xl font-bold text-purple-400 mb-3">1K+</h3>
                 <p className="text-muted-foreground">Users impacted globally</p>
               </div>
               <div>
@@ -962,41 +1088,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Blog Section */}
-      <section id="blog" className="py-20 sm:py-32 bg-secondary/30">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-4">
-              {t.blogArticles}
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              {t.blogExcerpt}
-            </p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {blogs.map((post, idx) => (
-              <Link
-                key={idx}
-                href="#"
-                className="group bg-card border border-border rounded-xl p-8 hover:border-primary/50 transition-all hover:shadow-lg"
-              >
-                <p className="text-sm text-muted-foreground mb-2">{post.date}</p>
-                <h3 className="text-xl font-semibold text-foreground mb-3 group-hover:text-primary transition">
-                  {post.title}
-                </h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">{post.excerpt}</p>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Pricing Section */}
       <section id="pricing" className="py-20 sm:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-4">
-              Simple, Transparent Pricing
+              {t.pricingTitle}
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               {language === 'uz' ? 'Bepul boshlang, istalgan vaqtda yangilanish. Yashirin to\'lov yo\'q.' : language === 'ru' ? 'Начните бесплатно, обновляйте в любое время. Нет скрытых платежей.' : 'Start free, upgrade anytime. No hidden fees.'}
@@ -1029,7 +1126,7 @@ export default function Home() {
                 {plan.popular && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                     <span className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold">
-                      {language === 'uz' ? 'Eng mashhur' : language === 'ru' ? 'Самый популярный' : 'Most Popular'}
+                      {t.mostPopular}
                     </span>
                   </div>
                 )}
@@ -1066,8 +1163,10 @@ export default function Home() {
       {/* CTA Section */}
       <section className="py-20 sm:py-32 bg-primary text-primary-foreground">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl sm:text-5xl font-bold mb-6">{t.readyToMaster}</h2>
-          <p className="text-lg mb-8 opacity-90 max-w-2xl mx-auto">
+          <h2 className="text-4xl sm:text-5xl font-bold mb-6 text-primary-foreground/90">
+            {t.readyToMaster}
+          </h2>
+          <p className="text-lg mb-8 text-primary-foreground/70 max-w-2xl mx-auto">
             {t.join100k}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -1103,12 +1202,19 @@ export default function Home() {
             <div className="bg-card border border-border rounded-xl p-8 text-center hover:border-primary/50 transition-all">
               <Phone className="w-12 h-12 text-primary mx-auto mb-4" />
               <h3 className="font-semibold text-foreground mb-2">{t.contactPhone}</h3>
-              <p className="text-muted-foreground">+998 71 123 45 67</p>
+              <p className="text-muted-foreground">+998 88 078 34 04</p>
             </div>
             <div className="bg-card border border-border rounded-xl p-8 text-center hover:border-primary/50 transition-all">
               <Send className="w-12 h-12 text-primary mx-auto mb-4" />
               <h3 className="font-semibold text-foreground mb-2">{t.contactTelegram}</h3>
-              <p className="text-muted-foreground">@sozlution_support</p>
+              <a
+                className="text-muted-foreground hover:text-foreground transition"
+                href="https://t.me/sozlution_support"
+                target="_blank"
+                rel="noreferrer"
+              >
+                @sozlution_support
+              </a>
             </div>
             <div className="bg-card border border-border rounded-xl p-8 text-center hover:border-primary/50 transition-all">
               <Globe className="w-12 h-12 text-primary mx-auto mb-4" />

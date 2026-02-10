@@ -9,7 +9,7 @@ html {
 body {
   font-family: Arial, Helvetica, sans-serif;
   scroll-behavior: smooth;
-  background: linear-gradient(135deg, #0f0a1e 0%, #1a0f3a 50%, #0d1829 100%);
+  background: var(--app-background);
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
@@ -213,6 +213,7 @@ body::after {
 
 @layer base {
   :root {
+    --app-background: linear-gradient(135deg, #f7fbff 0%, #f0f4ff 50%, #f8f7ff 100%);
     --background: 0 0% 100%;
     --foreground: 0 0% 13%;
     --card: 0 0% 100%;
@@ -248,6 +249,7 @@ body::after {
     --sidebar-ring: 211 100% 50%;
   }
   .dark {
+    --app-background: linear-gradient(135deg, #0f0a1e 0%, #1a0f3a 50%, #0d1829 100%);
     --background: 0 0% 8%;
     --foreground: 0 0% 95%;
     --card: 0 0% 12%;
