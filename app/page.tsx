@@ -154,8 +154,6 @@ const translations = {
     pricingSubtitle2: 'For serious IELTS learners',
     pricingTitle: 'Simple, Transparent Pricing',
     mostPopular: 'Most Popular',
-    pricingTitle: 'Simple, Transparent Pricing',
-    mostPopular: 'Most Popular',
     pricingFree: 'Free',
     pricingForever: 'Forever',
     pricing99: '$4.99',
