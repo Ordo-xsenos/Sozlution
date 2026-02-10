@@ -564,7 +564,21 @@ export default function Home() {
     },
   ]
 
-  const stats = [
+  type StatItem =
+    | {
+        id: string
+        value: number
+        suffix?: string
+        formatter?: (value: number) => string
+        label: string
+      }
+    | {
+        id: string
+        text: string
+        label: string
+      }
+
+  const stats: StatItem[] = [
     {
       id: 'words',
       value: 50000,
