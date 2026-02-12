@@ -188,9 +188,9 @@ const translations = {
     solutionTitle: 'Our Solution',
     solutionDesc: 'Sozlution combines AI-powered spaced repetition, adaptive learning paths, and real-time feedback to create a personalized English mastery experience that keeps learners engaged and motivated.',
     ourTeam: 'Our Team',
-    teamLeader: 'Team Lead & Product',
-    teamBackend: 'AI & Backend Engineer',
-    teamFrontend: 'Frontend Developer',
+    teamLeader: 'Project Manager',
+    teamBackend: 'Full-stack Developer',
+    teamFrontend: 'Content-strategist',
     whyUs: 'Why We Can Solve This',
     whyUsDesc: 'Our team combines expertise in AI/ML, education technology, and product development with a passion for making quality English education accessible to everyone.',
     roadmap: 'Our Roadmap',
@@ -325,9 +325,9 @@ const translations = {
     solutionTitle: 'Bizning Yechim',
     solutionDesc: 'Sozlution AI-powered spaced repetition, adaptiv o\'rganish yo\'llari va real-time fikr-mulohazani birlashtirib, o\'rganuvchilarni qiziquvchan va motivalashtirilgan qiladigan shaxsiy ingliz tilini o\'zlashtirish tajribasi yaratadi.',
     ourTeam: 'Bizning Jamoamiz',
-    teamLeader: 'Jamoaning rahbari va mahsulot',
-    teamBackend: 'AI va Backend muhandisi',
-    teamFrontend: 'Frontend razrabotchisi',
+    teamLeader: 'Project Manager',
+    teamBackend: 'Full-stack Developer',
+    teamFrontend: 'Content-strategist',
     whyUs: 'Nima uchun biz buni yecha olamiz',
     whyUsDesc: 'Bizning jamoamiz AI/ML, ta\'lim texnologiyalari va mahsulot ishlab chiqarishda tajribani birlashtirib, barcha uchun sifatli ingliz tilini ta\'lim qilinishini oson qilishni xohlaymiz.',
     roadmap: 'Bizning yo\'l xaritamiz',
@@ -462,9 +462,9 @@ const translations = {
     solutionTitle: 'Наше решение',
     solutionDesc: 'Sozlution объединяет интеллектуальное повторение, адаптивные пути обучения и обратную связь в реальном времени для создания персонализированного опыта освоения английского языка.',
     ourTeam: 'Наша команда',
-    teamLeader: 'Лидер команды и продукт',
-    teamBackend: 'Инженер AI и Backend',
-    teamFrontend: 'Frontend разработчик',
+    teamLeader: 'Project Manager',
+    teamBackend: 'Full-stack Developer',
+    teamFrontend: 'Content-strategist',
     whyUs: 'Почему мы можем это решить',
     whyUsDesc: 'Наша команда сочетает опыт в области AI/ML, образовательных технологий и разработки продуктов с желанием сделать качественное образование доступным для всех.',
     roadmap: 'Наша дорожная карта',
@@ -911,9 +911,9 @@ export default function Home() {
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             {[
-              { role: t.teamLeader, skills: ['Product Strategy', 'Business Development', 'User Research'], color: 'from-cyan-500' },
-              { role: t.teamBackend, skills: ['Python, Node.js', 'AI/ML Models', 'System Architecture'], color: 'from-purple-500' },
-              { role: t.teamFrontend, skills: ['React, Next.js', 'UI/UX Design', 'Web Performance'], color: 'from-pink-500' },
+              { role: t.teamLeader, skills: ['Project Planning', 'Team Coordination', 'Delivery Management'], color: 'from-cyan-500' },
+              { role: t.teamBackend, skills: ['Python & Django', 'React & Next.js', 'API Integration'], color: 'from-purple-500' },
+              { role: t.teamFrontend, skills: ['Content Strategy', 'Editorial Planning', 'Audience Growth'], color: 'from-pink-500' },
             ].map((member, idx) => (
               <div key={idx} className="bg-card border border-border rounded-2xl p-8 hover:shadow-lg transition-all">
                 <div className={`w-16 h-16 rounded-full bg-gradient-to-r ${member.color} to-transparent mb-6`}></div>
@@ -1040,7 +1040,7 @@ export default function Home() {
               <div>
                 <h4 className="text-lg font-semibold text-purple-400 mb-4">{t.backend}</h4>
                 <ul className="space-y-2">
-                  {['Node.js', 'PostgreSQL', 'Redis', 'Docker'].map((tech, i) => (
+                  {['Python', 'Django', 'PostgreSQL', 'Docker'].map((tech, i) => (
                     <li key={i} className="text-muted-foreground flex items-center gap-2">
                       <div className="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
                       {tech}
