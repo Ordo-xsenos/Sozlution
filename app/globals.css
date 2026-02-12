@@ -12,6 +12,7 @@ body {
   background: var(--app-background);
   min-height: 100vh;
   position: relative;
+  isolation: isolate;
   overflow-x: hidden;
 }
 
@@ -29,7 +30,7 @@ body::before {
     radial-gradient(circle at 40% 20%, rgba(0, 150, 255, 0.05) 0%, transparent 50%);
   animation: gradientShift 15s ease-in-out infinite;
   pointer-events: none;
-  z-index: 0;
+  z-index: -2;
 }
 
 body::after {
@@ -46,7 +47,7 @@ body::after {
   background-position: 0 0, 40px 40px;
   animation: float 20s linear infinite;
   pointer-events: none;
-  z-index: 0;
+  z-index: -1;
   opacity: 0.4;
 }
 
@@ -292,4 +293,23 @@ body::after {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.mvp-dark .bg-white,
+.mvp-dark [class*='bg-white/'] {
+  background-color: #0f172a !important;
+}
+
+.mvp-dark .bg-\[\#f9fcff\],
+.mvp-dark .bg-\[\#f6f9fd\],
+.mvp-dark .bg-\[\#eaf3ff\] {
+  background-color: #13213a !important;
+}
+
+.mvp-dark .text-\[\#1e2b3d\],
+.mvp-dark .text-\[\#526884\],
+.mvp-dark .text-\[\#6d7f97\],
+.mvp-dark .text-\[\#8ea0b8\],
+.mvp-dark .text-\[\#9aa8be\] {
+  color: #dbeafe !important;
 }

@@ -691,11 +691,12 @@ export default function Home() {
                   {t.startFree}
                 </Button>
                 <Button
+                  asChild
                   size="lg"
                   variant="outline"
                   className="text-lg border-2 border-foreground text-foreground hover:bg-foreground/5 bg-transparent rounded-full px-8 py-6 font-semibold"
                 >
-                  {t.watchDemo}
+                  <Link href="/demo">{t.watchDemo}</Link>
                 </Button>
               </div>
               <p className="text-sm text-muted-foreground">{t.noCardRequired}</p>

@@ -12,3 +12,6 @@ node_modules/
 .DS_Store
 
 .env
+*.png
+.venv
+/instructions_for_demo/
