@@ -71,7 +71,15 @@ const tr = {
   },
 } as const
 
-function api(path: string) { return `${API_BASE_URL}${path}` }
+function api(path: string) {
+  const base = API_BASE_URL.replace(/\/+$/, '')
+  if (/^https?:\/\//i.test(path)) return path
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`
+  if (base.endsWith('/api/mvp') && normalizedPath.startsWith('/api/mvp/')) {
+    return `${base}${normalizedPath.replace('/api/mvp', '')}`
+  }
+  return `${base}${normalizedPath}`
+}
 function dedupe(words: Word[]) { return Array.from(new Map(words.map((w) => [w.id, w])).values()) }
 function getDeviceId() {
   const existing = localStorage.getItem(DEVICE_KEY)
