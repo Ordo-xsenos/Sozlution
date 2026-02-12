@@ -151,13 +151,22 @@ export default function MvpPage() {
       headers.set('Authorization', `Bearer ${token}`)
     }
     const res = await fetch(api(path), { ...init, headers })
+    const raw = await res.text()
+    let parsed: unknown = null
+    if (raw) {
+      try {
+        parsed = JSON.parse(raw)
+      } catch {
+        parsed = null
+      }
+    }
     if (!res.ok) {
       let message = `HTTP ${res.status}`
-      try {
-        const payload = await res.json() as { detail?: string; message?: string }
-        message = payload.detail || payload.message || message
-      } catch {
-        message = (await res.text()) || message
+      if (parsed && typeof parsed === 'object') {
+        const p = parsed as { detail?: string; message?: string }
+        message = p.detail || p.message || message
+      } else if (raw) {
+        message = raw
       }
       if ((res.status === 401 || res.status === 403) && /invalid token/i.test(message)) {
         localStorage.removeItem(TOKEN_KEY)
@@ -165,7 +174,7 @@ export default function MvpPage() {
       }
       throw new Error(message)
     }
-    return res.json() as Promise<T>
+    return (parsed as T) ?? ({} as T)
   }
 
   async function hydrate() {
