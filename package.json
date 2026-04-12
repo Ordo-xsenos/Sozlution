@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "gen:api-types": "openapi-typescript openapi.yml -o lib/api-types.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -46,8 +47,9 @@
     "embla-carousel-react": "8.5.1",
     "input-otp": "1.4.1",
     "lucide-react": "^0.544.0",
-    "next": "16.1.6",
+    "next": "^16.2.2",
     "next-themes": "^0.4.6",
+    "pnpm": "^10.33.0",
     "react": "^19",
     "react-day-picker": "8.10.1",
     "react-dom": "^19",
@@ -68,6 +70,9 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/three": "^0.182.0",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^16.2.2",
+    "openapi-typescript": "^7.13.0",
     "postcss": "^8.5",
     "tailwindcss": "^3.4.17",
     "typescript": "5.7.3"

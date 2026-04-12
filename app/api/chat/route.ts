@@ -98,12 +98,24 @@ function isOnTopic(message: string) {
 }
 
 export async function POST(req: NextRequest) {
-  const apiKey = process.env.GEMINI_API_KEY
-  if (!apiKey) {
+  const baseUrl = process.env.AI_API_URL?.trim() || ''
+  const apiKey = process.env.AI_API_KEY?.trim() || ''
+  const model = process.env.AI_MODEL || process.env.GEMINI_MODEL || 'gpt-3.5-turbo'
+
+  if (!baseUrl) {
     return NextResponse.json(
-      { error: 'GEMINI_API_KEY is not configured' },
+      { error: 'AI_API_URL is not configured' },
       { status: 500 },
     )
+  }
+
+  // Normalize URL to OpenAI-compatible chat completions endpoint
+  let endpoint = baseUrl.replace(/\/+$/, '')
+  if (endpoint.endsWith('/models')) {
+    endpoint = endpoint.substring(0, endpoint.length - 7)
+  }
+  if (!endpoint.endsWith('/chat/completions')) {
+    endpoint = `${endpoint.replace(/\/+$/, '')}/chat/completions`
   }
 
   let payload: {
@@ -131,69 +143,63 @@ export async function POST(req: NextRequest) {
   }
 
   const systemInstruction = `
-You are the Sozlution assistant.
-Only answer questions about the Sozlution startup, product, features, pricing, roadmap, team, or IELTS/English-learning experience on the Sozlution platform.
-If the user greets or asks generally about the startup/platform, give a short overview first, then offer to answer details.
-If the user asks about anything else, politely refuse and ask them to ask about Sozlution.
-Respond in the user's language if you can detect it; otherwise use ${language === 'uz' ? 'Uzbek' : language === 'ru' ? 'Russian' : 'English'}.
-Keep answers concise and helpful.
+You are the Sozlution assistant. Only answer questions about the Sozlution startup, English learning, vocabulary practice, IELTS prep, and the Sozlution platform experience.
+If the user asks about anything else, politely refuse and ask them to ask about Sozlution or English learning.
+Respond in the user's language (Russian if user uses Russian, Uzbek if user uses Uzbek, otherwise English).
+Keep answers concise and practical with mini examples.
 
 Sozlution context:
 - AI-powered English learning platform with spaced repetition for vocabulary.
 - Daily word practice, pronunciation, and contextual examples.
 - Adaptive level tests (A1–C1 CEFR) and IELTS preparation.
 - Progress analytics and learning paths.
-- Free tier; premium plan shown on the landing page is $4.99/month with a 7-day premium trial.
+- Free tier; premium plan is $4.99/month with a 7-day premium trial.
   `.trim()
 
-  const contents = [
+  // Format messages in OpenAI style
+  const messages = [
+    { role: 'system', content: systemInstruction },
     ...history.slice(-6).map((item) => ({
-      role: item.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: item.text }],
+      role: item.role === 'assistant' ? 'assistant' : 'user',
+      content: item.text,
     })),
-    { role: 'user', parts: [{ text: message }] },
+    { role: 'user', content: message },
   ]
 
-  const model = process.env.GEMINI_MODEL ?? 'gemini-2.5-flash'
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`
-
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-goog-api-key': apiKey,
-    },
-    body: JSON.stringify({
-      contents,
-      systemInstruction: {
-        parts: [{ text: systemInstruction }],
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(apiKey ? { 'Authorization': `Bearer ${apiKey}` } : {}),
       },
-      generationConfig: {
+      body: JSON.stringify({
+        model,
+        messages,
         temperature: 0.4,
-        maxOutputTokens: 512,
-      },
-    }),
-  })
+        max_tokens: 512,
+      }),
+    })
 
-  if (!response.ok) {
-    const errorText = await response.text()
+    if (!response.ok) {
+      const errorText = await response.text()
+      return NextResponse.json(
+        { error: 'AI API request failed', details: errorText },
+        { status: response.status },
+      )
+    }
+
+    const data = await response.json()
+    
+    // Extract reply from OpenAI format choices[0].message.content
+    const reply = data.choices?.[0]?.message?.content?.trim() || refusalByLanguage[language]
+
+    return NextResponse.json({ reply })
+  } catch (error) {
+    console.error('AI API Proxy Error:', error)
     return NextResponse.json(
-      { error: 'Gemini request failed', details: errorText },
+      { error: 'Failed to connect to AI API' },
       { status: 502 },
     )
   }
-
-  const data = (await response.json()) as {
-    candidates?: Array<{
-      content?: { parts?: Array<{ text?: string }> }
-    }>
-  }
-
-  const reply =
-    data?.candidates?.[0]?.content?.parts
-      ?.map((part) => part.text ?? '')
-      .join('')
-      .trim() || refusalByLanguage[language]
-
-  return NextResponse.json({ reply })
 }

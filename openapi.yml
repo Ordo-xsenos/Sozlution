@@ -1,0 +1,684 @@
+openapi: 3.1.0
+info:
+  title: Sozlution Backend
+  version: 0.1.0
+paths:
+  /api/v1/session:
+    post:
+      tags:
+      - auth
+      summary: Create Session
+      operationId: create_session_api_v1_session_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SessionCreate'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/user:
+    get:
+      tags:
+      - users
+      summary: Get User
+      operationId: get_user_api_v1_user_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+      security:
+      - HTTPBearer: []
+    patch:
+      tags:
+      - users
+      summary: Patch User
+      operationId: patch_user_api_v1_user_patch
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearer: []
+  /api/v1/test/questions:
+    get:
+      tags:
+      - study
+      summary: Get Test Questions
+      operationId: get_test_questions_api_v1_test_questions_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+      security:
+      - HTTPBearer: []
+  /api/v1/test/submit:
+    post:
+      tags:
+      - study
+      summary: Submit Test
+      operationId: submit_test_api_v1_test_submit_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestSubmitIn'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestSubmitOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearer: []
+  /api/v1/plan/generate:
+    post:
+      tags:
+      - study
+      summary: Generate Plan
+      operationId: generate_plan_api_v1_plan_generate_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanGenerateIn'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearer: []
+  /api/v1/plan:
+    get:
+      tags:
+      - study
+      summary: Get Plan
+      operationId: get_plan_api_v1_plan_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+      security:
+      - HTTPBearer: []
+  /api/v1/day/current:
+    get:
+      tags:
+      - study
+      summary: Get Day Current
+      operationId: get_day_current_api_v1_day_current_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+      security:
+      - HTTPBearer: []
+  /api/v1/day/complete:
+    post:
+      tags:
+      - study
+      summary: Complete Day
+      operationId: complete_day_api_v1_day_complete_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DayCompleteIn'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearer: []
+  /api/v1/stats:
+    get:
+      tags:
+      - study
+      summary: Get Stats
+      operationId: get_stats_api_v1_stats_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+      security:
+      - HTTPBearer: []
+  /api/v1/results:
+    get:
+      tags:
+      - study
+      summary: Get Results
+      operationId: get_results_api_v1_results_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+      security:
+      - HTTPBearer: []
+  /api/v1/export:
+    get:
+      tags:
+      - study
+      summary: Export Data
+      operationId: export_data_api_v1_export_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+      security:
+      - HTTPBearer: []
+  /api/v1/import:
+    post:
+      tags:
+      - study
+      summary: Import Data
+      operationId: import_data_api_v1_import_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImportIn'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OkOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearer: []
+  /api/v1/reset-progress:
+    post:
+      tags:
+      - study
+      summary: Reset Progress
+      operationId: reset_progress_api_v1_reset_progress_post
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OkOut'
+      security:
+      - HTTPBearer: []
+  /api/v1/ai/snippets:
+    post:
+      tags:
+      - ai
+      summary: Ai Snippets
+      operationId: ai_snippets_api_v1_ai_snippets_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AiSnippetsIn'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearer: []
+  /api/v1/ai/chat:
+    post:
+      tags:
+      - ai
+      summary: Ai Chat
+      operationId: ai_chat_api_v1_ai_chat_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AiChatIn'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiChatOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearer: []
+  /api/v1/ai/word-assist:
+    post:
+      tags:
+      - ai
+      summary: Ai Word Assist
+      operationId: ai_word_assist_api_v1_ai_word_assist_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AiWordAssistIn'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiWordAssistOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearer: []
+  /:
+    get:
+      summary: Read Root
+      operationId: read_root__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+components:
+  schemas:
+    AiChatIn:
+      properties:
+        message:
+          type: string
+          title: Message
+        history:
+          items:
+            $ref: '#/components/schemas/AiChatTurn'
+          type: array
+          title: History
+      type: object
+      required:
+      - message
+      title: AiChatIn
+    AiChatOut:
+      properties:
+        text:
+          type: string
+          title: Text
+      type: object
+      required:
+      - text
+      title: AiChatOut
+    AiChatTurn:
+      properties:
+        role:
+          type: string
+          title: Role
+          default: user
+        text:
+          type: string
+          title: Text
+          default: ''
+      type: object
+      title: AiChatTurn
+    AiSnippetsIn:
+      properties:
+        words:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Words
+      type: object
+      required:
+      - words
+      title: AiSnippetsIn
+    AiWordAssistIn:
+      properties:
+        word_id:
+          type: string
+          title: Word Id
+          default: ''
+        word:
+          type: string
+          maxLength: 120
+          title: Word
+        lang:
+          type: string
+          title: Lang
+        hint:
+          type: string
+          title: Hint
+          default: ''
+      type: object
+      required:
+      - word
+      - lang
+      title: AiWordAssistIn
+    AiWordAssistOut:
+      properties:
+        translation:
+          type: string
+          title: Translation
+        description:
+          type: string
+          title: Description
+      type: object
+      required:
+      - translation
+      - description
+      title: AiWordAssistOut
+    DayCompleteIn:
+      properties:
+        day:
+          type: integer
+          minimum: 1.0
+          title: Day
+        step1:
+          additionalProperties:
+            type: boolean
+          type: object
+          title: Step1
+        step2:
+          additionalProperties:
+            type: boolean
+          type: object
+          title: Step2
+        step3:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Step3
+      type: object
+      required:
+      - day
+      - step1
+      - step2
+      - step3
+      title: DayCompleteIn
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ImportIn:
+      properties:
+        user:
+          additionalProperties: true
+          type: object
+          title: User
+        plan:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Plan
+        results:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Results
+        stats:
+          additionalProperties: true
+          type: object
+          title: Stats
+      type: object
+      required:
+      - user
+      - results
+      - stats
+      title: ImportIn
+    Language:
+      type: string
+      enum:
+      - uz
+      - ru
+      title: Language
+    Level:
+      type: string
+      enum:
+      - A1
+      - A2
+      - B1
+      - B2
+      - C1
+      title: Level
+    OkOut:
+      properties:
+        ok:
+          type: boolean
+          title: Ok
+          default: true
+      type: object
+      title: OkOut
+    PlanGenerateIn:
+      properties:
+        level:
+          $ref: '#/components/schemas/Level'
+      type: object
+      required:
+      - level
+      title: PlanGenerateIn
+    SessionCreate:
+      properties:
+        mode:
+          type: string
+          title: Mode
+          default: register
+        name:
+          type: string
+          maxLength: 120
+          title: Name
+        password:
+          anyOf:
+          - type: string
+            minLength: 8
+          - type: 'null'
+          title: Password
+        lang:
+          type: string
+          title: Lang
+        device_id:
+          type: string
+          maxLength: 128
+          title: Device Id
+      type: object
+      required:
+      - name
+      - lang
+      - device_id
+      title: SessionCreate
+    SessionResponse:
+      properties:
+        user:
+          $ref: '#/components/schemas/UserPublic'
+        session_token:
+          type: string
+          title: Session Token
+      type: object
+      required:
+      - user
+      - session_token
+      title: SessionResponse
+    TestSubmitIn:
+      properties:
+        answers:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Answers
+      type: object
+      required:
+      - answers
+      title: TestSubmitIn
+    TestSubmitOut:
+      properties:
+        score:
+          type: integer
+          title: Score
+        level:
+          $ref: '#/components/schemas/Level'
+      type: object
+      required:
+      - score
+      - level
+      title: TestSubmitOut
+    UserPublic:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        lang:
+          $ref: '#/components/schemas/Language'
+        level:
+          $ref: '#/components/schemas/Level'
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
+      - name
+      - lang
+      - level
+      - created_at
+      title: UserPublic
+    UserUpdate:
+      properties:
+        name:
+          anyOf:
+          - type: string
+            maxLength: 120
+          - type: 'null'
+          title: Name
+        lang:
+          anyOf:
+          - $ref: '#/components/schemas/Language'
+          - type: string
+          - type: 'null'
+          title: Lang
+        level:
+          anyOf:
+          - $ref: '#/components/schemas/Level'
+          - type: string
+          - type: 'null'
+          title: Level
+        password:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Password
+      type: object
+      title: UserUpdate
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+  securitySchemes:
+    HTTPBearer:
+      type: http
+      scheme: bearer
