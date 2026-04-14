@@ -7,5 +7,11 @@ import {
 } from 'next-themes'
 
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
-  return <NextThemesProvider {...props}>{children}</NextThemesProvider>
+  return (
+    <div suppressHydrationWarning style={{ display: 'contents' }}>
+      <NextThemesProvider {...props}>
+        {children}
+      </NextThemesProvider>
+    </div>
+  )
 }

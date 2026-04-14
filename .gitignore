@@ -18,3 +18,4 @@ node_modules/
 *.xml
 *.iml
 .gitignore
+/out
