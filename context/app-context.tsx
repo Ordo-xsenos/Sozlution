@@ -85,9 +85,19 @@ export interface DayResult {
   created_at: string
 }
 
+export interface IeltsStats {
+  estimated_band: number
+  target_band: number
+  writing_tasks_completed: number
+  vocabulary_mastered: number
+  mock_tests_count: number
+  activity_heatmap: Record<string, number>
+}
+
 interface AppContextType {
   user: User | null
   stats: Stats | null
+  ieltsStats: IeltsStats | null
   plan: Plan | null
   currentDay: { day: DayPlan; words: Word[] } | null
   results: DayResult[]
@@ -159,6 +169,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
   const [stats, setStats] = useState<Stats | null>(null)
+  const [ieltsStats, setIeltsStats] = useState<IeltsStats | null>(null)
   const [plan, setPlan] = useState<Plan | null>(null)
   const [currentDay, setCurrentDay] = useState<{ day: DayPlan; words: Word[] } | null>(null)
   const [results, setResults] = useState<DayResult[]>([])
@@ -169,6 +180,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const clearAppState = useCallback(() => {
     setUser(null)
     setStats(null)
+    setIeltsStats(null)
     setPlan(null)
     setCurrentDay(null)
     setResults([])
@@ -195,6 +207,18 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setUser(u?.user || u)
       setStats(s?.stats || s)
       setResults(Array.isArray(r) ? r : r?.results || [])
+
+      // Fetch IELTS stats if possible
+      try {
+        const isIelts = (u?.user?.level || u?.level) === 'IELTS'
+        if (isIelts) {
+          // Cast to any because api-types might not be synced with openapi.yml yet
+          const istats = await request<any, 'get', any>('/api/v1/ielts-mode/stats')
+          setIeltsStats(istats)
+        }
+      } catch (e) {
+        // Silently skip if ielts stats fail or not found
+      }
 
       let planLoaded = false
       let planData = null
@@ -285,6 +309,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       value={{
         user,
         stats,
+        ieltsStats,
         plan,
         currentDay,
         results,

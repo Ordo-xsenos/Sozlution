@@ -1,15 +1,44 @@
 'use client'
 
 import React from 'react'
+import { useApp } from '@/context/app-context'
 import { Card } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Trophy, Target, TrendingUp, Calendar, Zap } from 'lucide-react'
 
 export default function IeltsProgress() {
+  const { user, ieltsStats, loading } = useApp()
+
+  if (loading && !user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#050810]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-amber-500"></div>
+      </div>
+    )
+  }
+
   const stats = [
-    { label: 'Writing Tasks Done', value: '12', target: '20', icon: Zap, color: 'text-amber-500' },
-    { label: 'Reading Accuracy', value: '78%', target: '85%', icon: Target, color: 'text-blue-500' },
-    { label: 'Words Mastered', value: '450', target: '1000', icon: Trophy, color: 'text-emerald-500' },
+    { 
+      label: 'Writing Tasks Done', 
+      value: ieltsStats?.writing_tasks_completed.toString() || '0', 
+      target: '20', 
+      icon: Zap, 
+      color: 'text-amber-500' 
+    },
+    { 
+      label: 'Overall Estimated Band', 
+      value: ieltsStats?.estimated_band.toFixed(1) || '0.0', 
+      target: ieltsStats?.target_band.toFixed(1) || '7.5', 
+      icon: Target, 
+      color: 'text-blue-500' 
+    },
+    { 
+      label: 'Words Mastered', 
+      value: ieltsStats?.vocabulary_mastered.toString() || '0', 
+      target: '1000', 
+      icon: Trophy, 
+      color: 'text-emerald-500' 
+    },
   ]
 
   return (
@@ -51,9 +80,24 @@ export default function IeltsProgress() {
            Historical data will appear here once you complete more daily academic tasks.
          </p>
          <div className="grid grid-cols-7 gap-2">
-            {Array.from({ length: 28 }).map((_, i) => (
-              <div key={i} className={`w-4 h-4 rounded-sm ${i % 5 === 0 ? 'bg-amber-500/40' : 'bg-white/5'}`} />
-            ))}
+            {Array.from({ length: 28 }).map((_, i) => {
+              const today = new Date()
+              const d = new Date()
+              d.setDate(today.getDate() - (27 - i))
+              const key = d.toISOString().split('T')[0]
+              const count = ieltsStats?.activity_heatmap?.[key] || 0
+              
+              return (
+                <div 
+                  key={i} 
+                  title={`${key}: ${count} actions`}
+                  className={`w-4 h-4 rounded-sm transition-colors ${
+                    count > 0 ? 'bg-amber-500' : 'bg-white/5'
+                  }`} 
+                  style={{ opacity: count > 0 ? Math.min(1, 0.3 + count * 0.2) : 1 }}
+                />
+              )
+            })}
          </div>
       </Card>
     </div>

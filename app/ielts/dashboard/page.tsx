@@ -16,12 +16,35 @@ import {
 import Link from 'next/link'
 
 export default function IeltsDashboard() {
-  const { user } = useApp()
+  const { user, ieltsStats, loading } = useApp()
+
+  if (loading && !user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#050810]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-amber-500"></div>
+      </div>
+    )
+  }
 
   const stats = [
-    { label: 'Overall Estimated Band', value: '6.5', icon: Trophy, color: 'text-amber-500' },
-    { label: 'Target Band', value: '7.5', icon: Target, color: 'text-blue-500' },
-    { label: 'Days Remaining', value: '45', icon: Sparkles, color: 'text-emerald-500' },
+    { 
+      label: 'Overall Estimated Band', 
+      value: ieltsStats?.estimated_band.toFixed(1) || '0.0', 
+      icon: Trophy, 
+      color: 'text-amber-500' 
+    },
+    { 
+      label: 'Target Band', 
+      value: ieltsStats?.target_band.toFixed(1) || '7.5', 
+      icon: Target, 
+      color: 'text-blue-500' 
+    },
+    { 
+      label: 'Vocabulary Mastered', 
+      value: ieltsStats?.vocabulary_mastered.toString() || '0', 
+      icon: Sparkles, 
+      color: 'text-emerald-500' 
+    },
   ]
 
   const modules = [
