@@ -7,12 +7,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { AlertCircle, Check, Loader2, LogOut, Trash2 } from 'lucide-react'
-import { useRouter } from 'next/navigation'
 import { toast } from '@/hooks/use-toast'
 
 export default function SettingsPage() {
   const { user, logout, request, hydrate, loading } = useApp()
-  const router = useRouter()
   
   const [name, setName] = useState(user?.name || '')
   const [password, setPassword] = useState('')
@@ -46,7 +44,6 @@ export default function SettingsPage() {
       await hydrate()
       setShowResetConfirm(false)
       toast({ title: 'Сброшено', description: 'Ваш прогресс был удален' })
-      router.push('/mvp')
     } catch (e) {
       toast({ title: 'Ошибка', description: 'Не удалось сбросить прогресс', variant: 'destructive' })
     }
@@ -129,7 +126,7 @@ export default function SettingsPage() {
           </Card>
 
           <Button 
-            onClick={() => { logout(); router.push('/') }} 
+            onClick={logout} 
             variant="ghost" 
             className="w-full text-slate-400 hover:text-white hover:bg-slate-800 h-14 rounded-2xl"
           >

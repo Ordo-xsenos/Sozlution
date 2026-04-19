@@ -1,7 +1,10 @@
 'use client'
 
-import React, { createContext, useContext, useState, useEffect, useMemo } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import type { components, paths } from '@/lib/api-types'
+import { buildApiUrl } from '@/lib/api'
+import { clearAuthSession, getAuthToken } from '@/lib/auth'
 
 type ApiSchemas = components['schemas']
 type Lang = ApiSchemas['Language']
@@ -34,6 +37,14 @@ export interface Word {
   description?: string
   transcription?: string
   phonetic?: string
+  phonetics?: Array<string | { text?: string; ipa?: string; value?: string }>
+  locale_data?: {
+    phonetics?: {
+      us?: string
+      uk?: string
+    }
+  }
+  audio_url?: string | null // добавлено поле для озвучки
 }
 
 export interface DayPlan {
@@ -54,6 +65,7 @@ export interface Plan {
 export interface User {
   id: string
   name: string
+  email: string
   lang: Lang
   level: Level
   created_at: string
@@ -73,9 +85,6 @@ export interface DayResult {
   created_at: string
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8000'
-const TOKEN_KEY = 'sozlution_mvp_token'
-
 interface AppContextType {
   user: User | null
   stats: Stats | null
@@ -83,20 +92,15 @@ interface AppContextType {
   currentDay: { day: DayPlan; words: Word[] } | null
   results: DayResult[]
   loading: boolean
+  authReady: boolean
   error: string
   hydrate: () => Promise<void>
+  login: (token: string) => Promise<void>
   logout: () => void
   request: typeof request
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined)
-
-function api(path: string) {
-  const base = API_BASE_URL.replace(/\/+$/, '')
-  if (/^https?:\/\//i.test(path)) return path
-  let normalizedPath = path.startsWith('/') ? path : `/${path}`
-  return `${base}${normalizedPath}`
-}
 
 async function request<
   P extends keyof paths,
@@ -112,7 +116,7 @@ async function request<
   const headers = new Headers(init?.headers || {})
   headers.set('Content-Type', 'application/json')
   if (withAuth) {
-    const token = typeof window !== 'undefined' ? localStorage.getItem(TOKEN_KEY) : null
+    const token = getAuthToken()
     if (!token) throw new Error('No token')
     headers.set('Authorization', `Bearer ${token}`)
   }
@@ -128,7 +132,7 @@ async function request<
     fetchOptions.body = JSON.stringify(body)
   }
 
-  const res = await fetch(api(path), fetchOptions)
+  const res = await fetch(buildApiUrl(path), fetchOptions)
   const raw = await res.text()
   let parsed: unknown = null
   if (raw) {
@@ -152,60 +156,129 @@ async function request<
 }
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
+  const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
   const [stats, setStats] = useState<Stats | null>(null)
   const [plan, setPlan] = useState<Plan | null>(null)
   const [currentDay, setCurrentDay] = useState<{ day: DayPlan; words: Word[] } | null>(null)
   const [results, setResults] = useState<DayResult[]>([])
   const [loading, setLoading] = useState(false)
+  const [authReady, setAuthReady] = useState(false)
   const [error, setError] = useState('')
 
-  const hydrate = async () => {
-    setLoading(true)
-    setError('')
-    try {
-      const [u, s, r] = await Promise.all([
-        request<'/api/v1/user', 'get', { user: User }>('/api/v1/user'),
-        request<'/api/v1/stats', 'get', { stats: Stats }>('/api/v1/stats'),
-        request<'/api/v1/results', 'get', { results: DayResult[] }>('/api/v1/results'),
-      ])
-      setUser(u.user)
-      setStats(s.stats)
-      setResults(r.results)
-
-      try {
-        const p = await request<'/api/v1/plan', 'get', { plan: Plan }>('/api/v1/plan')
-        const c = await request<'/api/v1/day/current', 'get', { day: DayPlan; words: Word[] }>('/api/v1/day/current')
-        setPlan(p.plan)
-        setCurrentDay(c)
-      } catch (e) {
-        console.error('Plan hydration failed', e)
-      }
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Hydration failed')
-      if (e instanceof Error && e.message.includes('401')) {
-        logout()
-      }
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    const token = localStorage.getItem(TOKEN_KEY)
-    if (token) {
-      hydrate()
-    }
-  }, [])
-
-  const logout = () => {
+  const clearAppState = useCallback(() => {
     setUser(null)
     setStats(null)
     setPlan(null)
     setCurrentDay(null)
     setResults([])
-    localStorage.removeItem(TOKEN_KEY)
-  }
+  }, [])
+
+  const logout = useCallback(() => {
+    clearAppState()
+    clearAuthSession()
+    setError('')
+    setLoading(false)
+    setAuthReady(true)
+    router.replace('/login')
+  }, [clearAppState, router])
+
+  const hydrate = useCallback(async () => {
+    setLoading(true)
+    setError('')
+    try {
+      const [u, s, r] = await Promise.all([
+        request<'/api/v1/user', 'get', any>('/api/v1/user'),
+        request<'/api/v1/stats', 'get', any>('/api/v1/stats'),
+        request<'/api/v1/results', 'get', any>('/api/v1/results'),
+      ])
+      setUser(u?.user || u)
+      setStats(s?.stats || s)
+      setResults(Array.isArray(r) ? r : r?.results || [])
+
+      let planLoaded = false
+      let planData = null
+      try {
+        const p = await request<'/api/v1/plan', 'get', any>('/api/v1/plan')
+        const actualPlan = p?.plan || p
+        
+        // Если план пришел пустым (нет дней или нет ID), считаем, что его нужно сгенерировать
+        if (!actualPlan || (Array.isArray(actualPlan?.days) && actualPlan.days.length === 0)) {
+          throw new Error('Empty plan')
+        }
+
+        setPlan(actualPlan)
+        planLoaded = true
+        planData = actualPlan
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : ''
+        const isNotFound = 
+          msg.toLowerCase().includes('not found') || 
+          msg.toLowerCase().includes('не найден') || 
+          msg.includes('404') || 
+          msg.includes('Empty plan');
+
+        // Если план не найден или пустой — создаём его
+        if (isNotFound) {
+          try {
+            console.log('Generating plan for level:', u.user.level)
+            await request<'/api/v1/plan/generate', 'post', any, { level: Level }>('/api/v1/plan/generate', {
+              body: { level: u.user.level },
+            }, 'post')
+            
+            // Повторяем запрос на план после генерации
+            const p2 = await request<'/api/v1/plan', 'get', any>('/api/v1/plan')
+            const actualPlan2 = p2?.plan || p2
+            setPlan(actualPlan2)
+            planLoaded = true
+            planData = actualPlan2
+          } catch (genErr) {
+            console.error('Plan generation failed:', genErr)
+          }
+        } else {
+          console.error('Plan hydration error:', msg)
+        }
+      }
+
+      if (planLoaded && planData) {
+        // Пытаемся получить currentDay, если не получилось — просто не сетим, не кидаем ошибку
+        try {
+          const c = await request<'/api/v1/day/current', 'get', any>('/api/v1/day/current')
+          setCurrentDay(c)
+        } catch (e) {
+          // Не выводим ошибку в консоль, просто пропускаем
+        }
+      }
+      setAuthReady(true)
+    } catch (e) {
+      const nextError = e instanceof Error ? e.message : 'Hydration failed'
+      setError(nextError)
+      if (nextError.includes('401') || nextError.toLowerCase().includes('not found') || nextError.includes('404')) {
+        logout()
+        return
+      }
+      setAuthReady(true)
+    } finally {
+      setLoading(false)
+    }
+  }, [logout])
+
+  const login = useCallback(async (token: string) => {
+    const { setAuthToken } = await import('@/lib/auth')
+    setAuthToken(token)
+    await hydrate()
+  }, [hydrate])
+
+  useEffect(() => {
+    const token = getAuthToken()
+    if (!token) {
+      setAuthReady(true)
+      // Redirect handled by layouts
+      return
+    }
+
+    void hydrate()
+  }, [hydrate])
 
   return (
     <AppContext.Provider
@@ -216,8 +289,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         currentDay,
         results,
         loading,
+        authReady,
         error,
         hydrate,
+        login,
         logout,
         request
       }}

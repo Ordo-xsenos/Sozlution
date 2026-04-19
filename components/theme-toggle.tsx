@@ -21,7 +21,8 @@ export default function ThemeToggle() {
         size="icon"
         className="bg-transparent"
         aria-label="Toggle theme"
-        disabled
+        disabled={true}
+        suppressHydrationWarning
       >
         <Sun className="h-4 w-4" />
       </Button>

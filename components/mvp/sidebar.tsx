@@ -13,6 +13,7 @@ import {
   HelpCircle,
   Settings,
   LogOut,
+  Sparkles,
 } from 'lucide-react'
 
 const menuItems = [
@@ -40,6 +41,11 @@ const menuItems = [
     name: 'Достижения',
     href: '/mvp/achievements',
     icon: Trophy,
+  },
+  {
+    name: 'Сдать тест уровня',
+    href: '/mvp/test',
+    icon: Sparkles,
   },
   {
     name: 'Советы',
@@ -107,6 +113,7 @@ export function Sidebar() {
         <button
           onClick={logout}
           className="w-full flex items-center gap-3 px-4 py-2 text-gray-300 hover:bg-red-500/10 hover:text-red-400 rounded-lg transition-colors"
+          type="button"
         >
           <LogOut className="w-5 h-5" />
           <span>Выход</span>

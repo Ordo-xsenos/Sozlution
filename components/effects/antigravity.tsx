@@ -1,7 +1,7 @@
 'use client'
 
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { useEffect, useMemo, useRef } from 'react'
+import { Suspense, useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
 
 type AntigravityProps = {
@@ -40,7 +40,7 @@ function AntigravityInner({
   fieldStrength = 10,
 }: AntigravityProps) {
   const meshRef = useRef<THREE.InstancedMesh>(null)
-  const { viewport } = useThree()
+   const { viewport } = useThree()
   const dummy = useMemo(() => new THREE.Object3D(), [])
   const lastMousePos = useRef({ x: 0, y: 0 })
   const lastMouseMoveTime = useRef(0)
@@ -69,8 +69,8 @@ function AntigravityInner({
       cz: number
       randomRadiusOffset: number
     }> = []
-    const width = viewport.width || 100
-    const height = viewport.height || 100
+    const width = viewport.width || 10
+    const height = viewport.height || 10
     for (let i = 0; i < count; i += 1) {
       const t = Math.random() * 100
       const speed = 0.01 + Math.random() / 200
@@ -167,15 +167,22 @@ function AntigravityInner({
       {particleShape === 'sphere' && <sphereGeometry args={[0.2, 16, 16]} />}
       {particleShape === 'box' && <boxGeometry args={[0.3, 0.3, 0.3]} />}
       {particleShape === 'tetrahedron' && <tetrahedronGeometry args={[0.3]} />}
-      <meshBasicMaterial color={color} transparent opacity={0.9} />
+       <meshBasicMaterial color={color} transparent opacity={0.75} />
     </instancedMesh>
   )
 }
 
 export default function Antigravity(props: AntigravityProps) {
   return (
-    <Canvas camera={{ position: [0, 0, 50], fov: 35 }}>
-      <AntigravityInner {...props} />
-    </Canvas>
+    <Suspense fallback={null}>
+      <Canvas
+        camera={{ position: [0, 0, 50], fov: 35 }}
+        style={{ width: '100%', height: '100%', display: 'block' }}
+        onError={(error) => console.error('Canvas error:', error)}
+        dpr={[1, 2]}
+      >
+        <AntigravityInner {...props} />
+      </Canvas>
+    </Suspense>
   )
 }

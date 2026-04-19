@@ -30,6 +30,34 @@ export default function LearnPage() {
 
   const words = useMemo(() => currentDay?.words || [], [currentDay])
   const active = words[learnIndex] || null
+  const definitionText = useMemo(() => {
+    if (!active) return 'No definition available'
+    const localizedDescription = user?.lang === 'ru' ? active.ru_description : active.uz_description
+    const candidates = [
+      active.definition,
+      active.en_description,
+      active.description,
+      localizedDescription,
+    ]
+    const firstNonEmpty = candidates.find((item) => typeof item === 'string' && item.trim().length > 0)
+    return firstNonEmpty ?? 'No definition available'
+  }, [active, user?.lang])
+  const pronunciationText = useMemo(() => {
+    if (!active) return 'No pronunciation available'
+    const fromLocaleData = active.locale_data?.phonetics?.us || active.locale_data?.phonetics?.uk || ''
+    const fromPhonetics = Array.isArray(active.phonetics)
+      ? active.phonetics
+          .map((item) =>
+            typeof item === 'string'
+              ? item
+              : item?.text || item?.ipa || item?.value || ''
+          )
+          .find((item) => typeof item === 'string' && item.trim().length > 0)
+      : ''
+    const value = fromLocaleData || active.transcription || active.phonetic || fromPhonetics
+    if (!value || !value.trim()) return 'No pronunciation available'
+    return `/${value.trim().replace(/^\/|\/$/g, '')}/`
+  }, [active])
 
   const speak = (text: string) => {
     if (typeof window !== 'undefined' && window.speechSynthesis) {
@@ -38,6 +66,22 @@ export default function LearnPage() {
       utterance.lang = 'en-US'
       utterance.rate = 0.9
       window.speechSynthesis.speak(utterance)
+    }
+  }
+
+  // Проигрывание аудиофайла с backend или speech synthesis
+  const playAudio = (audioUrl?: string | null, text?: string) => {
+    if (audioUrl) {
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8000'
+      const fullUrl = audioUrl.startsWith('http') ? audioUrl : `${base.replace(/\/$/, '')}${audioUrl}`
+      const audio = new Audio(fullUrl)
+      audio.play().catch(error => {
+        console.error('Ошибка воспроизведения аудио:', error)
+        // Fallback to speech synthesis
+        if (text) speak(text)
+      })
+    } else if (text) {
+      speak(text)
     }
   }
 
@@ -177,9 +221,10 @@ export default function LearnPage() {
                   className="absolute inset-0 backface-hidden bg-[#1e293b] border-2 border-blue-500/30 flex flex-col items-center justify-center p-8 rounded-[32px]"
                   style={{ backfaceVisibility: 'hidden' }}
                 >
-                  <button 
-                    onClick={(e) => { e.stopPropagation(); if (active) speak(active.en) }}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); if (active) playAudio(active.audio_url, active.en) }}
                     className="absolute right-6 top-6 p-3 rounded-full bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-all"
+                    title="Проиграть озвучку"
                   >
                     <Volume2 className="h-6 w-6" />
                   </button>
@@ -187,7 +232,7 @@ export default function LearnPage() {
                   <h2 className="text-5xl md:text-6xl font-black text-white text-center break-words mb-6">{active?.en}</h2>
                   <div className="w-full bg-blue-500/5 rounded-2xl p-4 text-center border border-blue-500/10">
                     <p className="text-slate-300 italic leading-relaxed text-sm">
-                      {active?.definition || active?.description || active?.en_description || 'No definition available'}
+                      {pronunciationText}
                     </p>
                   </div>
                 </Card>
@@ -199,11 +244,14 @@ export default function LearnPage() {
                 >
                   <span className="text-[10px] font-black tracking-[0.2em] text-emerald-400/60 uppercase mb-4">Translation</span>
                   <h2 className="text-4xl font-bold text-emerald-400 mb-2">{user?.lang === 'ru' ? active?.ru : active?.uz}</h2>
-                  {(active?.transcription || active?.phonetic) && (
+                  {pronunciationText !== 'No pronunciation available' && (
                     <div className="bg-emerald-500/10 px-4 py-1.5 rounded-full border border-emerald-500/20 mb-4">
-                      <p className="text-emerald-300 font-mono text-sm">/{active?.transcription || active?.phonetic}/</p>
+                      <p className="text-emerald-300 font-mono text-sm">{pronunciationText}</p>
                     </div>
                   )}
+                  <div className="w-full max-w-md bg-emerald-500/5 rounded-2xl p-3 text-center border border-emerald-500/10">
+                    <p className="text-slate-300 italic leading-relaxed text-sm">{definitionText}</p>
+                  </div>
                   <p className="text-slate-500 font-bold text-xs mt-4 animate-pulse uppercase tracking-widest">Tap to flip back</p>
                 </Card>
               </div>
@@ -239,9 +287,10 @@ export default function LearnPage() {
           <div className="space-y-6">
             <Card className="bg-[#1e293b] border-slate-800 p-8 rounded-[32px] text-center relative overflow-hidden">
               <div className="absolute top-0 left-0 w-1 bg-blue-500 h-full" />
-              <button 
-                onClick={() => speak(active?.en || '')}
+              <button
+                onClick={() => { if (active) playAudio(active.audio_url, active.en) }}
                 className="absolute right-4 top-4 p-2 rounded-full hover:bg-slate-800 text-slate-400"
+                title="Проиграть озвучку"
               >
                 <Volume2 className="h-5 w-5" />
               </button>

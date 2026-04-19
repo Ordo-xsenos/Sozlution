@@ -16,8 +16,8 @@ export default function DemoPage() {
           <Link href="/" className="text-xl font-bold">
             So&apos;zlution
           </Link>
-          <Link href="/mvp" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-            Go to MVP
+          <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            Go to Login
           </Link>
         </div>
       </section>
@@ -70,9 +70,9 @@ export default function DemoPage() {
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Button asChild className="inline-flex items-center gap-2">
-                <Link href="/mvp">
+                <Link href="/register">
                   <PlayCircle className="h-4 w-4" />
-                  See MVP
+                  Create Account
                 </Link>
               </Button>
               <Button asChild variant="outline" className="bg-transparent">

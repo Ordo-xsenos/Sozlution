@@ -28,6 +28,56 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/password-reset/request:
+    post:
+      tags:
+      - auth
+      summary: Request Password Reset
+      operationId: request_password_reset_api_v1_password_reset_request_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetRequestIn'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OkOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/password-reset/confirm:
+    post:
+      tags:
+      - auth
+      summary: Confirm Password Reset
+      operationId: confirm_password_reset_api_v1_password_reset_confirm_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirmIn'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OkOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /api/v1/user:
     get:
       tags:
@@ -39,7 +89,8 @@ paths:
           description: Successful Response
           content:
             application/json:
-              schema: {}
+              schema:
+                $ref: '#/components/schemas/UserResponse'
       security:
       - HTTPBearer: []
     patch:
@@ -58,7 +109,8 @@ paths:
           description: Successful Response
           content:
             application/json:
-              schema: {}
+              schema:
+                $ref: '#/components/schemas/UserResponse'
         '422':
           description: Validation Error
           content:
@@ -67,6 +119,61 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
       security:
       - HTTPBearer: []
+  /api/v1/words/{en}/audio:
+    get:
+      tags:
+      - study
+      summary: Get Word Audio Metadata
+      operationId: get_word_audio_metadata_api_v1_words__en__audio_get
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: en
+        in: path
+        required: true
+        schema:
+          type: string
+          title: En
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WordAudioOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/words/{en}/audio/file:
+    get:
+      tags:
+      - study
+      summary: Get Word Audio File
+      operationId: get_word_audio_file_api_v1_words__en__audio_file_get
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: en
+        in: path
+        required: true
+        schema:
+          type: string
+          title: En
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /api/v1/test/questions:
     get:
       tags:
@@ -352,6 +459,179 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
       security:
       - HTTPBearer: []
+  /api/v1/ielts-mode/vocabulary:
+    get:
+      tags:
+      - ielts-mode
+      summary: Get Vocabulary
+      operationId: get_vocabulary_api_v1_ielts_mode_vocabulary_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  items:
+                    $ref: '#/components/schemas/IELTSWordOut'
+                  type: array
+                type: object
+                title: Response Get Vocabulary Api V1 Ielts Mode Vocabulary Get
+      security:
+      - HTTPBearer: []
+  /api/v1/ielts-mode/writing/tasks:
+    get:
+      tags:
+      - ielts-mode
+      summary: Get Writing Task
+      operationId: get_writing_task_api_v1_ielts_mode_writing_tasks_get
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: type
+        in: query
+        required: true
+        schema:
+          enum:
+          - task1
+          - task2
+          type: string
+          title: Type
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IELTSWritingTaskOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/ielts-mode/writing/evaluate:
+    post:
+      tags:
+      - ielts-mode
+      summary: Evaluate Writing
+      operationId: evaluate_writing_api_v1_ielts_mode_writing_evaluate_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IELTSWritingEvaluateIn'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IELTSWritingEvaluateOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearer: []
+  /api/v1/ielts-mode/mock-tests:
+    get:
+      tags:
+      - ielts-mode
+      summary: List Mock Tests
+      operationId: list_mock_tests_api_v1_ielts_mode_mock_tests_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/IELTSMockTestListOut'
+                type: array
+                title: Response List Mock Tests Api V1 Ielts Mode Mock Tests Get
+      security:
+      - HTTPBearer: []
+  /api/v1/ielts-mode/mock-tests/{id}:
+    get:
+      tags:
+      - ielts-mode
+      summary: Get Mock Test
+      operationId: get_mock_test_api_v1_ielts_mode_mock_tests__id__get
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IELTSMockTestOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/ielts-mode/mock-tests/{id}/submit:
+    post:
+      tags:
+      - ielts-mode
+      summary: Submit Mock Test
+      operationId: submit_mock_test_api_v1_ielts_mode_mock_tests__id__submit_post
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IELTSMockTestSubmitIn'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IELTSMockTestSubmitOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/ielts-mode/stats:
+    get:
+      tags:
+      - ielts-mode
+      summary: Get Stats
+      operationId: get_stats_api_v1_ielts_mode_stats_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IELTSStatsOut'
+      security:
+      - HTTPBearer: []
   /:
     get:
       summary: Read Root
@@ -441,6 +721,10 @@ components:
         description:
           type: string
           title: Description
+        level:
+          type: string
+          title: Level
+          default: B1
       type: object
       required:
       - translation
@@ -483,6 +767,256 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
+    IELTSCriteriaDetail:
+      properties:
+        score:
+          type: number
+          title: Score
+        feedback:
+          type: string
+          title: Feedback
+      type: object
+      required:
+      - score
+      - feedback
+      title: IELTSCriteriaDetail
+    IELTSMockTestListOut:
+      properties:
+        id:
+          type: string
+          title: Id
+        title:
+          type: string
+          title: Title
+        type:
+          type: string
+          title: Type
+        difficulty:
+          type: string
+          title: Difficulty
+      type: object
+      required:
+      - id
+      - title
+      - type
+      - difficulty
+      title: IELTSMockTestListOut
+    IELTSMockTestOut:
+      properties:
+        id:
+          type: string
+          title: Id
+        sections:
+          items:
+            $ref: '#/components/schemas/IELTSMockTestSectionOut'
+          type: array
+          title: Sections
+      type: object
+      required:
+      - id
+      - sections
+      title: IELTSMockTestOut
+    IELTSMockTestQuestionOut:
+      properties:
+        id:
+          type: string
+          title: Id
+        type:
+          type: string
+          title: Type
+        text:
+          type: string
+          title: Text
+        options:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Options
+      type: object
+      required:
+      - id
+      - type
+      - text
+      title: IELTSMockTestQuestionOut
+    IELTSMockTestSectionOut:
+      properties:
+        content:
+          type: string
+          title: Content
+        questions:
+          items:
+            $ref: '#/components/schemas/IELTSMockTestQuestionOut'
+          type: array
+          title: Questions
+      type: object
+      required:
+      - content
+      - questions
+      title: IELTSMockTestSectionOut
+    IELTSMockTestSubmitIn:
+      properties:
+        answers:
+          additionalProperties:
+            type: string
+          type: object
+          title: Answers
+      type: object
+      required:
+      - answers
+      title: IELTSMockTestSubmitIn
+    IELTSMockTestSubmitOut:
+      properties:
+        correct_count:
+          type: integer
+          title: Correct Count
+        total_questions:
+          type: integer
+          title: Total Questions
+        band_score:
+          type: number
+          title: Band Score
+      type: object
+      required:
+      - correct_count
+      - total_questions
+      - band_score
+      title: IELTSMockTestSubmitOut
+    IELTSStatsOut:
+      properties:
+        estimated_band:
+          type: number
+          title: Estimated Band
+        target_band:
+          type: number
+          title: Target Band
+        writing_tasks_completed:
+          type: integer
+          title: Writing Tasks Completed
+        vocabulary_mastered:
+          type: integer
+          title: Vocabulary Mastered
+        mock_tests_count:
+          type: integer
+          title: Mock Tests Count
+        activity_heatmap:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Activity Heatmap
+      type: object
+      required:
+      - estimated_band
+      - target_band
+      - writing_tasks_completed
+      - vocabulary_mastered
+      - mock_tests_count
+      title: IELTSStatsOut
+    IELTSWordOut:
+      properties:
+        id:
+          type: string
+          title: Id
+        en:
+          type: string
+          title: En
+        ru:
+          type: string
+          title: Ru
+        uz:
+          type: string
+          title: Uz
+        definition:
+          type: string
+          title: Definition
+        transcription:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Transcription
+        topic:
+          type: string
+          title: Topic
+        example:
+          type: string
+          title: Example
+      type: object
+      required:
+      - id
+      - en
+      - ru
+      - uz
+      - definition
+      - transcription
+      - topic
+      - example
+      title: IELTSWordOut
+    IELTSWritingEvaluateIn:
+      properties:
+        task_id:
+          type: string
+          title: Task Id
+        content:
+          type: string
+          title: Content
+      type: object
+      required:
+      - task_id
+      - content
+      title: IELTSWritingEvaluateIn
+    IELTSWritingEvaluateOut:
+      properties:
+        overall_band:
+          type: number
+          title: Overall Band
+        criteria:
+          additionalProperties:
+            $ref: '#/components/schemas/IELTSCriteriaDetail'
+          type: object
+          title: Criteria
+        improvement_suggestions:
+          items:
+            type: string
+          type: array
+          title: Improvement Suggestions
+      type: object
+      required:
+      - overall_band
+      - criteria
+      - improvement_suggestions
+      title: IELTSWritingEvaluateOut
+    IELTSWritingTaskOut:
+      properties:
+        id:
+          type: string
+          title: Id
+        title:
+          type: string
+          title: Title
+        prompt:
+          type: string
+          title: Prompt
+        image_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Image Url
+        min_words:
+          type: integer
+          title: Min Words
+        time_limit:
+          type: integer
+          title: Time Limit
+      type: object
+      required:
+      - id
+      - title
+      - prompt
+      - image_url
+      - min_words
+      - time_limit
+      title: IELTSWritingTaskOut
     ImportIn:
       properties:
         user:
@@ -534,6 +1068,33 @@ components:
           default: true
       type: object
       title: OkOut
+    PasswordResetConfirmIn:
+      properties:
+        token:
+          type: string
+          minLength: 1
+          title: Token
+        password:
+          type: string
+          minLength: 8
+          title: Password
+      type: object
+      required:
+      - token
+      - password
+      title: PasswordResetConfirmIn
+    PasswordResetRequestIn:
+      properties:
+        email:
+          type: string
+          maxLength: 255
+          minLength: 3
+          format: email
+          title: Email
+      type: object
+      required:
+      - email
+      title: PasswordResetRequestIn
     PlanGenerateIn:
       properties:
         level:
@@ -546,17 +1107,26 @@ components:
       properties:
         mode:
           type: string
+          enum:
+          - login
+          - register
           title: Mode
           default: register
         name:
-          type: string
-          maxLength: 120
-          title: Name
-        password:
           anyOf:
           - type: string
-            minLength: 8
+            maxLength: 120
           - type: 'null'
+          title: Name
+        email:
+          type: string
+          maxLength: 255
+          minLength: 3
+          format: email
+          title: Email
+        password:
+          type: string
+          minLength: 8
           title: Password
         lang:
           type: string
@@ -567,7 +1137,8 @@ components:
           title: Device Id
       type: object
       required:
-      - name
+      - email
+      - password
       - lang
       - device_id
       title: SessionCreate
@@ -614,6 +1185,12 @@ components:
         name:
           type: string
           title: Name
+        email:
+          type: string
+          maxLength: 255
+          minLength: 3
+          format: email
+          title: Email
         lang:
           $ref: '#/components/schemas/Language'
         level:
@@ -626,10 +1203,19 @@ components:
       required:
       - id
       - name
+      - email
       - lang
       - level
       - created_at
       title: UserPublic
+    UserResponse:
+      properties:
+        user:
+          $ref: '#/components/schemas/UserPublic'
+      type: object
+      required:
+      - user
+      title: UserResponse
     UserUpdate:
       properties:
         name:
@@ -638,6 +1224,14 @@ components:
             maxLength: 120
           - type: 'null'
           title: Name
+        email:
+          anyOf:
+          - type: string
+            maxLength: 255
+            minLength: 3
+            format: email
+          - type: 'null'
+          title: Email
         lang:
           anyOf:
           - $ref: '#/components/schemas/Language'
@@ -678,6 +1272,29 @@ components:
       - msg
       - type
       title: ValidationError
+    WordAudioOut:
+      properties:
+        id:
+          type: string
+          title: Id
+        en:
+          type: string
+          title: En
+        audio_path:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Audio Path
+        audio_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Audio Url
+      type: object
+      required:
+      - id
+      - en
+      title: WordAudioOut
   securitySchemes:
     HTTPBearer:
       type: http

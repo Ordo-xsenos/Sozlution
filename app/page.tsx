@@ -6,6 +6,7 @@ import AIChatbot from '@/components/ai-chatbot'
 import { Check, TrendingUp, Brain, Headphones, BookOpen, Award, Globe, Phone, Send } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import ThemeToggle from '@/components/theme-toggle'
+import Antigravity from '@/components/effects/antigravity'
 
 type CountUpProps = {
   value: number
@@ -496,8 +497,8 @@ const translations = {
 
 export default function Home() {
   const [language, setLanguage] = useState<'en' | 'uz' | 'ru'>('en')
-  const [expandedStep, setExpandedStep] = useState<number | null>(null)
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
+
 
   const handleMouseMove = (e: React.MouseEvent) => {
     setMousePos({ x: e.clientX, y: e.clientY })
@@ -612,7 +613,27 @@ export default function Home() {
   ]
 
   return (
-    <div className="min-h-screen bg-background relative z-10 overflow-hidden" onMouseMove={handleMouseMove}>
+    <div className="min-h-screen bg-background/80 relative z-10 overflow-hidden" onMouseMove={handleMouseMove}>
+      {/* Antigravity Background Animation */}
+      <div className="fixed inset-0 z-0 opacity-60">
+        <Antigravity
+          count={150}
+          magnetRadius={15}
+          ringRadius={12}
+          waveSpeed={0.2}
+          waveAmplitude={0.85}
+          particleSize={1.4}
+          lerpSpeed={0.05}
+          color="#5227FF"
+          autoAnimate={true}
+          particleVariance={0.9}
+          rotationSpeed={0.07}
+          depthFactor={1.2}
+          pulseSpeed={1.5}
+          particleShape="capsule"
+          fieldStrength={9}
+        />
+      </div>
       {/* Cursor glow effect */}
       <div
         className="cursor-glow"
@@ -665,10 +686,12 @@ export default function Home() {
                   </button>
                 ))}
               </div>
-              <Button variant="outline" className="hidden sm:inline-flex bg-transparent">
-                {t.signIn}
+              <Button asChild variant="outline" className="hidden sm:inline-flex bg-transparent">
+                <Link href="/login">{t.signIn}</Link>
               </Button>
-              <Button className="bg-primary hover:bg-primary/90">{t.startFree}</Button>
+              <Button asChild className="bg-primary hover:bg-primary/90">
+                <Link href="/register">{t.startFree}</Link>
+              </Button>
             </div>
           </div>
         </div>
@@ -687,8 +710,8 @@ export default function Home() {
                 {t.description}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                <Button size="lg" className="bg-primary hover:bg-primary/90 text-lg px-8 py-6 rounded-full font-semibold">
-                  {t.startFree}
+                <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-lg px-8 py-6 rounded-full font-semibold">
+                  <Link href="/register">{t.startFree}</Link>
                 </Button>
                 <Button
                   asChild
@@ -858,9 +881,8 @@ export default function Home() {
 
             {/* Timeline Items */}
             <div className="space-y-12 lg:space-y-16">
-              {steps.map((item, idx) => {
-                const colors = ['from-pink-500 to-pink-600', 'from-cyan-500 to-cyan-600', 'from-yellow-500 to-yellow-600', 'from-purple-500 to-purple-600', 'from-orange-500 to-orange-600', 'from-indigo-500 to-indigo-600'];
-                const borderColors = ['border-pink-500', 'border-cyan-500', 'border-yellow-500', 'border-purple-500', 'border-orange-500', 'border-indigo-500'];
+             {steps.map((item, idx) => {
+                 const borderColors = ['border-pink-500', 'border-cyan-500', 'border-yellow-500', 'border-purple-500', 'border-orange-500', 'border-indigo-500'];
                 const circleColors = ['bg-pink-500', 'bg-cyan-500', 'bg-yellow-500', 'bg-purple-500', 'bg-orange-500', 'bg-indigo-500'];
                 const isLeft = idx % 2 === 0;
 
@@ -1156,6 +1178,7 @@ export default function Home() {
                   <span className="text-muted-foreground">{plan.period}</span>
                 </div>
                 <Button
+                  asChild
                   className={`w-full mb-8 ${
                     plan.popular
                       ? 'bg-primary hover:bg-primary/90'
@@ -1163,7 +1186,9 @@ export default function Home() {
                   }`}
                   variant={plan.popular ? 'default' : 'outline'}
                 >
-                  {plan.popular ? (language === 'uz' ? 'Bepul sinab ko\'ring' : language === 'ru' ? 'Начать бесплатную пробную версию' : 'Start Free Trial') : t.startFree}
+                  <Link href="/register">
+                    {plan.popular ? (language === 'uz' ? 'Bepul sinab ko\'ring' : language === 'ru' ? 'Начать бесплатную пробную версию' : 'Start Free Trial') : t.startFree}
+                  </Link>
                 </Button>
                 <ul className="space-y-3">
                   {plan.features.map((feature, fidx) => (
@@ -1190,17 +1215,21 @@ export default function Home() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
+              asChild
               size="lg"
               className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 text-lg font-semibold"
             >
-              {t.startFree}
+              <Link href="/register">{t.startFree}</Link>
             </Button>
             <Button
+              asChild
               size="lg"
               variant="outline"
               className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10 text-lg font-semibold bg-transparent"
             >
-              {language === 'uz' ? 'Demo rejalashtiring' : language === 'ru' ? 'Запланировать демо' : 'Schedule Demo'}
+              <Link href="/demo">
+                {language === 'uz' ? 'Demo rejalashtiring' : language === 'ru' ? 'Запланировать демо' : 'Schedule Demo'}
+              </Link>
             </Button>
           </div>
         </div>
@@ -1297,26 +1326,26 @@ export default function Home() {
                 </li>
               </ul>
             </div>
-            <div>
-              <h4 className="font-semibold text-foreground mb-4">{t.followUs}</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>
-                  <Link href="#" className="hover:text-primary transition flex items-center gap-2">
-                    <Globe className="w-4 h-4" /> Facebook
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-primary transition flex items-center gap-2">
-                    <Send className="w-4 h-4" /> Telegram
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-primary transition flex items-center gap-2">
-                    <Phone className="w-4 h-4" /> Instagram
-                  </Link>
-                </li>
-              </ul>
-            </div>
+             <div>
+               <h4 className="font-semibold text-foreground mb-4">{t.followUs}</h4>
+               <ul className="space-y-2 text-sm text-muted-foreground">
+                 <li>
+                   <Link href="#" className="hover:text-primary transition flex items-center gap-2">
+                     <Globe className="w-4 h-4" /> Facebook
+                   </Link>
+                 </li>
+                 <li>
+                   <Link href="#" className="hover:text-primary transition flex items-center gap-2">
+                     <Send className="w-4 h-4" /> Telegram
+                   </Link>
+                 </li>
+                 <li>
+                   <Link href="#" className="hover:text-primary transition flex items-center gap-2">
+                     <Phone className="w-4 h-4" /> Instagram
+                   </Link>
+                 </li>
+               </ul>
+             </div>
           </div>
           <div className="border-t border-border pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
             <p>&copy; 2024 So&apos;zlution. {t.allRightsReserved}</p>

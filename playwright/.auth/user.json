@@ -1,0 +1,14 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "http://localhost:3000",
+      "localStorage": [
+        {
+          "name": "sozlution_mvp_device_id",
+          "value": "821aa64d-e03d-4495-a550-54c149bad7ec"
+        }
+      ]
+    }
+  ]
+}

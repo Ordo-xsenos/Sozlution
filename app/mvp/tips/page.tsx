@@ -37,17 +37,25 @@ export default function TipsPage() {
   const { user, request, loading } = useApp()
   const [aiTip, setAiTip] = useState<string | null>(null)
   const [isGenerating, setIsGenerating] = useState(false)
+  const [requestError, setRequestError] = useState<string | null>(null)
 
   const generateTip = async () => {
+    if (!user) {
+      setRequestError('Сначала войдите в аккаунт в этом браузере, затем попробуйте снова.')
+      return
+    }
+
     setIsGenerating(true)
+    setRequestError(null)
     try {
       const prompt = `Give me one short, highly practical English learning tip for a ${user?.level || 'B1'} student. Focus on vocabulary or daily habits. No intro, just the tip.`
-      const r = await request('/api/v1/ai/chat', { 
-        body: { message: prompt, history: [], language: user?.lang || 'ru' } 
+      const r = await request('/api/v1/ai/chat', {
+        body: { message: prompt, history: [] },
       }, 'post')
       setAiTip(r.text)
     } catch (e) {
       console.error('Failed to generate tip', e)
+      setRequestError(e instanceof Error ? e.message : 'Не удалось получить совет')
     } finally {
       setIsGenerating(false)
     }
@@ -76,7 +84,7 @@ export default function TipsPage() {
             <div className="min-h-[80px] flex items-center">
               {aiTip ? (
                 <p className="text-xl md:text-2xl font-medium italic leading-relaxed">
-                  "{aiTip}"
+                  &quot;{aiTip}&quot;
                 </p>
               ) : (
                 <p className="text-lg opacity-80">
@@ -84,9 +92,14 @@ export default function TipsPage() {
                 </p>
               )}
             </div>
+            {requestError && (
+              <p className="rounded-xl bg-red-500/15 border border-red-400/40 px-4 py-3 text-sm text-red-100">
+                {requestError}
+              </p>
+            )}
             <Button 
               onClick={generateTip} 
-              disabled={isGenerating}
+              disabled={isGenerating || !user}
               className="bg-white text-blue-700 hover:bg-slate-100 h-14 rounded-2xl px-8 text-lg font-bold shadow-lg"
             >
               {isGenerating ? <Loader2 className="animate-spin mr-2" /> : <Zap className="mr-2 h-5 w-5 fill-current" />}
