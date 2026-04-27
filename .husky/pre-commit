@@ -1,6 +1,9 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
+# Добавить PATH для pnpm
+export PATH="$HOME/.npm-global/bin:$PATH"
+
 # Запустить lint-staged
 pnpm exec lint-staged
 
