@@ -1,4 +1,6 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8000'
+import { env } from '@/lib/env'
+
+const API_BASE_URL = env.NEXT_PUBLIC_API_BASE_URL
 
 export function buildApiUrl(path: string) {
   const base = API_BASE_URL.replace(/\/+$/, '')

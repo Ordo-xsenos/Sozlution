@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Запустить lint-staged
+pnpm exec lint-staged
+
+# Проверить типы TypeScript
+pnpm tsc --noEmit
+

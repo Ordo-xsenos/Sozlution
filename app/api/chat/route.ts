@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { env } from '@/lib/env'
+import { rateLimit } from '@/lib/rate-limit'
+import { logger } from '@/lib/logger'
 
 export const runtime = 'nodejs'
+
+const limiter = rateLimit({
+  interval: 60 * 1000, // 1 минута
+  uniqueTokenPerInterval: 500,
+})
 
 type ChatHistoryItem = {
   role: 'user' | 'assistant'
@@ -98,16 +106,26 @@ function isOnTopic(message: string) {
 }
 
 export async function POST(req: NextRequest) {
-  const baseUrl = process.env.AI_API_URL?.trim() || ''
-  const apiKey = process.env.AI_API_KEY?.trim() || ''
-  const model = process.env.AI_MODEL || process.env.GEMINI_MODEL || 'gpt-3.5-turbo'
+  // Rate limiting
+  const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown'
 
-  if (!baseUrl) {
+  const { success, remaining } = limiter.check(10, ip) // 10 запросов в минуту
+
+  if (!success) {
     return NextResponse.json(
-      { error: 'AI_API_URL is not configured' },
-      { status: 500 },
+      { error: 'Too many requests. Please try again later.' },
+      {
+        status: 429,
+        headers: {
+          'X-RateLimit-Remaining': remaining.toString(),
+        },
+      }
     )
   }
+
+  const baseUrl = env.AI_API_URL
+  const apiKey = env.AI_API_KEY
+  const model = env.AI_MODEL
 
   // Normalize URL to OpenAI-compatible chat completions endpoint
   let endpoint = baseUrl.replace(/\/+$/, '')
@@ -171,7 +189,7 @@ Sozlution context:
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...(apiKey ? { 'Authorization': `Bearer ${apiKey}` } : {}),
+        ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
       },
       body: JSON.stringify({
         model,
@@ -185,21 +203,18 @@ Sozlution context:
       const errorText = await response.text()
       return NextResponse.json(
         { error: 'AI API request failed', details: errorText },
-        { status: response.status },
+        { status: response.status }
       )
     }
 
     const data = await response.json()
-    
+
     // Extract reply from OpenAI format choices[0].message.content
     const reply = data.choices?.[0]?.message?.content?.trim() || refusalByLanguage[language]
 
     return NextResponse.json({ reply })
   } catch (error) {
-    console.error('AI API Proxy Error:', error)
-    return NextResponse.json(
-      { error: 'Failed to connect to AI API' },
-      { status: 502 },
-    )
+    logger.error('AI API Proxy Error:', error)
+    return NextResponse.json({ error: 'Failed to connect to AI API' }, { status: 502 })
   }
 }

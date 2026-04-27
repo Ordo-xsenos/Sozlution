@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import type { components, paths } from '@/lib/api-types'
 import { buildApiUrl } from '@/lib/api'
 import { clearAuthSession, getAuthToken } from '@/lib/auth'
+import { logger } from '@/lib/logger'
 
 type ApiSchemas = components['schemas']
 type Lang = ApiSchemas['Language']
@@ -14,16 +15,18 @@ type Level = ApiSchemas['Level']
 type HttpMethod = 'get' | 'post' | 'put' | 'delete' | 'patch'
 
 // Helper type to extract response type from OpenAPI paths
-type PathResponse<P extends keyof paths, M extends HttpMethod> =
-  paths[P] extends { [K in M]: { responses: { '200': { content: { 'application/json': infer R } } } } }
-    ? R
-    : never
+type PathResponse<P extends keyof paths, M extends HttpMethod> = paths[P] extends {
+  [K in M]: { responses: { '200': { content: { 'application/json': infer R } } } }
+}
+  ? R
+  : never
 
 // Helper type to extract request body type from OpenAPI paths
-type PathRequestBody<P extends keyof paths, M extends HttpMethod> =
-  paths[P] extends { [K in M]: { requestBody: { content: { 'application/json': infer B } } } }
-    ? B
-    : never
+type PathRequestBody<P extends keyof paths, M extends HttpMethod> = paths[P] extends {
+  [K in M]: { requestBody: { content: { 'application/json': infer B } } }
+}
+  ? B
+  : never
 
 export interface Word {
   id: string
@@ -94,6 +97,36 @@ export interface IeltsStats {
   activity_heatmap: Record<string, number>
 }
 
+// API Response interfaces
+interface UserApiResponse {
+  user: User
+}
+
+interface StatsApiResponse {
+  stats: Stats
+}
+
+interface ResultsApiResponse {
+  results: DayResult[]
+}
+
+interface PlanApiResponse {
+  plan: Plan
+}
+
+interface PlanGenerateBody {
+  level: Level
+}
+
+interface PlanGenerateResponse {
+  plan: Plan
+}
+
+interface CurrentDayResponse {
+  day: DayPlan
+  words: Word[]
+}
+
 interface AppContextType {
   user: User | null
   stats: Stats | null
@@ -116,12 +149,12 @@ async function request<
   P extends keyof paths,
   M extends HttpMethod = 'get',
   TResponse = PathResponse<P, M>,
-  TBody = PathRequestBody<P, M>
+  TBody = PathRequestBody<P, M>,
 >(
   path: P,
   init?: Omit<RequestInit, 'body'> & { body?: TBody },
   method: M = 'get' as M,
-  withAuth = true,
+  withAuth = true
 ): Promise<TResponse> {
   const headers = new Headers(init?.headers || {})
   headers.set('Content-Type', 'application/json')
@@ -200,21 +233,21 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setError('')
     try {
       const [u, s, r] = await Promise.all([
-        request<'/api/v1/user', 'get', any>('/api/v1/user'),
-        request<'/api/v1/stats', 'get', any>('/api/v1/stats'),
-        request<'/api/v1/results', 'get', any>('/api/v1/results'),
+        request<'/api/v1/user', 'get', UserApiResponse>('/api/v1/user'),
+        request<'/api/v1/stats', 'get', StatsApiResponse>('/api/v1/stats'),
+        request<'/api/v1/results', 'get', ResultsApiResponse>('/api/v1/results'),
       ])
-      setUser(u?.user || u)
-      setStats(s?.stats || s)
-      setResults(Array.isArray(r) ? r : r?.results || [])
+      setUser(u.user)
+      setStats(s.stats)
+      setResults(r.results)
 
       // Fetch IELTS stats if possible
       try {
-        const isIelts = (u?.user?.level || u?.level) === 'IELTS'
+        const isIelts = u.user.level === ('IELTS' as any)
         if (isIelts) {
-          // Cast to any because api-types might not be synced with openapi.yml yet
-          const istats = await request<any, 'get', any>('/api/v1/ielts-mode/stats')
-          setIeltsStats(istats)
+          // IELTS endpoint may not be in api-types yet
+          const istats = await request('/api/v1/ielts-mode/stats' as any, {}, 'get')
+          setIeltsStats(istats as IeltsStats)
         }
       } catch (e) {
         // Silently skip if ielts stats fail or not found
@@ -223,9 +256,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       let planLoaded = false
       let planData = null
       try {
-        const p = await request<'/api/v1/plan', 'get', any>('/api/v1/plan')
-        const actualPlan = p?.plan || p
-        
+        const p = await request<'/api/v1/plan', 'get', PlanApiResponse>('/api/v1/plan')
+        const actualPlan = p.plan
+
         // Если план пришел пустым (нет дней или нет ID), считаем, что его нужно сгенерировать
         if (!actualPlan || (Array.isArray(actualPlan?.days) && actualPlan.days.length === 0)) {
           throw new Error('Empty plan')
@@ -236,48 +269,59 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         planData = actualPlan
       } catch (e) {
         const msg = e instanceof Error ? e.message : ''
-        const isNotFound = 
-          msg.toLowerCase().includes('not found') || 
-          msg.toLowerCase().includes('не найден') || 
-          msg.includes('404') || 
-          msg.includes('Empty plan');
+        const isNotFound =
+          msg.toLowerCase().includes('not found') ||
+          msg.toLowerCase().includes('не найден') ||
+          msg.includes('404') ||
+          msg.includes('Empty plan')
 
         // Если план не найден или пустой — создаём его
         if (isNotFound) {
           try {
-            console.log('Generating plan for level:', u.user.level)
-            await request<'/api/v1/plan/generate', 'post', any, { level: Level }>('/api/v1/plan/generate', {
-              body: { level: u.user.level },
-            }, 'post')
-            
+            logger.info('Generating plan for level:', u.user.level)
+            await request<'/api/v1/plan/generate', 'post', PlanGenerateResponse, PlanGenerateBody>(
+              '/api/v1/plan/generate',
+              {
+                body: { level: u.user.level },
+              },
+              'post'
+            )
+
             // Повторяем запрос на план после генерации
-            const p2 = await request<'/api/v1/plan', 'get', any>('/api/v1/plan')
-            const actualPlan2 = p2?.plan || p2
+            const p2 = await request<'/api/v1/plan', 'get', PlanApiResponse>('/api/v1/plan')
+            const actualPlan2 = p2.plan
             setPlan(actualPlan2)
             planLoaded = true
             planData = actualPlan2
           } catch (genErr) {
-            console.error('Plan generation failed:', genErr)
+            logger.error('Plan generation failed:', genErr)
           }
         } else {
-          console.error('Plan hydration error:', msg)
+          logger.error('Plan hydration error:', msg)
         }
       }
 
       if (planLoaded && planData) {
         // Пытаемся получить currentDay, если не получилось — просто не сетим, не кидаем ошибку
         try {
-          const c = await request<'/api/v1/day/current', 'get', any>('/api/v1/day/current')
+          const c = await request<'/api/v1/day/current', 'get', CurrentDayResponse>(
+            '/api/v1/day/current'
+          )
           setCurrentDay(c)
         } catch (e) {
-          // Не выводим ошибку в консоль, просто пропускаем
+          const error = e instanceof Error ? e : new Error('Unknown error')
+          logger.error('Failed to fetch current day:', error.message)
         }
       }
       setAuthReady(true)
     } catch (e) {
       const nextError = e instanceof Error ? e.message : 'Hydration failed'
       setError(nextError)
-      if (nextError.includes('401') || nextError.toLowerCase().includes('not found') || nextError.includes('404')) {
+      if (
+        nextError.includes('401') ||
+        nextError.toLowerCase().includes('not found') ||
+        nextError.includes('404')
+      ) {
         logout()
         return
       }
@@ -287,11 +331,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   }, [logout])
 
-  const login = useCallback(async (token: string) => {
-    const { setAuthToken } = await import('@/lib/auth')
-    setAuthToken(token)
-    await hydrate()
-  }, [hydrate])
+  const login = useCallback(
+    async (token: string) => {
+      const { setAuthToken } = await import('@/lib/auth')
+      setAuthToken(token)
+      await hydrate()
+    },
+    [hydrate]
+  )
 
   useEffect(() => {
     const token = getAuthToken()
@@ -319,7 +366,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         hydrate,
         login,
         logout,
-        request
+        request,
       }}
     >
       {children}
