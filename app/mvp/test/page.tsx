@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useApp } from '@/context/app-context'
+import { logger } from '@/lib/logger'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
@@ -24,18 +25,18 @@ export default function LevelTestPage() {
 
   const handleSelect = (optionIndex: number) => {
     const q = questions[currentIndex]
-    setAnswers(prev => ({ ...prev, [q.id]: optionIndex }))
+    setAnswers((prev) => ({ ...prev, [q.id]: optionIndex }))
   }
 
   const handleNext = () => {
     if (currentIndex < questions.length - 1) {
-      setCurrentIndex(prev => prev + 1)
+      setCurrentIndex((prev) => prev + 1)
     }
   }
 
   const handleBack = () => {
     if (currentIndex > 0) {
-      setCurrentIndex(prev => prev - 1)
+      setCurrentIndex((prev) => prev - 1)
     }
   }
 
@@ -43,16 +44,20 @@ export default function LevelTestPage() {
     setSubmitting(true)
     try {
       const { score, level } = determineLevelFromScore(answers, questions)
-      
-      await request('/api/v1/user', {
-        body: { level }
-      }, 'patch')
+
+      await request(
+        '/api/v1/user',
+        {
+          body: { level },
+        },
+        'patch'
+      )
 
       setResult({ score, level })
       await hydrate()
     } catch (err) {
       toast.error('Ошибка при отправке теста')
-      console.error(err)
+      logger.error('Test submission failed:', err)
     } finally {
       setSubmitting(false)
     }
@@ -74,7 +79,7 @@ export default function LevelTestPage() {
   }
 
   if (result) {
-    const isPassed = (result.score / questions.length) >= 0.8
+    const isPassed = result.score / questions.length >= 0.8
     const isIELTS = result.level === 'IELTS' || (user?.level === 'C1' && isPassed)
 
     return (
@@ -82,24 +87,26 @@ export default function LevelTestPage() {
         {/* Epic Golden Transition Overlay */}
         {isTransitioning && (
           <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black animate-in fade-in duration-500">
-             <div className="absolute inset-0 bg-gradient-to-b from-amber-600/20 via-amber-500 to-amber-600 animate-pulse duration-1000" />
-             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/40 via-transparent to-transparent animate-out zoom-out duration-1000 fill-mode-forwards" />
-             
-             <div className="relative z-10 space-y-4 text-center">
-                <div className="text-black text-8xl md:text-9xl font-black italic tracking-tighter animate-in zoom-in slide-in-from-bottom-10 duration-1000 fill-mode-forwards drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]">
-                  IELTS
-                </div>
-                <div className="text-black/70 text-sm font-black uppercase tracking-[0.5em] animate-pulse">
-                  Unlocking Professional Mode
-                </div>
-             </div>
+            <div className="absolute inset-0 bg-gradient-to-b from-amber-600/20 via-amber-500 to-amber-600 animate-pulse duration-1000" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/40 via-transparent to-transparent animate-out zoom-out duration-1000 fill-mode-forwards" />
 
-             <div className="absolute w-[300px] h-[300px] border-4 border-white/20 rounded-full animate-ping duration-[2000ms]" />
-             <div className="absolute w-[500px] h-[500px] border border-white/10 rounded-full animate-ping duration-[3000ms]" />
+            <div className="relative z-10 space-y-4 text-center">
+              <div className="text-black text-8xl md:text-9xl font-black italic tracking-tighter animate-in zoom-in slide-in-from-bottom-10 duration-1000 fill-mode-forwards drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]">
+                IELTS
+              </div>
+              <div className="text-black/70 text-sm font-black uppercase tracking-[0.5em] animate-pulse">
+                Unlocking Professional Mode
+              </div>
+            </div>
+
+            <div className="absolute w-[300px] h-[300px] border-4 border-white/20 rounded-full animate-ping duration-[2000ms]" />
+            <div className="absolute w-[500px] h-[500px] border border-white/10 rounded-full animate-ping duration-[3000ms]" />
           </div>
         )}
 
-        <Card className={`max-w-md w-full bg-[#1a2744] border-blue-500/30 text-white p-8 text-center shadow-2xl transition-all duration-[2000ms] ease-in-out ${isTransitioning ? 'scale-[10] rotate-[15deg] opacity-0 blur-2xl' : ''}`}>
+        <Card
+          className={`max-w-md w-full bg-[#1a2744] border-blue-500/30 text-white p-8 text-center shadow-2xl transition-all duration-[2000ms] ease-in-out ${isTransitioning ? 'scale-[10] rotate-[15deg] opacity-0 blur-2xl' : ''}`}
+        >
           <div className="mb-6 flex justify-center">
             {isPassed ? (
               <div className="relative">
@@ -115,11 +122,14 @@ export default function LevelTestPage() {
             {isPassed ? 'Поздравляем!' : 'Почти получилось!'}
           </h2>
           <p className="text-gray-400 mb-6">
-            Ваш результат: <span className="text-blue-400 font-bold">{result.score}</span> из {questions.length}
+            Ваш результат: <span className="text-blue-400 font-bold">{result.score}</span> из{' '}
+            {questions.length}
           </p>
 
           <div className="bg-[#0f172a]/50 rounded-2xl p-6 mb-8 border border-white/5">
-            <p className="text-sm text-gray-400 uppercase tracking-widest mb-1">Ваш новый уровень</p>
+            <p className="text-sm text-gray-400 uppercase tracking-widest mb-1">
+              Ваш новый уровень
+            </p>
             <p className="text-4xl font-black text-blue-500">
               {isIELTS ? 'IELTS MODE' : result.level}
             </p>
@@ -135,21 +145,38 @@ export default function LevelTestPage() {
               const userAnswer = answers[q.id]
               const isCorrect = userAnswer === q.correctIndex
               return (
-                <div key={q.id} className={`p-4 rounded-2xl border transition-all ${isCorrect ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-red-500/20 bg-red-500/5'}`}>
+                <div
+                  key={q.id}
+                  className={`p-4 rounded-2xl border transition-all ${isCorrect ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-red-500/20 bg-red-500/5'}`}
+                >
                   <div className="flex items-start gap-3">
-                    <div className={`mt-1 shrink-0 ${isCorrect ? 'text-emerald-500' : 'text-red-500'}`}>
-                      {isCorrect ? <CheckCircle2 className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
+                    <div
+                      className={`mt-1 shrink-0 ${isCorrect ? 'text-emerald-500' : 'text-red-500'}`}
+                    >
+                      {isCorrect ? (
+                        <CheckCircle2 className="w-5 h-5" />
+                      ) : (
+                        <XCircle className="w-5 h-5" />
+                      )}
                     </div>
                     <div className="space-y-2">
-                      <p className="font-bold text-gray-200">{idx + 1}. {q.text}</p>
+                      <p className="font-bold text-gray-200">
+                        {idx + 1}. {q.text}
+                      </p>
                       <div className="text-sm space-y-1">
-                        <p className={`flex items-center gap-2 ${isCorrect ? 'text-emerald-400' : 'text-red-400 font-medium'}`}>
-                          <span className="opacity-60 uppercase text-[10px] font-black">Ваш ответ:</span> 
+                        <p
+                          className={`flex items-center gap-2 ${isCorrect ? 'text-emerald-400' : 'text-red-400 font-medium'}`}
+                        >
+                          <span className="opacity-60 uppercase text-[10px] font-black">
+                            Ваш ответ:
+                          </span>
                           {q.options[userAnswer] || 'Пропущено'}
                         </p>
                         {!isCorrect && (
                           <p className="text-emerald-400 font-bold flex items-center gap-2">
-                            <span className="opacity-60 uppercase text-[10px] font-black">Верный ответ:</span>
+                            <span className="opacity-60 uppercase text-[10px] font-black">
+                              Верный ответ:
+                            </span>
                             {q.options[q.correctIndex]}
                           </p>
                         )}
@@ -163,8 +190,10 @@ export default function LevelTestPage() {
 
           {isIELTS ? (
             <div className="space-y-4">
-              <p className="text-emerald-400 font-medium">Вы разблокировали профессиональный режим подготовки к IELTS!</p>
-              <Button 
+              <p className="text-emerald-400 font-medium">
+                Вы разблокировали профессиональный режим подготовки к IELTS!
+              </p>
+              <Button
                 onClick={handleEnterIelts}
                 className="w-full h-14 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-2xl text-lg font-bold shadow-lg shadow-blue-900/20"
               >
@@ -172,7 +201,7 @@ export default function LevelTestPage() {
               </Button>
             </div>
           ) : (
-            <Button 
+            <Button
               onClick={() => router.push('/mvp')}
               className="w-full h-14 bg-blue-600 hover:bg-blue-700 rounded-2xl text-lg font-bold"
             >
@@ -195,7 +224,9 @@ export default function LevelTestPage() {
           <div className="flex justify-between items-end">
             <div>
               <h1 className="text-2xl font-bold">Финальный тест уровня {user?.level}</h1>
-              <p className="text-gray-400">Вопрос {currentIndex + 1} из {questions.length}</p>
+              <p className="text-gray-400">
+                Вопрос {currentIndex + 1} из {questions.length}
+              </p>
             </div>
             <div className="text-right">
               <span className="text-blue-400 font-bold">{Math.round(progress)}%</span>
@@ -210,26 +241,31 @@ export default function LevelTestPage() {
           </h2>
 
           <div className="grid gap-4">
-            {Array.isArray(currentQuestion?.options) && currentQuestion.options.map((option, idx) => (
-              <button
-                key={idx}
-                onClick={() => handleSelect(idx)}
-                className={`w-full p-5 rounded-2xl text-left transition-all border-2 text-lg ${
-                  answers[currentQuestion.id] === idx
-                    ? 'border-blue-500 bg-blue-500/10 text-white'
-                    : 'border-slate-800 bg-slate-900/50 text-gray-400 hover:border-slate-700 hover:bg-slate-800/50'
-                }`}
-              >
-                <div className="flex items-center gap-4">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 font-bold ${
-                    answers[currentQuestion.id] === idx ? 'border-blue-500 bg-blue-500 text-white' : 'border-slate-700'
-                  }`}>
-                    {String.fromCharCode(65 + idx)}
+            {Array.isArray(currentQuestion?.options) &&
+              currentQuestion.options.map((option, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => handleSelect(idx)}
+                  className={`w-full p-5 rounded-2xl text-left transition-all border-2 text-lg ${
+                    answers[currentQuestion.id] === idx
+                      ? 'border-blue-500 bg-blue-500/10 text-white'
+                      : 'border-slate-800 bg-slate-900/50 text-gray-400 hover:border-slate-700 hover:bg-slate-800/50'
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center border-2 font-bold ${
+                        answers[currentQuestion.id] === idx
+                          ? 'border-blue-500 bg-blue-500 text-white'
+                          : 'border-slate-700'
+                      }`}
+                    >
+                      {String.fromCharCode(65 + idx)}
+                    </div>
+                    {option}
                   </div>
-                  {option}
-                </div>
-              </button>
-            ))}
+                </button>
+              ))}
           </div>
         </Card>
 
@@ -242,7 +278,7 @@ export default function LevelTestPage() {
           >
             Назад
           </Button>
-          
+
           {currentIndex < questions.length - 1 ? (
             <Button
               onClick={handleNext}

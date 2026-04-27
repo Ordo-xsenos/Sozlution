@@ -3,6 +3,7 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Suspense, useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
+import { logger } from '@/lib/logger'
 
 type AntigravityProps = {
   count?: number
@@ -40,7 +41,7 @@ function AntigravityInner({
   fieldStrength = 10,
 }: AntigravityProps) {
   const meshRef = useRef<THREE.InstancedMesh>(null)
-   const { viewport } = useThree()
+  const { viewport } = useThree()
   const dummy = useMemo(() => new THREE.Object3D(), [])
   const lastMousePos = useRef({ x: 0, y: 0 })
   const lastMouseMoveTime = useRef(0)
@@ -152,7 +153,8 @@ function AntigravityInner({
       const currentDist = Math.hypot(p.cx - projectedTargetX, p.cy - projectedTargetY)
       const distFromRing = Math.abs(currentDist - ringRadius)
       const ringFactor = Math.max(0, Math.min(1, 1 - distFromRing / 10))
-      const finalScale = ringFactor * (0.8 + Math.sin(p.t * pulseSpeed) * 0.2 * particleVariance) * particleSize
+      const finalScale =
+        ringFactor * (0.8 + Math.sin(p.t * pulseSpeed) * 0.2 * particleVariance) * particleSize
       dummy.scale.set(finalScale, finalScale, finalScale)
       dummy.updateMatrix()
       mesh.setMatrixAt(i, dummy.matrix)
@@ -167,7 +169,7 @@ function AntigravityInner({
       {particleShape === 'sphere' && <sphereGeometry args={[0.2, 16, 16]} />}
       {particleShape === 'box' && <boxGeometry args={[0.3, 0.3, 0.3]} />}
       {particleShape === 'tetrahedron' && <tetrahedronGeometry args={[0.3]} />}
-       <meshBasicMaterial color={color} transparent opacity={0.75} />
+      <meshBasicMaterial color={color} transparent opacity={0.75} />
     </instancedMesh>
   )
 }
@@ -178,7 +180,7 @@ export default function Antigravity(props: AntigravityProps) {
       <Canvas
         camera={{ position: [0, 0, 50], fov: 35 }}
         style={{ width: '100%', height: '100%', display: 'block' }}
-        onError={(error) => console.error('Canvas error:', error)}
+        onError={(error) => logger.error('Canvas error:', error)}
         dpr={[1, 2]}
       >
         <AntigravityInner {...props} />

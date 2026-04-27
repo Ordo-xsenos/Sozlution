@@ -3,10 +3,19 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useApp } from '@/context/app-context'
+import { logger } from '@/lib/logger'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
-import { Loader2, ArrowRight, Trophy, Sparkles, BrainCircuit, CheckCircle2, XCircle } from 'lucide-react'
+import {
+  Loader2,
+  ArrowRight,
+  Trophy,
+  Sparkles,
+  BrainCircuit,
+  CheckCircle2,
+  XCircle,
+} from 'lucide-react'
 import { toast } from 'sonner'
 import { PLACEMENT_TEST_QUESTIONS, determineLevelFromScore } from '@/lib/placement-test-questions'
 
@@ -23,18 +32,18 @@ export default function PlacementTestPage() {
 
   const handleSelect = (optionIndex: number) => {
     const q = questions[currentIndex]
-    setAnswers(prev => ({ ...prev, [q.id]: optionIndex }))
+    setAnswers((prev) => ({ ...prev, [q.id]: optionIndex }))
   }
 
   const handleNext = () => {
     if (currentIndex < questions.length - 1) {
-      setCurrentIndex(prev => prev + 1)
+      setCurrentIndex((prev) => prev + 1)
     }
   }
 
   const handleBack = () => {
     if (currentIndex > 0) {
-      setCurrentIndex(prev => prev - 1)
+      setCurrentIndex((prev) => prev - 1)
     }
   }
 
@@ -43,18 +52,22 @@ export default function PlacementTestPage() {
     try {
       // 1. Подсчитываем результат локально
       const { score, level } = determineLevelFromScore(answers, questions)
-      
+
       // 2. Отправляем финальный уровень на бэкенд (Patch User)
       // Мы используем эндпоинт Patch User, чтобы сохранить вычисленный уровень
-      await request('/api/v1/user', {
-        body: { level }
-      }, 'patch')
+      await request(
+        '/api/v1/user',
+        {
+          body: { level },
+        },
+        'patch'
+      )
 
       setResult({ score, level })
       await hydrate() // Обновляем состояние приложения
     } catch (err) {
       toast.error('Ошибка при сохранении результата')
-      console.error(err)
+      logger.error('Test result save failed:', err)
     } finally {
       setSubmitting(false)
     }
@@ -65,10 +78,10 @@ export default function PlacementTestPage() {
       <div className="min-h-screen bg-[#050810] p-4 flex items-center justify-center">
         <Card className="max-w-md w-full bg-[#0a0f1d] border-cyan-500/30 text-white p-10 text-center shadow-2xl rounded-[40px]">
           <div className="mb-8 flex justify-center">
-             <div className="relative">
-                <Trophy className="w-24 h-24 text-yellow-400" />
-                <Sparkles className="absolute -top-2 -right-2 w-10 h-10 text-cyan-400 animate-pulse" />
-             </div>
+            <div className="relative">
+              <Trophy className="w-24 h-24 text-yellow-400" />
+              <Sparkles className="absolute -top-2 -right-2 w-10 h-10 text-cyan-400 animate-pulse" />
+            </div>
           </div>
 
           <h2 className="text-4xl font-black mb-4 tracking-tighter">Тест завершен!</h2>
@@ -77,7 +90,9 @@ export default function PlacementTestPage() {
           </p>
 
           <div className="bg-cyan-500/10 rounded-[32px] p-8 mb-10 border border-cyan-500/20">
-            <p className="text-[10px] text-cyan-500/60 uppercase font-black tracking-[0.2em] mb-2">Ваш уровень</p>
+            <p className="text-[10px] text-cyan-500/60 uppercase font-black tracking-[0.2em] mb-2">
+              Ваш уровень
+            </p>
             <p className="text-6xl font-black text-cyan-400">{result.level}</p>
           </div>
 
@@ -91,21 +106,38 @@ export default function PlacementTestPage() {
               const userAnswer = answers[q.id]
               const isCorrect = userAnswer === q.correctIndex
               return (
-                <div key={q.id} className={`p-4 rounded-3xl border transition-all ${isCorrect ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-red-500/20 bg-red-500/5'}`}>
+                <div
+                  key={q.id}
+                  className={`p-4 rounded-3xl border transition-all ${isCorrect ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-red-500/20 bg-red-500/5'}`}
+                >
                   <div className="flex items-start gap-3">
-                    <div className={`mt-1 shrink-0 ${isCorrect ? 'text-emerald-500' : 'text-red-500'}`}>
-                      {isCorrect ? <CheckCircle2 className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
+                    <div
+                      className={`mt-1 shrink-0 ${isCorrect ? 'text-emerald-500' : 'text-red-500'}`}
+                    >
+                      {isCorrect ? (
+                        <CheckCircle2 className="w-5 h-5" />
+                      ) : (
+                        <XCircle className="w-5 h-5" />
+                      )}
                     </div>
                     <div className="space-y-2">
-                      <p className="font-bold text-gray-200 text-sm">{idx + 1}. {q.text}</p>
+                      <p className="font-bold text-gray-200 text-sm">
+                        {idx + 1}. {q.text}
+                      </p>
                       <div className="text-xs space-y-1">
-                        <p className={`flex items-center gap-2 ${isCorrect ? 'text-emerald-400' : 'text-red-400 font-medium'}`}>
-                          <span className="opacity-60 uppercase text-[9px] font-black">Ваш ответ:</span> 
+                        <p
+                          className={`flex items-center gap-2 ${isCorrect ? 'text-emerald-400' : 'text-red-400 font-medium'}`}
+                        >
+                          <span className="opacity-60 uppercase text-[9px] font-black">
+                            Ваш ответ:
+                          </span>
                           {q.options[userAnswer] || 'Пропущено'}
                         </p>
                         {!isCorrect && (
                           <p className="text-emerald-400 font-bold flex items-center gap-2">
-                            <span className="opacity-60 uppercase text-[9px] font-black">Верный ответ:</span>
+                            <span className="opacity-60 uppercase text-[9px] font-black">
+                              Верный ответ:
+                            </span>
                             {q.options[q.correctIndex]}
                           </p>
                         )}
@@ -117,7 +149,7 @@ export default function PlacementTestPage() {
             })}
           </div>
 
-          <Button 
+          <Button
             onClick={() => router.push('/mvp')}
             className="w-full h-16 bg-cyan-500 hover:bg-cyan-400 text-black font-black rounded-2xl text-xl shadow-lg shadow-cyan-900/20 transition-all active:scale-95"
           >
@@ -142,7 +174,9 @@ export default function PlacementTestPage() {
                 <BrainCircuit className="w-8 h-8 text-cyan-500" />
                 Placement Test
               </h1>
-              <p className="text-gray-500 font-medium">Вопрос {currentIndex + 1} из {questions.length}</p>
+              <p className="text-gray-500 font-medium">
+                Вопрос {currentIndex + 1} из {questions.length}
+              </p>
             </div>
             <div className="text-right">
               <span className="text-cyan-500 font-black text-2xl">{Math.round(progress)}%</span>
@@ -169,9 +203,13 @@ export default function PlacementTestPage() {
                 }`}
               >
                 <div className="flex items-center gap-5">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 font-black transition-all ${
-                    answers[currentQuestion.id] === idx ? 'border-cyan-500 bg-cyan-500 text-black' : 'border-slate-800'
-                  }`}>
+                  <div
+                    className={`w-10 h-10 rounded-full flex items-center justify-center border-2 font-black transition-all ${
+                      answers[currentQuestion.id] === idx
+                        ? 'border-cyan-500 bg-cyan-500 text-black'
+                        : 'border-slate-800'
+                    }`}
+                  >
                     {String.fromCharCode(65 + idx)}
                   </div>
                   {option}
@@ -190,7 +228,7 @@ export default function PlacementTestPage() {
           >
             Назад
           </Button>
-          
+
           {currentIndex < questions.length - 1 ? (
             <Button
               onClick={handleNext}
