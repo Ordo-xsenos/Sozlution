@@ -46,4 +46,9 @@ export function getOrCreateDeviceId() {
 
 export function clearAuthSession() {
   clearAuthToken()
+  // Очистка старых токенов с другими ключами (для обратной совместимости)
+  if (canUseStorage()) {
+    localStorage.removeItem('auth_token')
+    localStorage.removeItem('token')
+  }
 }

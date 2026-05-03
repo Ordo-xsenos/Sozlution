@@ -2,7 +2,17 @@
 
 import { useApp } from '@/context/app-context'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts'
 import { Loader2 } from 'lucide-react'
 
 export default function ProgressPage() {
@@ -23,9 +33,9 @@ export default function ProgressPage() {
   const learnedPercentage = totalWords > 0 ? Math.round((learnedWords / totalWords) * 100) : 0
 
   // Тренды из реальных результатов
-  const chartData = results.slice(-7).map(r => ({
+  const chartData = (results || []).slice(-7).map((r) => ({
     day: `Д${r.day}`,
-    words: Math.round(r.accuracy)
+    words: Math.round(r.accuracy),
   }))
 
   const proficiencyData = [
@@ -41,7 +51,9 @@ export default function ProgressPage() {
         {/* Header */}
         <div className="mb-6 md:mb-8">
           <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">Прогресс</h1>
-          <p className="text-sm md:text-base text-gray-400">Отслеживайте ваш прогресс в изучении английского</p>
+          <p className="text-sm md:text-base text-gray-400">
+            Отслеживайте ваш прогресс в изучении английского
+          </p>
         </div>
 
         {/* Stats Grid */}
@@ -61,27 +73,37 @@ export default function ProgressPage() {
               <CardTitle className="text-xs md:text-sm font-medium text-gray-400">Серия</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl md:text-3xl font-bold text-orange-400">{stats?.streak || 0}</div>
+              <div className="text-2xl md:text-3xl font-bold text-orange-400">
+                {stats?.streak || 0}
+              </div>
               <p className="text-xs text-gray-400 mt-2">дней</p>
             </CardContent>
           </Card>
 
           <Card className="bg-[#1a2744] border-[#334155] text-white">
             <CardHeader className="pb-2">
-              <CardTitle className="text-xs md:text-sm font-medium text-gray-400">Успешность</CardTitle>
+              <CardTitle className="text-xs md:text-sm font-medium text-gray-400">
+                Успешность
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl md:text-3xl font-bold text-yellow-400">{Math.round(stats?.avg_accuracy || 0)}%</div>
+              <div className="text-2xl md:text-3xl font-bold text-yellow-400">
+                {Math.round(stats?.avg_accuracy || 0)}%
+              </div>
               <p className="text-xs text-gray-400 mt-2">средняя</p>
             </CardContent>
           </Card>
 
           <Card className="bg-[#1a2744] border-[#334155] text-white">
             <CardHeader className="pb-2">
-              <CardTitle className="text-xs md:text-sm font-medium text-gray-400 whitespace-nowrap">Уроков</CardTitle>
+              <CardTitle className="text-xs md:text-sm font-medium text-gray-400 whitespace-nowrap">
+                Уроков
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl md:text-3xl font-bold text-blue-400">{stats?.total_days_done || 0}</div>
+              <div className="text-2xl md:text-3xl font-bold text-blue-400">
+                {stats?.total_days_done || 0}
+              </div>
               <p className="text-xs text-gray-400 mt-2">всего</p>
             </CardContent>
           </Card>
@@ -99,8 +121,16 @@ export default function ProgressPage() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                   <XAxis dataKey="day" stroke="#94a3b8" />
                   <YAxis stroke="#94a3b8" />
-                  <Tooltip contentStyle={{ backgroundColor: '#1a2744', border: '1px solid #334155' }} />
-                  <Line type="monotone" dataKey="words" stroke="#3b82f6" strokeWidth={2} dot={{ fill: '#3b82f6' }} />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#1a2744', border: '1px solid #334155' }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="words"
+                    stroke="#3b82f6"
+                    strokeWidth={2}
+                    dot={{ fill: '#3b82f6' }}
+                  />
                 </LineChart>
               </ResponsiveContainer>
             </CardContent>
@@ -116,7 +146,9 @@ export default function ProgressPage() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                   <XAxis dataKey="level" stroke="#94a3b8" />
                   <YAxis stroke="#94a3b8" />
-                  <Tooltip contentStyle={{ backgroundColor: '#1a2744', border: '1px solid #334155' }} />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#1a2744', border: '1px solid #334155' }}
+                  />
                   <Bar dataKey="count" fill="#3b82f6" />
                 </BarChart>
               </ResponsiveContainer>
@@ -141,7 +173,9 @@ export default function ProgressPage() {
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-400">Средняя точность</span>
-                <span className="text-white font-semibold">{Math.round(stats?.avg_accuracy || 0)}%</span>
+                <span className="text-white font-semibold">
+                  {Math.round(stats?.avg_accuracy || 0)}%
+                </span>
               </div>
             </div>
           </CardContent>
