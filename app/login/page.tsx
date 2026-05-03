@@ -7,13 +7,7 @@ import { Loader2, LockKeyhole, Mail } from 'lucide-react'
 
 import { AuthShell } from '@/components/auth/auth-shell'
 import { Button } from '@/components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -25,7 +19,7 @@ type LoginMode = 'password' | 'reset'
 
 export default function LoginPage() {
   const router = useRouter()
-  const { login: appLogin } = useApp()
+  const { login: appLogin, user, authReady } = useApp()
   const [mode, setMode] = useState<LoginMode>('password')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -34,10 +28,10 @@ export default function LoginPage() {
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    if (getAuthToken()) {
+    if (authReady && user) {
       router.replace('/mvp')
     }
-  }, [router])
+  }, [authReady, user, router])
 
   const submitPasswordLogin = async () => {
     const trimmedEmail = email.trim()
@@ -78,7 +72,9 @@ export default function LoginPage() {
     }
 
     await requestPasswordReset({ email: trimmedEmail })
-    setSuccess('Если email существует, ссылка для сброса уже отправлена. После получения письма откройте страницу обновления пароля.')
+    setSuccess(
+      'Если email существует, ссылка для сброса уже отправлена. После получения письма откройте страницу обновления пароля.'
+    )
   }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -97,10 +93,8 @@ export default function LoginPage() {
       setError(
         getErrorMessage(
           nextError,
-          mode === 'password'
-            ? 'Не удалось войти в аккаунт.'
-            : 'Не удалось запросить сброс пароля.',
-        ),
+          mode === 'password' ? 'Не удалось войти в аккаунт.' : 'Не удалось запросить сброс пароля.'
+        )
       )
     } finally {
       setSubmitting(false)
@@ -175,7 +169,10 @@ export default function LoginPage() {
                   <Label htmlFor="login-password" className="text-slate-200">
                     Пароль
                   </Label>
-                  <Link href="/reset-password" className="text-xs text-cyan-300 transition-colors hover:text-cyan-200">
+                  <Link
+                    href="/reset-password"
+                    className="text-xs text-cyan-300 transition-colors hover:text-cyan-200"
+                  >
                     Уже есть reset token?
                   </Link>
                 </div>
@@ -217,13 +214,19 @@ export default function LoginPage() {
             <div className="space-y-2 text-center text-sm text-slate-400">
               <p>
                 Нет аккаунта?{' '}
-                <Link href="/register" className="font-medium text-cyan-300 transition-colors hover:text-cyan-200">
+                <Link
+                  href="/register"
+                  className="font-medium text-cyan-300 transition-colors hover:text-cyan-200"
+                >
                   Перейти к регистрации
                 </Link>
               </p>
               <p>
                 Нужно обновить пароль вручную?{' '}
-                <Link href="/reset-password" className="font-medium text-cyan-300 transition-colors hover:text-cyan-200">
+                <Link
+                  href="/reset-password"
+                  className="font-medium text-cyan-300 transition-colors hover:text-cyan-200"
+                >
                   Открыть reset-password
                 </Link>
               </p>
