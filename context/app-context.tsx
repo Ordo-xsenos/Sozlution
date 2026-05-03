@@ -317,10 +317,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     } catch (e) {
       const nextError = e instanceof Error ? e.message : 'Hydration failed'
       setError(nextError)
+      // Check for authentication errors (401) or "No token" error
       if (
         nextError.includes('401') ||
-        nextError.toLowerCase().includes('not found') ||
-        nextError.includes('404')
+        nextError.includes('No token') ||
+        nextError.toLowerCase().includes('unauthorized')
       ) {
         logout()
         return
