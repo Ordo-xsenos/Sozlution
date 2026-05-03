@@ -19,3 +19,13 @@ node_modules/
 *.iml
 .gitignore
 /out
+*.txt
+
+.idea
+*.db.sqlite3
+*.pyc
+.codex
+.aider*
+static/
+out/
+dist/

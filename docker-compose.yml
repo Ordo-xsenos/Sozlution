@@ -1,0 +1,88 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: sozlution-postgres
+    environment:
+      POSTGRES_DB: sozlution_test
+      POSTGRES_USER: sozlution
+      POSTGRES_PASSWORD: sozlution
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sozlution -d sozlution_test"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - sozlution-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sozlution-backend
+    entrypoint: ["./entrypoint.sh"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    environment:
+      POSTGRES_DSN: postgresql://sozlution:sozlution@postgres:5432/sozlution_test
+      TEST_POSTGRES_DSN: postgresql://sozlution:sozlution@postgres:5432/sozlution_test
+      ENABLE_SQLITE_FALLBACK: "false"
+      SECRET_KEY: ${SECRET_KEY:-change_me_in_production}
+      AI_API_KEY: ${AI_API_KEY}
+      AI_API_URL: ${AI_API_URL}
+      AI_MODEL: ${AI_MODEL:-gpt-3.5-turbo}
+      BACKEND_CORS_ORIGINS: '["http://localhost","http://localhost:80","http://nginx"]'
+      FRONTEND_BASE_URL: http://localhost
+    expose:
+      - "8000"
+    restart: unless-stopped
+    networks:
+      - sozlution-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: http://localhost/api
+        AI_API_KEY: ${AI_API_KEY:-dummy-key-for-build}
+        AI_API_URL: ${AI_API_URL:-https://api.openai.com/v1}
+        AI_MODEL: ${AI_MODEL:-gpt-3.5-turbo}
+    container_name: sozlution-frontend
+    depends_on:
+      - backend
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: http://localhost/api
+      AI_API_KEY: ${AI_API_KEY}
+      AI_API_URL: ${AI_API_URL}
+      AI_MODEL: ${AI_MODEL:-gpt-3.5-turbo}
+    expose:
+      - "3000"
+    restart: unless-stopped
+    networks:
+      - sozlution-network
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: sozlution-nginx
+    depends_on:
+      - backend
+      - frontend
+    ports:
+      - "80:80"
+    restart: unless-stopped
+    networks:
+      - sozlution-network
+
+volumes:
+  postgres_data:
+
+networks:
+  sozlution-network:
+    driver: bridge
