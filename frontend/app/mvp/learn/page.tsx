@@ -18,6 +18,8 @@ import {
 import { toast } from '@/hooks/use-toast'
 import { env } from '@/lib/env'
 import { logger } from '@/lib/logger'
+import { validateAnswer } from '@/lib/answer-validation'
+import { getMvpLang, mvpText } from '@/lib/mvp-i18n'
 
 type LearnStep = 'study' | 'step1' | 'step2' | 'step3'
 type CheckState = 'idle' | 'correct' | 'wrong'
@@ -40,6 +42,7 @@ export default function LearnPage() {
 
   const words = useMemo(() => currentDay?.words || [], [currentDay])
   const active = words[learnIndex] || null
+  const t = mvpText[getMvpLang(user?.lang)].learn
   const definitionText = useMemo(() => {
     if (!active) return 'No definition available'
     const localizedDescription = user?.lang === 'ru' ? active.ru_description : active.uz_description
@@ -60,10 +63,10 @@ export default function LearnPage() {
       active.locale_data?.phonetics?.us || active.locale_data?.phonetics?.uk || ''
     const fromPhonetics = Array.isArray(active.phonetics)
       ? active.phonetics
-          .map((item) =>
+          .map((item: string | { text?: string; ipa?: string; value?: string }) =>
             typeof item === 'string' ? item : item?.text || item?.ipa || item?.value || ''
           )
-          .find((item) => typeof item === 'string' && item.trim().length > 0)
+          .find((item: string | undefined) => typeof item === 'string' && item.trim().length > 0)
       : ''
     const value = fromLocaleData || active.transcription || active.phonetic || fromPhonetics
     if (!value || !value.trim()) return 'No pronunciation available'
@@ -98,48 +101,71 @@ export default function LearnPage() {
     }
   }
 
+  const resetWordInteraction = () => {
+    setInputValue('')
+    setCheckState('idle')
+    setFlipped(false)
+  }
+
   const nextWord = () => {
     if (learnIndex < words.length - 1) {
       setLearnIndex((prev) => prev + 1)
-      setInputValue('')
-      setCheckState('idle')
-      setFlipped(false)
+      resetWordInteraction()
       return false
     }
     return true
   }
 
+  const moveToNextPracticeWord = (onComplete: () => void) => {
+    if (learnIndex < words.length - 1) {
+      setLearnIndex((prev) => prev + 1)
+      resetWordInteraction()
+      return
+    }
+
+    setLearnIndex(0)
+    resetWordInteraction()
+    onComplete()
+  }
+
   const handleCheckStep1 = () => {
     if (!active) return
-    const expected = (user?.lang === 'ru' ? active.ru : active.uz).trim().toLowerCase()
-    const isCorrect = inputValue.trim().toLowerCase() === expected
+    const expected = user?.lang === 'ru' ? active.ru : active.uz
+    const isCorrect = validateAnswer(inputValue, expected)
 
     setStep1Results((prev) => ({ ...prev, [active.id]: isCorrect }))
     setCheckState(isCorrect ? 'correct' : 'wrong')
 
     if (isCorrect) {
       setTimeout(() => {
-        if (nextWord()) setStep('step2')
+        if (nextWord()) {
+          setLearnIndex(0)
+          resetWordInteraction()
+          setStep('step2')
+        }
       }, 600)
     }
   }
 
-  const handleCheckStep2 = (option: string) => {
-    if (!active) return
-    const expected = user?.lang === 'ru' ? active.ru : active.uz
-    const isCorrect = option === expected
+  const handleCheckStep2 = (option: string, wordId: string) => {
+    const word = words.find(w => w.id === wordId)
+    if (!word) return
+    const expected = user?.lang === 'ru' ? word.ru : word.uz
+    // Use the same validation logic as in step1 so apostrophes and non-letter
+    // characters are ignored when comparing user-visible options.
+    const isCorrect = validateAnswer(option, expected)
 
-    setStep2Results((prev) => ({ ...prev, [active.id]: isCorrect }))
-    if (nextWord()) setStep('step3')
+    setStep2Results((prev) => ({ ...prev, [wordId]: isCorrect }))
+    moveToNextPracticeWord(() => setStep('step3'))
   }
 
-  const handleCheckStep3 = (rating: number) => {
-    if (!active) return
-    setStep3Results((prev) => ({ ...prev, [active.id]: rating }))
-    if (nextWord()) finishDay()
+  const handleCheckStep3 = (rating: number, wordId: string) => {
+    const nextStep3Results = { ...step3Results, [wordId]: rating }
+    setStep3Results(nextStep3Results)
+    moveToNextPracticeWord(() => finishDay(nextStep3Results))
   }
 
-  const finishDay = async () => {
+  const finishDay = async (finalStep3Results = step3Results) => {
     if (!currentDay?.day.day) return
     setLoading(true)
     try {
@@ -150,17 +176,17 @@ export default function LearnPage() {
             day: currentDay.day.day,
             step1: step1Results,
             step2: step2Results,
-            step3: step3Results,
+            step3: finalStep3Results,
           },
         },
         'post'
       )
-      toast({ title: 'Поздравляем!', description: 'Дневной план выполнен!' })
+      toast({ title: t.completedTitle, description: t.completedDescription })
       await hydrate()
     } catch (e) {
       toast({
-        title: 'Ошибка',
-        description: 'Не удалось сохранить результат',
+        title: t.errorTitle,
+        description: t.saveError,
         variant: 'destructive',
       })
     } finally {
@@ -192,10 +218,10 @@ export default function LearnPage() {
       <div className="min-h-screen bg-[#0f172a] p-4 flex items-center justify-center">
         <Card className="bg-[#1a2744] border-[#334155] text-center p-8 max-w-md">
           <div className="text-5xl mb-4">🗓️</div>
-          <h1 className="text-2xl font-bold text-white mb-4">План не найден</h1>
-          <p className="text-gray-400 mb-6">На сегодня заданий нет. Вернитесь позже!</p>
+          <h1 className="text-2xl font-bold text-white mb-4">{t.noPlanTitle}</h1>
+          <p className="text-gray-400 mb-6">{t.noPlanDescription}</p>
           <Link href="/mvp">
-            <Button className="w-full bg-blue-500 hover:bg-blue-600">На главную</Button>
+            <Button className="w-full bg-blue-500 hover:bg-blue-600">{t.goHome}</Button>
           </Link>
         </Card>
       </div>
@@ -207,7 +233,7 @@ export default function LearnPage() {
       <div className="max-w-2xl mx-auto">
         <div className="mb-6 flex items-center justify-between">
           <h1 className="text-2xl md:text-3xl font-bold">
-            {step === 'study' ? 'Изучение слов' : 'Практика'}
+            {step === 'study' ? t.studyTitle : t.practiceTitle}
           </h1>
           <div className="flex gap-1.5">
             {(['study', 'step1', 'step2', 'step3'] as const).map((s) => (
@@ -222,7 +248,7 @@ export default function LearnPage() {
         <div className="mb-8 space-y-2">
           <div className="flex justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
             <span>
-              Слово {learnIndex + 1} из {words.length}
+              {t.wordCounter(learnIndex + 1, words.length)}
             </span>
             <span>{Math.round(((learnIndex + 1) / words.length) * 100)}%</span>
           </div>
@@ -253,7 +279,7 @@ export default function LearnPage() {
                       if (active) playAudio(active.audio_url, active.en)
                     }}
                     className="absolute right-6 top-6 p-3 rounded-full bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-all"
-                    title="Проиграть озвучку"
+                    title={t.playAudio}
                   >
                     <Volume2 className="h-6 w-6" />
                   </button>
@@ -310,7 +336,7 @@ export default function LearnPage() {
                 disabled={learnIndex === 0}
                 className="flex-1 border-slate-700 h-14 rounded-2xl text-white disabled:opacity-50 disabled:bg-slate-800 disabled:text-slate-400 disabled:border-slate-800"
               >
-                <ChevronLeft className="mr-2" /> Назад
+                <ChevronLeft className="mr-2" /> {t.back}
               </Button>
               {learnIndex < words.length - 1 ? (
                 <Button
@@ -320,7 +346,7 @@ export default function LearnPage() {
                   }}
                   className="flex-[2] bg-blue-600 hover:bg-blue-700 h-14 rounded-2xl text-lg font-bold"
                 >
-                  Далее <ChevronRight className="ml-2" />
+                  {t.next} <ChevronRight className="ml-2" />
                 </Button>
               ) : (
                 <Button
@@ -330,7 +356,7 @@ export default function LearnPage() {
                   }}
                   className={`flex-[2] h-14 rounded-2xl text-lg font-bold ${Object.keys(studyCompleted).length === words.length ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-blue-600'}`}
                 >
-                  Начать практику <RotateCw className="ml-2" />
+                  {t.startPractice} <RotateCw className="ml-2" />
                 </Button>
               )}
             </div>
@@ -344,7 +370,7 @@ export default function LearnPage() {
                   if (active) playAudio(active.audio_url, active.en)
                 }}
                 className="absolute right-4 top-4 p-2 rounded-full hover:bg-slate-800 text-slate-400"
-                title="Проиграть озвучку"
+                title={t.playAudio}
               >
                 <Volume2 className="h-5 w-5" />
               </button>
@@ -363,7 +389,7 @@ export default function LearnPage() {
                       setInputValue(e.target.value)
                       setCheckState('idle')
                     }}
-                    placeholder="Введите перевод..."
+                    placeholder={t.inputPlaceholder}
                     className={`w-full bg-slate-900 border-2 rounded-2xl px-6 py-5 text-xl outline-none transition-all ${
                       checkState === 'correct'
                         ? 'border-emerald-500'
@@ -393,7 +419,7 @@ export default function LearnPage() {
                   }`}
                 >
                   {checkState === 'idle'
-                    ? 'Проверить'
+                    ? t.check
                     : user?.lang === 'ru'
                       ? active?.ru
                       : active?.uz}
@@ -407,7 +433,10 @@ export default function LearnPage() {
                   <Button
                     key={i}
                     variant="outline"
-                    onClick={() => handleCheckStep2(opt)}
+                    onClick={() => {
+                      if (!active) return
+                      handleCheckStep2(opt, active.id)
+                    }}
                     className="h-16 rounded-2xl border-slate-800 bg-slate-900/50 hover:bg-blue-600 hover:border-blue-500 text-lg transition-all"
                   >
                     {opt}
@@ -418,16 +447,20 @@ export default function LearnPage() {
 
             {step === 'step3' && (
               <div className="text-center space-y-6">
-                <p className="text-xl text-slate-400">Насколько хорошо вы знаете это слово?</p>
+                <p className="text-xl text-slate-400">{t.selfRating}</p>
                 <div className="flex justify-center gap-3">
                   {[1, 2, 3, 4, 5].map((rating) => (
-                    <button
+                    <Button
                       key={rating}
-                      onClick={() => handleCheckStep3(rating)}
-                      className="w-12 h-12 md:w-14 md:h-14 rounded-full border-2 border-slate-700 flex items-center justify-center font-black text-xl hover:bg-blue-600 hover:border-blue-500 transition-all"
+                      onClick={() => {
+                        if (!active) return
+                        handleCheckStep3(rating, active.id)
+                      }}
+                      variant="outline"
+                      className="w-14 h-14 rounded-full border-slate-700 bg-slate-900 flex items-center justify-center font-black text-xl hover:bg-blue-600 hover:border-blue-500 transition-all"
                     >
                       {rating}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>

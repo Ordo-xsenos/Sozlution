@@ -9,70 +9,60 @@ import {
   Lightbulb,
   BookOpen,
   Headphones,
-  MessageSquare,
   Zap,
   Sparkles,
   Loader2,
 } from 'lucide-react'
+import { getMvpLang, mvpText } from '@/lib/mvp-i18n'
 
 const staticTips = [
   {
+    id: 'daily',
     icon: Lightbulb,
-    title: 'Практикуйте ежедневно',
-    description:
-      'Даже 15-20 минут в день лучше, чем длинные занятия раз в неделю. Постоянство - ключ успеха.',
-    category: 'Мотивация',
   },
   {
+    id: 'reading',
     icon: BookOpen,
-    title: 'Читайте на английском',
-    description:
-      'Начните с простых текстов: детские книги, новости, статьи. Это помогает улучшить понимание и словарный запас.',
-    category: 'Чтение',
   },
   {
+    id: 'listening',
     icon: Headphones,
-    title: 'Слушайте подкасты и музыку',
-    description:
-      'Слушайте англоязычные подкасты, аудиокниги и музыку. Это улучшает произношение и восприятие на слух.',
-    category: 'Аудирование',
   },
   {
+    id: 'cards',
     icon: Zap,
-    title: 'Используйте карточки',
-    description:
-      'Флеш-карты - отличный способ запомнить новые слова. Повторяйте слова регулярно для лучшего усвоения.',
-    category: 'Словарь',
   },
-]
+] as const
 
 export default function TipsPage() {
-  const { user, request, loading } = useApp()
+  const { user, request } = useApp()
   const [aiTip, setAiTip] = useState<string | null>(null)
   const [isGenerating, setIsGenerating] = useState(false)
   const [requestError, setRequestError] = useState<string | null>(null)
+  const t = mvpText[getMvpLang(user?.lang)].tips
 
   const generateTip = async () => {
     if (!user) {
-      setRequestError('Сначала войдите в аккаунт в этом браузере, затем попробуйте снова.')
+      setRequestError(t.authError)
       return
     }
 
     setIsGenerating(true)
     setRequestError(null)
     try {
-      const prompt = `Give me one short, highly practical English learning tip for a ${user?.level || 'B1'} student. Focus on vocabulary or daily habits. No intro, just the tip.`
-      const r = await request(
+      const targetLang = getMvpLang(user?.lang) === 'ru' ? 'Russian' : 'Uzbek'
+      const prompt = `Give me one short, highly practical English learning tip in ${targetLang} for a ${user?.level || 'B1'} student. Focus on vocabulary or daily habits. No intro, just the tip.`
+      const r = (await request(
         '/api/v1/ai/chat',
         {
           body: { message: prompt, history: [] },
         },
         'post'
-      )
+      )) as { text: string }
       setAiTip(r.text)
     } catch (e) {
       logger.error('Failed to generate tip', e)
-      setRequestError(e instanceof Error ? e.message : 'Не удалось получить совет')
+      setRequestError(e instanceof Error ? e.message : t.requestError)
     } finally {
       setIsGenerating(false)
     }
@@ -82,8 +72,8 @@ export default function TipsPage() {
     <div className="min-h-screen bg-[#0f172a] p-4 md:p-8 text-white">
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">Советы для изучения</h1>
-          <p className="text-slate-400">Практические рекомендации от нашего ИИ</p>
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">{t.title}</h1>
+          <p className="text-slate-400">{t.subtitle}</p>
         </div>
 
         {/* AI Tip Section */}
@@ -94,7 +84,7 @@ export default function TipsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-xl md:text-2xl">
               <Sparkles className="h-6 w-6 text-yellow-300 fill-yellow-300" />
-              Персональный совет от ИИ
+              {t.aiTitle}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -105,8 +95,7 @@ export default function TipsPage() {
                 </p>
               ) : (
                 <p className="text-lg opacity-80">
-                  Нажмите на кнопку ниже, чтобы получить индивидуальный совет на основе вашего
-                  уровня ({user?.level || 'A1'}).
+                  {t.emptyTip(user?.level || 'A1')}
                 </p>
               )}
             </div>
@@ -125,18 +114,19 @@ export default function TipsPage() {
               ) : (
                 <Zap className="mr-2 h-5 w-5 fill-current" />
               )}
-              {aiTip ? 'Сгенерировать другой совет' : 'Получить совет'}
+              {aiTip ? t.anotherTip : t.getTip}
             </Button>
           </CardContent>
         </Card>
 
         {/* Static Tips Grid */}
         <h2 className="text-xl font-bold mb-6 text-slate-400 uppercase tracking-widest">
-          Базовые рекомендации
+          {t.basic}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           {staticTips.map((tip, idx) => {
             const Icon = tip.icon
+            const [title, description, category] = (t.items as any)[tip.id]
             return (
               <Card
                 key={idx}
@@ -148,14 +138,14 @@ export default function TipsPage() {
                       <Icon className="w-6 h-6" />
                     </div>
                     <span className="text-[10px] font-black px-3 py-1 bg-slate-800 text-slate-400 rounded-full uppercase tracking-tighter">
-                      {tip.category}
+                      {category}
                     </span>
                   </div>
-                  <CardTitle className="text-lg text-white">{tip.title}</CardTitle>
+                  <CardTitle className="text-lg text-white">{title}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-gray-400 text-sm md:text-base leading-relaxed">
-                    {tip.description}
+                    {description}
                   </p>
                 </CardContent>
               </Card>

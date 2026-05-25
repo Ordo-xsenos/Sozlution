@@ -28,16 +28,23 @@ export default function IeltsMockTests() {
   const [showResult, setShowResult] = useState(false)
 
   useEffect(() => {
-    let interval: any = null
-    if (isActive && timeLeft > 0) {
-      interval = setInterval(() => setTimeLeft(t => t - 1), 1000)
-    } else if (timeLeft === 0) {
-      clearInterval(interval)
-      setIsActive(false)
-      toast.error('Test time is over!')
-    }
-    return () => clearInterval(interval)
-  }, [isActive, timeLeft])
+    if (!isActive) return
+
+    const interval = window.setInterval(() => {
+      setTimeLeft((current) => {
+        if (current <= 1) {
+          window.clearInterval(interval)
+          setIsActive(false)
+          toast.error('Test time is over!')
+          return 0
+        }
+
+        return current - 1
+      })
+    }, 1000)
+
+    return () => window.clearInterval(interval)
+  }, [isActive])
 
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60)

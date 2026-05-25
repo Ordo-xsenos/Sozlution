@@ -10,10 +10,12 @@ import { Progress } from '@/components/ui/progress'
 import { CheckCircle2, XCircle, Loader2, ArrowRight, Trophy, Sparkles } from 'lucide-react'
 import { toast } from 'sonner'
 import { PLACEMENT_TEST_QUESTIONS, determineLevelFromScore } from '@/lib/placement-test-questions'
+import { getMvpLang, mvpText } from '@/lib/mvp-i18n'
 
 export default function LevelTestPage() {
   const { user, request, hydrate, loading: appLoading } = useApp()
   const router = useRouter()
+  const t = mvpText[getMvpLang(user?.lang)].test
 
   const [currentIndex, setCurrentIndex] = useState(0)
   const [answers, setAnswers] = useState<Record<string | number, number>>({})
@@ -56,7 +58,7 @@ export default function LevelTestPage() {
       setResult({ score, level })
       await hydrate()
     } catch (err) {
-      toast.error('Ошибка при отправке теста')
+      toast.error(t.submitError)
       logger.error('Test submission failed:', err)
     } finally {
       setSubmitting(false)
@@ -95,7 +97,7 @@ export default function LevelTestPage() {
                 IELTS
               </div>
               <div className="text-black/70 text-sm font-black uppercase tracking-[0.5em] animate-pulse">
-                Unlocking Professional Mode
+                {t.unlocking}
               </div>
             </div>
 
@@ -119,16 +121,16 @@ export default function LevelTestPage() {
           </div>
 
           <h2 className="text-3xl font-bold mb-2">
-            {isPassed ? 'Поздравляем!' : 'Почти получилось!'}
+            {isPassed ? t.passed : t.almost}
           </h2>
           <p className="text-gray-400 mb-6">
-            Ваш результат: <span className="text-blue-400 font-bold">{result.score}</span> из{' '}
+            {t.score} <span className="text-blue-400 font-bold">{result.score}</span> {t.of}{' '}
             {questions.length}
           </p>
 
           <div className="bg-[#0f172a]/50 rounded-2xl p-6 mb-8 border border-white/5">
             <p className="text-sm text-gray-400 uppercase tracking-widest mb-1">
-              Ваш новый уровень
+              {t.newLevel}
             </p>
             <p className="text-4xl font-black text-blue-500">
               {isIELTS ? 'IELTS MODE' : result.level}
@@ -139,7 +141,7 @@ export default function LevelTestPage() {
           <div className="text-left mb-8 space-y-4 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar border-t border-b border-white/5 py-4">
             <h3 className="text-xl font-bold mb-4 sticky top-0 bg-[#1a2744] py-2 z-10 text-amber-400 flex items-center gap-2">
               <Sparkles className="w-5 h-5" />
-              Разбор ответов
+              {t.review}
             </h3>
             {questions.map((q, idx) => {
               const userAnswer = answers[q.id]
@@ -168,14 +170,14 @@ export default function LevelTestPage() {
                           className={`flex items-center gap-2 ${isCorrect ? 'text-emerald-400' : 'text-red-400 font-medium'}`}
                         >
                           <span className="opacity-60 uppercase text-[10px] font-black">
-                            Ваш ответ:
+                            {t.yourAnswer}
                           </span>
-                          {q.options[userAnswer] || 'Пропущено'}
+                          {q.options[userAnswer] || t.skipped}
                         </p>
                         {!isCorrect && (
                           <p className="text-emerald-400 font-bold flex items-center gap-2">
                             <span className="opacity-60 uppercase text-[10px] font-black">
-                              Верный ответ:
+                              {t.correctAnswer}
                             </span>
                             {q.options[q.correctIndex]}
                           </p>
@@ -191,13 +193,13 @@ export default function LevelTestPage() {
           {isIELTS ? (
             <div className="space-y-4">
               <p className="text-emerald-400 font-medium">
-                Вы разблокировали профессиональный режим подготовки к IELTS!
+                {t.ieltsUnlocked}
               </p>
               <Button
                 onClick={handleEnterIelts}
                 className="w-full h-14 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-2xl text-lg font-bold shadow-lg shadow-blue-900/20"
               >
-                Войти в IELTS Mode <ArrowRight className="ml-2" />
+                {t.enterIelts} <ArrowRight className="ml-2" />
               </Button>
             </div>
           ) : (
@@ -205,7 +207,7 @@ export default function LevelTestPage() {
               onClick={() => router.push('/mvp')}
               className="w-full h-14 bg-blue-600 hover:bg-blue-700 rounded-2xl text-lg font-bold"
             >
-              Вернуться на главную
+              {t.backHome}
             </Button>
           )}
         </Card>
@@ -223,9 +225,9 @@ export default function LevelTestPage() {
         <div className="mb-8 space-y-4">
           <div className="flex justify-between items-end">
             <div>
-              <h1 className="text-2xl font-bold">Финальный тест уровня {user?.level}</h1>
+              <h1 className="text-2xl font-bold">{t.title(user?.level)}</h1>
               <p className="text-gray-400">
-                Вопрос {currentIndex + 1} из {questions.length}
+                {t.question(currentIndex + 1, questions.length)}
               </p>
             </div>
             <div className="text-right">
@@ -276,7 +278,7 @@ export default function LevelTestPage() {
             disabled={currentIndex === 0}
             className="flex-1 border-slate-700 h-14 rounded-2xl text-white disabled:opacity-50"
           >
-            Назад
+            {t.back}
           </Button>
 
           {currentIndex < questions.length - 1 ? (
@@ -285,7 +287,7 @@ export default function LevelTestPage() {
               disabled={!isAnswered}
               className="flex-[2] bg-blue-600 hover:bg-blue-700 h-14 rounded-2xl text-lg font-bold"
             >
-              Далее
+              {t.next}
             </Button>
           ) : (
             <Button
@@ -293,7 +295,7 @@ export default function LevelTestPage() {
               disabled={!isAnswered || submitting}
               className="flex-[2] bg-emerald-600 hover:bg-emerald-700 h-14 rounded-2xl text-lg font-bold shadow-lg shadow-emerald-900/20"
             >
-              {submitting ? <Loader2 className="animate-spin" /> : 'Завершить тест'}
+              {submitting ? <Loader2 className="animate-spin" /> : t.finish}
             </Button>
           )}
         </div>

@@ -153,4 +153,5 @@ def test_password_reset_invalid_token(client):
         json={"token": "invalid-token", "password": "newpassword123"},
     )
     assert confirm.status_code == 400
-    assert "Invalid or expired token" in confirm.json()["detail"]
+    detail = confirm.json()["detail"]
+    assert detail

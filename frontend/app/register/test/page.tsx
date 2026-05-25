@@ -18,10 +18,12 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { PLACEMENT_TEST_QUESTIONS, determineLevelFromScore } from '@/lib/placement-test-questions'
+import { getMvpLang, mvpText } from '@/lib/mvp-i18n'
 
 export default function PlacementTestPage() {
-  const { request, hydrate } = useApp()
+  const { user, request, hydrate } = useApp()
   const router = useRouter()
+  const t = mvpText[getMvpLang(user?.lang)].test
 
   const [currentIndex, setCurrentIndex] = useState(0)
   const [answers, setAnswers] = useState<Record<string | number, number>>({})
@@ -50,11 +52,10 @@ export default function PlacementTestPage() {
   const handleSubmit = async () => {
     setSubmitting(true)
     try {
-      // 1. Подсчитываем результат локально
+      // 1. Calculate result locally
       const { score, level } = determineLevelFromScore(answers, questions)
 
-      // 2. Отправляем финальный уровень на бэкенд (Patch User)
-      // Мы используем эндпоинт Patch User, чтобы сохранить вычисленный уровень
+      // 2. Send final level to backend
       await request(
         '/api/v1/user',
         {
@@ -64,9 +65,9 @@ export default function PlacementTestPage() {
       )
 
       setResult({ score, level })
-      await hydrate() // Обновляем состояние приложения
+      await hydrate()
     } catch (err) {
-      toast.error('Ошибка при сохранении результата')
+      toast.error(t.submitError)
       logger.error('Test result save failed:', err)
     } finally {
       setSubmitting(false)
@@ -84,14 +85,14 @@ export default function PlacementTestPage() {
             </div>
           </div>
 
-          <h2 className="text-4xl font-black mb-4 tracking-tighter">Тест завершен!</h2>
+          <h2 className="text-4xl font-black mb-4 tracking-tighter">{t.testCompleted}</h2>
           <p className="text-gray-400 mb-8 text-lg">
-            Мы проанализировали ваши ответы и определили ваш уровень владения английским.
+            {t.testFeedback}
           </p>
 
           <div className="bg-cyan-500/10 rounded-[32px] p-8 mb-10 border border-cyan-500/20">
             <p className="text-[10px] text-cyan-500/60 uppercase font-black tracking-[0.2em] mb-2">
-              Ваш уровень
+              {t.yourLevel}
             </p>
             <p className="text-6xl font-black text-cyan-400">{result.level}</p>
           </div>
@@ -100,7 +101,7 @@ export default function PlacementTestPage() {
           <div className="text-left mb-10 space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar border-t border-b border-white/5 py-4">
             <h3 className="text-xl font-bold mb-4 sticky top-0 bg-[#0a0f1d] py-2 z-10 text-cyan-400 flex items-center gap-2">
               <Sparkles className="w-5 h-5" />
-              Разбор ответов
+              {t.review}
             </h3>
             {PLACEMENT_TEST_QUESTIONS.map((q, idx) => {
               const userAnswer = answers[q.id]
@@ -129,14 +130,14 @@ export default function PlacementTestPage() {
                           className={`flex items-center gap-2 ${isCorrect ? 'text-emerald-400' : 'text-red-400 font-medium'}`}
                         >
                           <span className="opacity-60 uppercase text-[9px] font-black">
-                            Ваш ответ:
+                            {t.yourAnswer}
                           </span>
-                          {q.options[userAnswer] || 'Пропущено'}
+                          {q.options[userAnswer] || t.skipped}
                         </p>
                         {!isCorrect && (
                           <p className="text-emerald-400 font-bold flex items-center gap-2">
                             <span className="opacity-60 uppercase text-[9px] font-black">
-                              Верный ответ:
+                              {t.correctAnswer}
                             </span>
                             {q.options[q.correctIndex]}
                           </p>
@@ -153,7 +154,7 @@ export default function PlacementTestPage() {
             onClick={() => router.push('/mvp')}
             className="w-full h-16 bg-cyan-500 hover:bg-cyan-400 text-black font-black rounded-2xl text-xl shadow-lg shadow-cyan-900/20 transition-all active:scale-95"
           >
-            Начать обучение <ArrowRight className="ml-2 w-6 h-6" />
+            {t.startLearning} <ArrowRight className="ml-2 w-6 h-6" />
           </Button>
         </Card>
       </div>
@@ -172,10 +173,10 @@ export default function PlacementTestPage() {
             <div className="space-y-1">
               <h1 className="text-3xl font-black tracking-tighter flex items-center gap-3">
                 <BrainCircuit className="w-8 h-8 text-cyan-500" />
-                Placement Test
+                {t.placementTitle}
               </h1>
               <p className="text-gray-500 font-medium">
-                Вопрос {currentIndex + 1} из {questions.length}
+                {t.question(currentIndex + 1, questions.length)}
               </p>
             </div>
             <div className="text-right">
@@ -226,7 +227,7 @@ export default function PlacementTestPage() {
             disabled={currentIndex === 0}
             className="flex-1 border-white/5 h-16 rounded-2xl text-white hover:bg-white/5 disabled:opacity-30 font-bold"
           >
-            Назад
+            {t.back}
           </Button>
 
           {currentIndex < questions.length - 1 ? (
@@ -235,7 +236,7 @@ export default function PlacementTestPage() {
               disabled={!isAnswered}
               className="flex-[2] bg-cyan-500 hover:bg-cyan-400 text-black h-16 rounded-2xl text-xl font-black shadow-lg shadow-cyan-900/20 transition-all"
             >
-              Далее
+              {t.next}
             </Button>
           ) : (
             <Button
@@ -243,7 +244,7 @@ export default function PlacementTestPage() {
               disabled={!isAnswered || submitting}
               className="flex-[2] bg-emerald-500 hover:bg-emerald-400 text-black h-16 rounded-2xl text-xl font-black shadow-lg shadow-emerald-900/20 transition-all"
             >
-              {submitting ? <Loader2 className="animate-spin w-6 h-6" /> : 'Узнать свой уровень'}
+              {submitting ? <Loader2 className="animate-spin w-6 h-6" /> : t.knowLevel}
             </Button>
           )}
         </div>

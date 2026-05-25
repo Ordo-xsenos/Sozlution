@@ -7,12 +7,8 @@ import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { 
   Volume2, 
-  ChevronRight, 
-  ChevronLeft, 
   RotateCw, 
   BookOpen, 
-  Star, 
-  Info, 
   CheckCircle2, 
   Trophy,
   ArrowRight,
@@ -21,6 +17,7 @@ import {
   Sparkles
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { getMvpLang, mvpText } from '@/lib/mvp-i18n'
 
 interface IeltsWord {
   id: string
@@ -56,11 +53,11 @@ const IELTS_VOCAB_LIST: IeltsWord[] = [
   { id: '13', en: 'Comprehensive', ru: 'Всесторонний', uz: 'Keng qamrovli', definition: 'Including all or nearly all elements or aspects.', transcription: 'ˌkɒmprɪˈhensɪv', topic: 'Education', example: 'The book offers a comprehensive guide to history.' },
   { id: '14', en: 'Crucial', ru: 'Критически важный', uz: 'O‘ta muhim', definition: 'Decisive or critical, especially in the success or failure of something.', transcription: 'ˈkruːʃl', topic: 'Success', example: 'Vitamins play a crucial role in our health.' },
   { id: '15', en: 'Depict', ru: 'Изображать', uz: 'Tasvirlamoq', definition: 'Represent by a drawing, painting, or other art form.', transcription: 'dɪˈpɪkt', topic: 'Art/Media', example: 'The film depicts the life of a famous musician.' },
-  { id: '16', en: 'Deteriorate', ru: 'Ухудшаться', uz: 'Yomonlashmoq', definition: 'Become progressively worse.', transcription: 'dɪˈtɪəriəreɪt', topic: 'Health', example: 'The patient\'s condition began to deteriorate rapidly.' },
-  { id: '17', en: 'Diverse', ru: 'Разнообразный', uz: 'Turli xil', definition: 'Showing a great deal of variety; very different.', transcription: 'daɪˈvɜːs', topic: 'Culture', example: 'London has a very diverse population.' },
-  { id: '18', en: 'Emphasis', ru: 'Акцент', uz: 'Urg‘u berish', definition: 'Special importance, value, or prominence given to something.', transcription: 'ˈemfəsɪs', topic: 'Communication', example: 'The course puts emphasis on practical skills.' },
-  { id: '19', en: 'Feasible', ru: 'Осуществимый', uz: 'Amalga oshirsa bo‘ladigan', definition: 'Possible to do easily or conveniently.', transcription: 'ˈfiːzəbl', topic: 'Planning', example: 'It is not feasible to build a bridge here.' },
-  { id: '20', en: 'Hinder', ru: 'Препятствовать', uz: 'To‘sqinlik qilmoq', definition: 'Make it difficult for someone to do something.', transcription: 'ˈhɪndə(r)', topic: 'Progress', example: 'Strict regulations might hinder economic growth.' }
+  { id: '16', en: 'Deteriorate', ru: 'Ухудшаться', uz: 'Yomonlashmoq', definition: 'Become progressively worse.', transcription: 'dɪ\u02c8t\u026a\u0259ri\u0259re\u026at', topic: 'Health', example: 'The patient\'s condition began to deteriorate rapidly.' },
+  { id: '17', en: 'Diverse', ru: 'Разнообразный', uz: 'Turli xil', definition: 'Showing a great deal of variety; very different.', transcription: 'da\u026av\u025c\u02d0s', topic: 'Culture', example: 'London has a very diverse population.' },
+  { id: '18', en: 'Emphasis', ru: 'Акцент', uz: 'Urg\u02bbv berish', definition: 'Special importance, value, or prominence given to something.', transcription: '\u02c8emf\u0259s\u026as', topic: 'Communication', example: 'The course puts emphasis on practical skills.' },
+  { id: '19', en: 'Feasible', ru: 'Осуществимый', uz: 'Amalga oshirsa bo\u02bblladigan', definition: 'Possible to do easily or conveniently.', transcription: '\u02c8fi\u02d0z\u0259bl', topic: 'Planning', example: 'It is not feasible to build a bridge here.' },
+  { id: '20', en: 'Hinder', ru: 'Препятствовать', uz: 'To\u02bbssqinlik qilmoq', definition: 'Make it difficult for someone to do something.', transcription: '\u02c8h\u026and\u0259(r)', topic: 'Progress', example: 'Strict regulations might hinder economic growth.' }
 ]
 
 const TEST_QUESTIONS: TestQuestion[] = [
@@ -88,6 +85,7 @@ const TEST_QUESTIONS: TestQuestion[] = [
 
 export default function IeltsVocabulary() {
   const { user } = useApp()
+  const t = mvpText[getMvpLang(user?.lang)].ielts
   const [mode, setMode] = useState<'study' | 'test' | 'result'>('study')
   const [learnIndex, setLearnIndex] = useState(0)
   const [flipped, setFlipped] = useState(false)
@@ -109,10 +107,8 @@ export default function IeltsVocabulary() {
       utterance.rate = 0.9;
       utterance.volume = 1;
 
-      // Firefox fix: принудительно ищем и назначаем голос
       const voices = window.speechSynthesis.getVoices();
       if (voices.length > 0) {
-        // Пытаемся найти американский или британский английский
         const enVoice = voices.find(v => v.lang === 'en-US') || voices.find(v => v.lang.startsWith('en'));
         if (enVoice) {
           utterance.voice = enVoice;
@@ -131,7 +127,6 @@ export default function IeltsVocabulary() {
       setFlipped(false)
     } else {
       setMode('test')
-      toast.info('Time for the vocabulary test!')
     }
   }
 
@@ -163,10 +158,10 @@ export default function IeltsVocabulary() {
             <div className="flex justify-between items-center">
               <h1 className="text-3xl font-black text-amber-500 flex items-center gap-3">
                 <BookOpen className="w-8 h-8" />
-                Academic Vocab
+                {t.academicVocab}
               </h1>
               <div className="flex items-center gap-2 bg-amber-500/10 px-3 py-1.5 rounded-full border border-amber-500/20 text-amber-400 font-bold text-sm">
-                Study Phase
+                {t.studyPhase}
               </div>
             </div>
             <Progress value={progress} className="h-2 bg-slate-900 border border-white/5" />
@@ -176,7 +171,7 @@ export default function IeltsVocabulary() {
             className="perspective-1000 relative h-[420px] w-full cursor-pointer group"
             onClick={() => {
               setFlipped(!flipped)
-              if (!flipped) speak(active.en) // Озвучка при перевороте на лицо
+              if (!flipped) speak(active.en)
             }}
           >
             <div className={`relative h-full w-full transition-all duration-700 preserve-3d shadow-2xl rounded-[40px] ${flipped ? 'rotate-y-180' : ''}`} style={{ transformStyle: 'preserve-3d' }}>
@@ -184,7 +179,7 @@ export default function IeltsVocabulary() {
               <Card className="absolute inset-0 backface-hidden bg-[#0a0f1d] border-2 border-amber-500/20 flex flex-col items-center justify-center p-10 rounded-[40px]" style={{ backfaceVisibility: 'hidden' }}>
                 <button 
                   onClick={(e) => {
-                    e.stopPropagation(); // Важно: чтобы карточка не перевернулась
+                    e.stopPropagation();
                     speak(active.en);
                   }}
                   className="absolute right-8 top-8 p-4 rounded-2xl bg-amber-500/10 text-amber-500 hover:bg-amber-500 hover:text-black transition-all duration-300 z-50"
@@ -198,7 +193,7 @@ export default function IeltsVocabulary() {
               </Card>
               {/* Back */}
               <Card className="absolute inset-0 backface-hidden rotate-y-180 bg-[#0a0f1d] border-2 border-blue-500/20 flex flex-col items-center justify-center p-10 rounded-[40px]" style={{ backfaceVisibility: 'hidden' }}>
-                <h2 className="text-4xl font-black text-blue-400 mb-2">{user?.lang === 'ru' ? active.ru : active.uz}</h2>
+                <h2 className="text-4xl font-black text-blue-400 mb-2">{getMvpLang(user?.lang) === 'ru' ? active.ru : active.uz}</h2>
                 <div className="bg-blue-500/10 px-5 py-2 rounded-full border border-blue-500/20 mb-8 text-blue-300 font-mono">/{active.transcription}/</div>
                 <div className="bg-black/40 rounded-3xl p-6 border border-white/5 italic text-gray-300 text-sm text-center leading-relaxed">{active.example}</div>
               </Card>
@@ -206,8 +201,8 @@ export default function IeltsVocabulary() {
           </div>
 
           <div className="flex gap-4">
-            <Button variant="outline" onClick={() => { if (learnIndex > 0) { setLearnIndex(i => i - 1); setFlipped(false) } }} disabled={learnIndex === 0} className="flex-1 h-16 rounded-2xl border-white/5">Previous</Button>
-            <Button onClick={handleNextWord} className="flex-[2] bg-amber-500 hover:bg-amber-600 text-black h-16 rounded-2xl text-lg font-black">{learnIndex < IELTS_VOCAB_LIST.length - 1 ? 'Next Word' : 'Start Test'}</Button>
+            <Button variant="outline" onClick={() => { if (learnIndex > 0) { setLearnIndex(i => i - 1); setFlipped(false) } }} disabled={learnIndex === 0} className="flex-1 h-16 rounded-2xl border-white/5">{t.previous}</Button>
+            <Button onClick={handleNextWord} className="flex-[2] bg-amber-500 hover:bg-amber-600 text-black h-16 rounded-2xl text-lg font-black">{learnIndex < IELTS_VOCAB_LIST.length - 1 ? t.nextWord : t.startTest}</Button>
           </div>
         </div>
       </div>
@@ -224,7 +219,7 @@ export default function IeltsVocabulary() {
         <div className="max-w-3xl mx-auto space-y-10">
           <div className="space-y-4">
             <div className="flex justify-between items-end">
-              <h1 className="text-3xl font-black text-blue-500 flex items-center gap-3"><BrainCircuit className="w-8 h-8" /> Vocab Test</h1>
+              <h1 className="text-3xl font-black text-blue-500 flex items-center gap-3"><BrainCircuit className="w-8 h-8" /> {t.vocabTest}</h1>
               <span className="text-blue-500 font-black text-xl">{testIndex + 1} / {TEST_QUESTIONS.length}</span>
             </div>
             <Progress value={progress} className="h-1.5 bg-slate-900" />
@@ -245,7 +240,7 @@ export default function IeltsVocabulary() {
             </div>
           </Card>
 
-          <Button onClick={handleTestNext} disabled={!isAnswered} className="w-full h-16 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl text-xl shadow-lg shadow-blue-900/20">{testIndex < TEST_QUESTIONS.length - 1 ? 'Next Question' : 'Finish Test'}</Button>
+          <Button onClick={handleTestNext} disabled={!isAnswered} className="w-full h-16 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl text-xl shadow-lg shadow-blue-900/20">{testIndex < TEST_QUESTIONS.length - 1 ? t.nextQuestion : t.finishTest}</Button>
         </div>
       </div>
     )
@@ -256,12 +251,12 @@ export default function IeltsVocabulary() {
     <div className="min-h-screen bg-[#050810] p-4 flex items-center justify-center">
       <Card className="max-w-2xl w-full bg-[#0a0f1d] border-amber-500/30 text-white p-10 text-center shadow-2xl rounded-[40px]">
         <div className="mb-8 flex justify-center"><div className="relative"><Trophy className="w-24 h-24 text-yellow-400" /><Sparkles className="absolute -top-2 -right-2 w-10 h-10 text-amber-400 animate-pulse" /></div></div>
-        <h2 className="text-4xl font-black mb-4 tracking-tighter uppercase">Daily Set Complete!</h2>
-        <p className="text-gray-500 mb-8 text-lg">You have mastered 20 academic words today.</p>
+        <h2 className="text-4xl font-black mb-4 tracking-tighter uppercase">{t.dailySetComplete}</h2>
+        <p className="text-gray-500 mb-8 text-lg">{t.masteredFeedback(20)}</p>
         <div className="bg-amber-500/10 rounded-[32px] p-8 mb-10 border border-amber-500/20">
-          <p className="text-[10px] text-amber-500/60 uppercase font-black tracking-[0.2em] mb-2">Test Accuracy</p>
+          <p className="text-[10px] text-amber-500/60 uppercase font-black tracking-[0.2em] mb-2">{t.testAccuracy}</p>
           <p className="text-7xl font-black text-amber-500">{Math.round((testScore/TEST_QUESTIONS.length)*100)}%</p>
-          <p className="text-amber-400/60 mt-2 font-bold">{testScore} out of {TEST_QUESTIONS.length} correct</p>
+          <p className="text-amber-400/60 mt-2 font-bold">{t.outOfCorrect(testScore, TEST_QUESTIONS.length)}</p>
         </div>
 
         {/* Answer Review Section */}
@@ -274,8 +269,8 @@ export default function IeltsVocabulary() {
                   {isCorrect ? <CheckCircle2 className="w-5 h-5 text-emerald-500 mt-1" /> : <XCircle className="w-5 h-5 text-red-500 mt-1" />}
                   <div>
                     <p className="font-bold text-gray-200 text-sm">{q.text.replace('___', IELTS_VOCAB_LIST[q.id-1].en)}</p>
-                    <p className={`text-xs mt-1 ${isCorrect ? 'text-emerald-400' : 'text-red-400'}`}>Your answer: {q.options[testAnswers[q.id]]}</p>
-                    {!isCorrect && <p className="text-emerald-400 font-bold text-xs">Correct: {q.options[q.correctIndex]}</p>}
+                    <p className={`text-xs mt-1 ${isCorrect ? 'text-emerald-400' : 'text-red-400'}`}>{t.yourAnswer} {q.options[testAnswers[q.id]]}</p>
+                    {!isCorrect && <p className="text-emerald-400 font-bold text-xs">{t.correct} {q.options[q.correctIndex]}</p>}
                   </div>
                 </div>
               </div>
@@ -283,7 +278,7 @@ export default function IeltsVocabulary() {
           })}
         </div>
 
-        <Button onClick={() => window.location.reload()} className="w-full h-16 bg-amber-500 hover:bg-amber-400 text-black font-black rounded-2xl text-xl shadow-lg shadow-amber-900/20">Restart Daily Set</Button>
+        <Button onClick={() => window.location.reload()} className="w-full h-16 bg-amber-500 hover:bg-amber-400 text-black font-black rounded-2xl text-xl shadow-lg shadow-amber-900/20">{t.restartDaily}</Button>
       </Card>
     </div>
   )

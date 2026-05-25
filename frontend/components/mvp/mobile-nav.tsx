@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useApp } from '@/context/app-context'
 import {
   LayoutDashboard,
   BookOpen,
@@ -13,60 +12,64 @@ import {
   HelpCircle,
   Settings,
 } from 'lucide-react'
+import { useApp } from '@/context/app-context'
+import { getMvpLang, mvpText } from '@/lib/mvp-i18n'
 
 const menuItems = [
   {
-    name: 'Дашбород',
-    shortName: 'Главная',
+    labelKey: 'dashboard',
+    shortLabelKey: 'home',
     href: '/mvp',
     icon: LayoutDashboard,
   },
   {
-    name: 'Учить',
-    shortName: 'Учить',
+    labelKey: 'learn',
+    shortLabelKey: 'learn',
     href: '/mvp/learn',
     icon: BookOpen,
   },
   {
-    name: 'Coach',
-    shortName: 'Coach',
+    labelKey: 'coach',
+    shortLabelKey: 'coach',
     href: '/mvp/coach',
     icon: Zap,
   },
   {
-    name: 'Прогресс',
-    shortName: 'Прогресс',
+    labelKey: 'progress',
+    shortLabelKey: 'progress',
     href: '/mvp/progress',
     icon: TrendingUp,
   },
   {
-    name: 'Награды',
-    shortName: 'Награды',
+    labelKey: 'awards',
+    shortLabelKey: 'awards',
     href: '/mvp/achievements',
     icon: Trophy,
   },
   {
-    name: 'Советы',
-    shortName: 'Советы',
+    labelKey: 'tips',
+    shortLabelKey: 'tips',
     href: '/mvp/tips',
     icon: Lightbulb,
   },
   {
-    name: 'Помощь',
-    shortName: 'Помощь',
+    labelKey: 'help',
+    shortLabelKey: 'help',
     href: '/mvp/help',
     icon: HelpCircle,
   },
   {
-    name: 'Настройки',
-    shortName: 'Настройки',
+    labelKey: 'settings',
+    shortLabelKey: 'settings',
     href: '/mvp/settings',
     icon: Settings,
   },
-]
+] as const
 
 export function MobileNav() {
   const pathname = usePathname()
+  const { user } = useApp()
+  const t = mvpText[getMvpLang(user?.lang)].nav
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-[#1a2744] border-t border-[#334155] z-50">
@@ -85,7 +88,7 @@ export function MobileNav() {
               }`}
             >
               <Icon className="w-5 h-5 md:w-6 md:h-6 mb-1" />
-              <span className="text-xs text-center">{item.shortName}</span>
+              <span className="text-xs text-center">{t[item.shortLabelKey]}</span>
             </Link>
           )
         })}

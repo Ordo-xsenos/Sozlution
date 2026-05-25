@@ -3,49 +3,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ChevronDown } from 'lucide-react'
 import { useState } from 'react'
-
-const faqs = [
-  {
-    question: 'Как начать изучение английского?',
-    answer:
-      'Перейдите на вкладку "Учить сейчас" и начните с первого раздела. Каждый день изучайте новые слова и повторяйте уже выученные. Мы рекомендуем уделять хотя бы 15-20 минут в день для наилучших результатов.',
-  },
-  {
-    question: 'Как отслеживать мой прогресс?',
-    answer:
-      'Вы можете отслеживать ваш прогресс на странице "Прогресс". Там вы увидите статистику по выученным словам, текущую серию занятий и другие полезные метрики.',
-  },
-  {
-    question: 'Что такое серия (streak)?',
-    answer:
-      'Серия - это количество дней подряд, в которые вы занимались изучением английского. Постарайтесь сохранить как можно более длинную серию для мотивации и стабильного прогресса.',
-  },
-  {
-    question: 'Как разблокировать достижения?',
-    answer:
-      'Достижения разблокируются автоматически при выполнении определённых условий, таких как изучение определённого количества слов или сохранение долгой серии занятий.',
-  },
-  {
-    question: 'Могу ли я сбросить мой прогресс?',
-    answer:
-      'Да, вы можете сбросить прогресс на странице "Настройки". Но помните, что это необратимо, поэтому будьте внимательны!',
-  },
-  {
-    question: 'Как улучшить произношение?',
-    answer:
-      'Используйте функцию прослушивания на флеш-картах. Слушайте несколько раз и старайтесь повторить. Также посмотрите вкладку "Советы" для получения дополнительных рекомендаций.',
-  },
-  {
-    question: 'Есть ли приложение для мобильного?',
-    answer:
-      'Сейчас So\'zlution доступна как веб-приложение, оптимизированное для мобильных устройств. Вы можете открыть сайт через мобильный браузер и использовать всё функции.',
-  },
-  {
-    question: 'Как связаться с поддержкой?',
-    answer:
-      'Если у вас есть вопросы или проблемы, напишите нам по адресу support@sozlution.com или используйте форму обратной связи на нашем сайте.',
-  },
-]
+import { useApp } from '@/context/app-context'
+import { getMvpLang, mvpText } from '@/lib/mvp-i18n'
 
 interface FAQItemProps {
   question: string
@@ -76,30 +35,33 @@ function FAQItem({ question, answer }: FAQItemProps) {
 }
 
 export default function HelpPage() {
+  const { user } = useApp()
+  const t = mvpText[getMvpLang(user?.lang)].help
+
   return (
     <div className="min-h-screen bg-[#0f172a] p-4 md:p-8">
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="mb-6 md:mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">Помощь</h1>
-          <p className="text-sm md:text-base text-gray-400">Часто задаваемые вопросы</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">{t.title}</h1>
+          <p className="text-sm md:text-base text-gray-400">{t.subtitle}</p>
         </div>
 
         {/* FAQs */}
         <div className="space-y-3 md:space-y-4 mb-6 md:mb-8">
-          {faqs.map((faq, idx) => (
-            <FAQItem key={idx} question={faq.question} answer={faq.answer} />
+          {t.faq.map(([question, answer], idx) => (
+            <FAQItem key={idx} question={question} answer={answer} />
           ))}
         </div>
 
         {/* Contact Section */}
         <Card className="bg-gradient-to-r from-blue-600 to-blue-700 border-0">
           <CardHeader className="pb-3 md:pb-4">
-            <CardTitle className="text-lg md:text-xl text-white">Не нашли ответ?</CardTitle>
+            <CardTitle className="text-lg md:text-xl text-white">{t.contactTitle}</CardTitle>
           </CardHeader>
           <CardContent className="text-sm md:text-base text-white/90">
             <p className="mb-4">
-              Свяжитесь с командой поддержки.
+              {t.contactText}
             </p>
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
               <a
@@ -112,7 +74,7 @@ export default function HelpPage() {
                 href="#"
                 className="flex-1 px-4 py-2 border border-white text-white rounded-lg font-semibold hover:bg-white/10 transition-colors text-center text-sm md:text-base"
               >
-                Чат
+                {t.chat}
               </a>
             </div>
           </CardContent>

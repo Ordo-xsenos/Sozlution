@@ -2,12 +2,19 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { Send, MessageCircle, X, Minimize2, Maximize2 } from 'lucide-react'
+import { getAuthToken } from '@/lib/auth'
 
 interface Message {
   id: string
   type: 'user' | 'bot'
   text: string
   timestamp: Date
+  structured?: {
+    explanation: string
+    corrections: string[]
+    suggestions: string[]
+    ielts_score?: number | null
+  }
 }
 
 interface ChatbotProps {
@@ -24,9 +31,12 @@ export default function AIChatbot({ language = 'en' }: ChatbotProps) {
 
   const translations = {
     en: {
-      title: 'Sozlution Assistant',
-      placeholder: 'Ask me about Sozlution...',
-      greeting: 'Hello! I\'m your Sozlution assistant. Ask me anything about our AI-powered English learning platform.',
+      title: 'Sozlution Tutor',
+      placeholder: 'Ask your tutor...',
+      greeting: 'Hello! I\'m your personal IELTS Tutor. Let\'s practice your English together!',
+      corrections: 'Corrections',
+      suggestions: 'Power Words',
+      score: 'Est. IELTS Score',
       questions: [
         'How does spaced repetition work?',
         'What is the pricing model?',
@@ -45,9 +55,12 @@ export default function AIChatbot({ language = 'en' }: ChatbotProps) {
       },
     },
     uz: {
-      title: 'Sozlution Assistenti',
-      placeholder: 'Sozlution haqida savol bering...',
-      greeting: 'Salom! Men Sozlution assistentiman. Bizning AI-powered ingliz tilini o\'rganish platformasi haqida istalganingizni soring.',
+      title: 'Sozlution Repetitori',
+      placeholder: 'Repetitordan so\'rang...',
+      greeting: 'Salom! Men sizning shaxsiy IELTS repetitoringizman. Keling, birga ingliz tilini mashq qilamiz!',
+      corrections: 'Tuzatishlar',
+      suggestions: 'Kuchli so\'zlar',
+      score: 'IELTS bahosi',
       questions: [
         'Spaced repetition qanday ishlaydi?',
         'Narx modeli nima?',
@@ -55,20 +68,23 @@ export default function AIChatbot({ language = 'en' }: ChatbotProps) {
         'Bepul sinovdan o\'tishi mumkinmi?',
       ],
       responses: {
-        greeting: 'Salom! Men Sozlution haqida ko\'proq bilib olishda yordam berish uchun shu yerdaman. Istalganingizni sora olasiz!',
-        pricing: 'Biz cheksiz xususiyatlarga ega bepul qatlamni taklif etamiz, premium rejasiga oy uchun $4.99 narxi bilan.',
-        spaced: 'Spaced repetition - bu ma\'lumotni ortib boruvchi oraliqlar bilan qayta ko\'rish usuli. Bizning AI algoritmi maksimal saqlash uchun bu oraliqlarni optimallashtirib beradi.',
-        getting_started: 'Sozlution bilan boshlash oson! Ro\'yxatdan o\'ting, darajani aniqlash testini qo\'ying va o\'rganishni boshlang.',
-        trial: 'Ha! Biz kredit kartasiz 7 kunni premium xususiyatlarini bepul taklif etamiz.',
-        features: 'Sozlution AI-powered spaced repetition, adaptiv o\'rganish yo\'llari, real-time fikr-mulohaza va boshqalarni o\'z ichiga oladi.',
-        team: 'Bizning jamoamiz AI muhandislari, ta\'lim mutaxassislari va mahsulot ekspertlaridan iborat.',
-        technology: 'Biz GPT-4, Next.js, Node.js va advanced ML modellarini ishlatamiz.',
+        greeting: 'Salom! Sozlution haqida savollaringizga javob beraman.',
+        pricing: 'Bizda bepul tarif va $4.99/oy premium reja mavjud.',
+        spaced: 'Spaced repetition — ma\'lumotni ortib boruvchi intervalda takrorlash usuli.',
+        getting_started: 'Ro\'yxatdan o\'ting, daraja testini topshiring va o\'rganishni boshlang.',
+        trial: 'Ha, 7 kunlik bepul premium sinov mavjud.',
+        features: 'AI takrorlash, moslashtirilgan yo\'l, IELTS tayyorgarlik va analitika.',
+        team: 'Biz ta\'lim va AI mutaxassislaridan iborat jamoamiz.',
+        technology: 'Next.js, FastAPI va zamonaviy ML modellardan foydalanamiz.',
       },
     },
     ru: {
-      title: 'Ассистент Sozlution',
-      placeholder: 'Спросите о Sozlution...',
-      greeting: 'Привет! Я ассистент Sozlution. Спросите меня о нашей платформе изучения английского на основе ИИ.',
+      title: 'Тьютор Sozlution',
+      placeholder: 'Спросите тьютора...',
+      greeting: 'Привет! Я твой личный IELTS тьютор. Давай практиковать английский вместе!',
+      corrections: 'Исправления',
+      suggestions: 'Сильные слова',
+      score: 'Оценка IELTS',
       questions: [
         'Как работает интервальное повторение?',
         'Какая модель ценообразования?',
@@ -76,29 +92,46 @@ export default function AIChatbot({ language = 'en' }: ChatbotProps) {
         'Есть ли бесплатный пробный период?',
       ],
       responses: {
-        greeting: 'Привет! Я здесь, чтобы помочь вам узнать больше о Sozlution. Спросите меня о чем угодно!',
-        pricing: 'Мы предлагаем бесплатный тариф навсегда с ограниченными функциями и премиум-план за $4.99/месяц.',
-        spaced: 'Интервальное повторение - это метод обучения, когда вы повторяете информацию с растущими интервалами. Наш ИИ оптимизирует эти интервалы для максимального запоминания.',
-        getting_started: 'Начало работы с Sozlution очень просто! Зарегистрируйтесь, пройдите тест уровня и начните учиться.',
-        trial: 'Да! Мы предлагаем 7 дней премиум-функций бесплатно без карты.',
-        features: 'Sozlution включает интервальное повторение, адаптивные пути обучения, обратную связь в реальном времени и аналитику прогресса.',
-        team: 'Наша команда состоит из инженеров ИИ, специалистов в области образования и экспертов по продуктам.',
-        technology: 'Мы используем GPT-4, Next.js, Node.js и передовые модели МИ.',
+        greeting: 'Привет! Я помогу узнать больше о Sozlution.',
+        pricing: 'Есть бесплатный тариф и premium за $4.99/мес.',
+        spaced: 'Интервальное повторение — техника повторения с увеличивающимися интервалами.',
+        getting_started: 'Зарегистрируйтесь, пройдите тест уровня и начните обучение.',
+        trial: 'Да, 7 дней premium бесплатно без карты.',
+        features: 'AI-повторение, адаптивный путь, подготовка к IELTS и аналитика.',
+        team: 'Команда специалистов по образованию и AI.',
+        technology: 'Next.js, FastAPI и современные ML-модели.',
       },
     },
   }
 
   const t = translations[language]
 
-  const quickAnswers = [
-    { keyword: ['pricing', 'cost', 'price', 'how much', 'narx', 'стоим'], response: t.responses.pricing },
-    { keyword: ['spaced', 'repetition', 'repeat', 'algorithm', 'algoritm'], response: t.responses.spaced },
-    { keyword: ['start', 'begin', 'getting started', 'boshlash', 'начин'], response: t.responses.getting_started },
-    { keyword: ['trial', 'free', 'bepul', 'бесплат'], response: t.responses.trial },
-    { keyword: ['features', 'xususiyatlar', 'функции'], response: t.responses.features },
-    { keyword: ['team', 'jamoа', 'команда'], response: t.responses.team },
-    { keyword: ['technology', 'tech', 'stack', 'texnologiya', 'технолог'], response: t.responses.technology },
-  ]
+  const getLocalResponse = (messageText: string): string => {
+    const lower = messageText.toLowerCase()
+    const responses = (t as typeof translations.en).responses
+    if (lower.includes('pric') || lower.includes('narx') || lower.includes('цен')) {
+      return responses.pricing
+    }
+    if (lower.includes('spaced') || lower.includes('takror') || lower.includes('повтор')) {
+      return responses.spaced
+    }
+    if (lower.includes('start') || lower.includes('boshla') || lower.includes('начат')) {
+      return responses.getting_started
+    }
+    if (lower.includes('trial') || lower.includes('sinov') || lower.includes('пробн')) {
+      return responses.trial
+    }
+    if (lower.includes('feature') || lower.includes('funksiya') || lower.includes('функц')) {
+      return responses.features
+    }
+    if (lower.includes('team') || lower.includes('jamoa') || lower.includes('команд')) {
+      return responses.team
+    }
+    if (lower.includes('tech') || lower.includes('texnolog') || lower.includes('технолог')) {
+      return responses.technology
+    }
+    return responses.greeting
+  }
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -114,12 +147,12 @@ export default function AIChatbot({ language = 'en' }: ChatbotProps) {
         {
           id: '1',
           type: 'bot',
-          text: t.greeting,
+          text: (t as any).greeting,
           timestamp: new Date(),
         },
       ])
     }
-  }, [isOpen])
+  }, [isOpen, messages.length, t])
 
   const handleSendMessage = async (text?: string) => {
     const messageText = text || input
@@ -136,6 +169,9 @@ export default function AIChatbot({ language = 'en' }: ChatbotProps) {
     setInput('')
     setIsLoading(true)
 
+    const botMessageId = (Date.now() + 1).toString()
+    let accumulatedContent = ''
+
     try {
       const history = messages
         .filter((msg) => msg.type === 'user' || msg.type === 'bot')
@@ -145,45 +181,128 @@ export default function AIChatbot({ language = 'en' }: ChatbotProps) {
           text: msg.text,
         }))
 
-      const response = await fetch('/api/chat', {
+      const token = getAuthToken()
+      if (!token) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: botMessageId,
+            type: 'bot',
+            text: getLocalResponse(messageText),
+            timestamp: new Date(),
+          },
+        ])
+        return
+      }
+
+      const response = await fetch('/api/stream', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
           message: messageText,
-          language,
           history,
         }),
       })
 
       if (!response.ok) {
-        throw new Error('Chat request failed')
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: botMessageId,
+            type: 'bot',
+            text: getLocalResponse(messageText),
+            timestamp: new Date(),
+          },
+        ])
+        return
       }
 
-      const data = (await response.json()) as { reply?: string }
-      const botMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        type: 'bot',
-        text: data.reply || t.responses.greeting,
-        timestamp: new Date(),
-      }
+      const reader = response.body?.getReader()
+      if (!reader) throw new Error('No reader')
 
-      setMessages((prev) => [...prev, botMessage])
-    } catch {
-      let fallback = t.responses.greeting
-      const lowerInput = messageText.toLowerCase()
-      for (const item of quickAnswers) {
-        if (item.keyword.some((keyword) => lowerInput.includes(keyword))) {
-          fallback = item.response
-          break
+      setMessages((prev) => [
+        ...prev,
+        { id: botMessageId, type: 'bot', text: '', timestamp: new Date() },
+      ])
+
+      const decoder = new TextDecoder()
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        const chunk = decoder.decode(value, { stream: true })
+        // Split by SSE data prefix. Filter empty and handle multiple chunks.
+        const parts = chunk.split('data: ').filter(Boolean)
+
+        for (const dataStr of parts) {
+          const trimmed = dataStr.trim()
+          if (trimmed === '[DONE]') break
+          try {
+            const parsed = JSON.parse(trimmed)
+            const content = parsed.choices?.[0]?.delta?.content || ''
+            accumulatedContent += content
+
+            // UI Streaming: Extract 'explanation' value if it's currently being generated
+            let displayText = accumulatedContent
+            if (accumulatedContent.trim().startsWith('{')) {
+              // Regex looks for "explanation":"... value
+              const match = accumulatedContent.match(/"explanation"\s*:\s*"((?:[^"\\]|\\.)*)/)
+              if (match && match[1]) {
+                displayText = match[1].replace(/\\n/g, '\n').replace(/\\"/g, '"')
+              }
+            }
+
+            setMessages((prev) =>
+              prev.map((msg) =>
+                msg.id === botMessageId ? { ...msg, text: displayText } : msg
+              )
+            )
+          } catch (e) {
+            // Might be a partial JSON chunk at the end of the read, ignore
+          }
         }
       }
-      const botMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        type: 'bot',
-        text: fallback,
-        timestamp: new Date(),
+
+      // Final pass to try and parse the full JSON
+      try {
+        const cleanJson = accumulatedContent.substring(
+          accumulatedContent.indexOf('{'),
+          accumulatedContent.lastIndexOf('}') + 1
+        )
+        const structured = JSON.parse(cleanJson)
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === botMessageId
+              ? {
+                  ...msg,
+                  text: structured.explanation || msg.text,
+                  structured: {
+                    explanation: structured.explanation,
+                    corrections: structured.corrections || [],
+                    suggestions: structured.suggestions || [],
+                    ielts_score: structured.ielts_score,
+                  },
+                }
+              : msg
+          )
+        )
+      } catch (e) {
+        console.warn('Could not parse final structured response', e)
       }
-      setMessages((prev) => [...prev, botMessage])
+    } catch (error) {
+      console.error('Chat error:', error)
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          type: 'bot',
+          text: 'Error connecting to AI. Please try again.',
+          timestamp: new Date(),
+        },
+      ])
     } finally {
       setIsLoading(false)
     }
@@ -245,6 +364,49 @@ export default function AIChatbot({ language = 'en' }: ChatbotProps) {
                     }`}
                   >
                     <p className="text-sm leading-relaxed">{message.text}</p>
+                    {message.structured && (
+                      <div className="mt-3 pt-3 border-t border-purple-500/30 space-y-3">
+                        {message.structured.corrections.length > 0 && (
+                          <div>
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-purple-400 mb-1">
+                              {(t as any).corrections}
+                            </p>
+                            <ul className="list-disc list-inside text-xs space-y-1 text-slate-300">
+                              {message.structured.corrections.map((c, i) => (
+                                <li key={i}>{c}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        {message.structured.suggestions.length > 0 && (
+                          <div>
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 mb-1">
+                              {(t as any).suggestions}
+                            </p>
+                            <div className="flex flex-wrap gap-1">
+                              {message.structured.suggestions.map((s, i) => (
+                                <span
+                                  key={i}
+                                  className="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/30 rounded text-[10px] text-emerald-300"
+                                >
+                                  {s}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        {message.structured.ielts_score && (
+                          <div className="flex items-center gap-2 pt-1">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400">
+                              {(t as any).score}:
+                            </span>
+                            <span className="text-sm font-black text-cyan-300">
+                              {message.structured.ielts_score}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}

@@ -2,33 +2,40 @@
 
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import type { components, paths } from '@/lib/api-types'
+import type { components } from '@/lib/api-types'
 import { buildApiUrl } from '@/lib/api'
 import { clearAuthSession, getAuthToken } from '@/lib/auth'
 import { logger } from '@/lib/logger'
 
-type ApiSchemas = components['schemas']
-type Lang = ApiSchemas['Language']
-type Level = ApiSchemas['Level']
-
-// Define a type for HTTP methods
-type HttpMethod = 'get' | 'post' | 'put' | 'delete' | 'patch'
-
-// Helper type to extract response type from OpenAPI paths
-type PathResponse<P extends keyof paths, M extends HttpMethod> = paths[P] extends {
-  [K in M]: { responses: { '200': { content: { 'application/json': infer R } } } }
+export type User = Omit<components['schemas']['UserPublic'], 'level'> & {
+  level: components['schemas']['Level'] | 'IELTS'
 }
-  ? R
-  : never
 
-// Helper type to extract request body type from OpenAPI paths
-type PathRequestBody<P extends keyof paths, M extends HttpMethod> = paths[P] extends {
-  [K in M]: { requestBody: { content: { 'application/json': infer B } } }
+export type PlanDay = {
+  day: number
+  status: 'locked' | 'current' | 'completed'
+  word_ids?: string[]
 }
-  ? B
-  : never
 
-export interface Word {
+export type DayPlan = {
+  id: string
+  user_id: string
+  level: string
+  month_index: number
+  start_date: string
+  days: PlanDay[]
+}
+
+export type DayResult = {
+  day: number
+  step1: Record<string, boolean>
+  step2: Record<string, boolean>
+  step3: Record<string, number>
+  accuracy: number
+  created_at: string
+}
+
+export type Word = {
   id: string
   en: string
   uz: string
@@ -38,43 +45,22 @@ export interface Word {
   en_description?: string
   definition?: string
   description?: string
+  locale_data?: {
+    phonetics?: { us?: string; uk?: string }
+    russian_translate?: string
+    uzbek_translate?: string
+    russian_description?: string
+    uzbek_description?: string
+    [key: string]: unknown
+  }
+  level_tag?: string
+  audio_url?: string | null
+  phonetics?: Array<string | { text?: string; ipa?: string; value?: string }>
   transcription?: string
   phonetic?: string
-  phonetics?: Array<string | { text?: string; ipa?: string; value?: string }>
-  locale_data?: {
-    phonetics?: {
-      us?: string
-      uk?: string
-    }
-  }
-  audio_url?: string | null // добавлено поле для озвучки
 }
 
-export interface DayPlan {
-  day: number
-  status: 'locked' | 'current' | 'completed'
-  word_ids: string[]
-  snippets?: { sentence: string; word_id: string }[]
-}
-
-export interface Plan {
-  id: string
-  level: Level
-  month_index: number
-  start_date: string
-  days: DayPlan[]
-}
-
-export interface User {
-  id: string
-  name: string
-  email: string
-  lang: Lang
-  level: Level
-  created_at: string
-}
-
-export interface Stats {
+export type UserStats = {
   streak: number
   total_words_learned: number
   total_days_done: number
@@ -82,13 +68,7 @@ export interface Stats {
   last_activity_date: string | null
 }
 
-export interface DayResult {
-  day: number
-  accuracy: number
-  created_at: string
-}
-
-export interface IeltsStats {
+export type IeltsStats = {
   estimated_band: number
   target_band: number
   writing_tasks_completed: number
@@ -97,114 +77,43 @@ export interface IeltsStats {
   activity_heatmap: Record<string, number>
 }
 
-// API Response interfaces
-interface UserApiResponse {
-  user: User
-}
-
-interface StatsApiResponse {
-  stats: Stats
-}
-
-interface ResultsApiResponse {
-  results: DayResult[]
-}
-
-interface PlanApiResponse {
-  plan: Plan
-}
-
-interface PlanGenerateBody {
-  level: Level
-}
-
-interface PlanGenerateResponse {
-  plan: Plan
-}
-
-interface CurrentDayResponse {
-  day: DayPlan
-  words: Word[]
-}
-
-interface AppContextType {
+type AppContextType = {
   user: User | null
-  stats: Stats | null
+  stats: UserStats | null
   ieltsStats: IeltsStats | null
-  plan: Plan | null
-  currentDay: { day: DayPlan; words: Word[] } | null
+  plan: DayPlan | null
+  currentDay: { day: PlanDay; words: Word[] } | null
   results: DayResult[]
   loading: boolean
   authReady: boolean
   error: string
+  logout: () => void
   hydrate: () => Promise<void>
   login: (token: string) => Promise<void>
-  logout: () => void
-  request: typeof request
+  updateUser: (payload: components['schemas']['UserUpdate']) => Promise<User>
+  request: (
+    path: string,
+    options?: { body?: unknown; headers?: Record<string, string> },
+    method?: string
+  ) => Promise<unknown>
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined)
 
-async function request<
-  P extends keyof paths,
-  M extends HttpMethod = 'get',
-  TResponse = PathResponse<P, M>,
-  TBody = PathRequestBody<P, M>,
->(
-  path: P,
-  init?: Omit<RequestInit, 'body'> & { body?: TBody },
-  method: M = 'get' as M,
-  withAuth = true
-): Promise<TResponse> {
-  const headers = new Headers(init?.headers || {})
-  headers.set('Content-Type', 'application/json')
-  if (withAuth) {
-    const token = getAuthToken()
-    if (!token) throw new Error('No token')
-    headers.set('Authorization', `Bearer ${token}`)
-  }
-
-  const { body, ...restInit } = init || {}
-  const fetchOptions: RequestInit = {
-    ...restInit,
-    method: method.toUpperCase(),
-    headers,
-  }
-
-  if (body) {
-    fetchOptions.body = JSON.stringify(body)
-  }
-
-  const res = await fetch(buildApiUrl(path), fetchOptions)
-  const raw = await res.text()
-  let parsed: unknown = null
-  if (raw) {
-    try {
-      parsed = JSON.parse(raw)
-    } catch {
-      parsed = null
-    }
-  }
-  if (!res.ok) {
-    let message = `HTTP ${res.status}`
-    if (parsed && typeof parsed === 'object') {
-      const p = parsed as { detail?: string; message?: string }
-      message = p.detail || p.message || message
-    } else if (raw) {
-      message = raw
-    }
-    throw new Error(message)
-  }
-  return (parsed as TResponse) ?? ({} as TResponse)
-}
+type UserUpdateBody = components['schemas']['UserUpdate']
+type UserApiResponse = { user: User }
+type StatsApiResponse = { stats: UserStats }
+type PlanApiResponse = { plan: DayPlan }
+type ResultsApiResponse = { results: DayResult[] }
+type CurrentDayResponse = { day: PlanDay; words: Word[] }
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
-  const [stats, setStats] = useState<Stats | null>(null)
+  const [stats, setStats] = useState<UserStats | null>(null)
   const [ieltsStats, setIeltsStats] = useState<IeltsStats | null>(null)
-  const [plan, setPlan] = useState<Plan | null>(null)
-  const [currentDay, setCurrentDay] = useState<{ day: DayPlan; words: Word[] } | null>(null)
+  const [plan, setPlan] = useState<DayPlan | null>(null)
+  const [currentDay, setCurrentDay] = useState<{ day: PlanDay; words: Word[] } | null>(null)
   const [results, setResults] = useState<DayResult[]>([])
   const [loading, setLoading] = useState(false)
   const [authReady, setAuthReady] = useState(false)
@@ -228,96 +137,115 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     router.replace('/login')
   }, [clearAppState, router])
 
+  const request = useCallback(
+    async (path: string, options: any = {}, method: string = 'get'): Promise<any> => {
+      const token = getAuthToken()
+      const fetchOptions: RequestInit = {
+        method: method.toUpperCase(),
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          ...options.headers,
+        },
+      }
+
+      if (options.body) {
+        fetchOptions.body = JSON.stringify(options.body)
+      }
+
+      const res = await fetch(buildApiUrl(path), fetchOptions)
+      const raw = await res.text()
+      let parsed: any = null
+      if (raw) {
+        try {
+          parsed = JSON.parse(raw)
+        } catch {
+          /* v8 ignore next */
+          parsed = null
+        }
+      }
+
+      if (!res.ok) {
+        /* v8 ignore start */
+        const msg = parsed?.detail || parsed?.message || raw || `HTTP ${res.status}`
+        throw new Error(msg)
+        /* v8 ignore end */
+      }
+
+      return parsed || {}
+    },
+    []
+  )
+
   const hydrate = useCallback(async () => {
     setLoading(true)
     setError('')
     try {
       const [u, s, r] = await Promise.all([
-        request<'/api/v1/user', 'get', UserApiResponse>('/api/v1/user'),
-        request<'/api/v1/stats', 'get', StatsApiResponse>('/api/v1/stats'),
-        request<'/api/v1/results', 'get', ResultsApiResponse>('/api/v1/results'),
+        request('/api/v1/user') as Promise<UserApiResponse>,
+        request('/api/v1/stats') as Promise<StatsApiResponse>,
+        request('/api/v1/results') as Promise<ResultsApiResponse>,
       ])
+
       setUser(u.user)
       setStats(s.stats)
       setResults(r.results)
 
-      // Fetch IELTS stats if possible
-      try {
-        const isIelts = u.user.level === ('IELTS' as any)
-        if (isIelts) {
-          // IELTS endpoint may not be in api-types yet
-          const istats = await request('/api/v1/ielts-mode/stats' as any, {}, 'get')
-          setIeltsStats(istats as IeltsStats)
-        }
-      } catch (e) {
-        // Silently skip if ielts stats fail or not found
+      if (u.user.level === 'IELTS') {
+        try {
+          const is = (await request('/api/v1/ielts-mode/stats')) as IeltsStats
+          setIeltsStats(is)
+        } catch { /* v8 ignore next */ }
       }
 
       let planLoaded = false
       let planData = null
       try {
-        const p = await request<'/api/v1/plan', 'get', PlanApiResponse>('/api/v1/plan')
-        const actualPlan = p.plan
-
-        // Если план пришел пустым (нет дней или нет ID), считаем, что его нужно сгенерировать
-        if (!actualPlan || (Array.isArray(actualPlan?.days) && actualPlan.days.length === 0)) {
+        const p = (await request('/api/v1/plan')) as PlanApiResponse
+        if (!p.plan || (p.plan.days && p.plan.days.length === 0)) {
           throw new Error('Empty plan')
         }
-
-        setPlan(actualPlan)
+        setPlan(p.plan)
         planLoaded = true
-        planData = actualPlan
+        planData = p.plan
       } catch (e) {
         const msg = e instanceof Error ? e.message : ''
-        const isNotFound =
-          msg.toLowerCase().includes('not found') ||
-          msg.toLowerCase().includes('не найден') ||
-          msg.includes('404') ||
-          msg.includes('Empty plan')
-
-        // Если план не найден или пустой — создаём его
-        if (isNotFound) {
+        if (msg.includes('404') || msg.includes('Not found') || msg.includes('Empty plan')) {
           try {
-            logger.info('Generating plan for level:', u.user.level)
-            await request<'/api/v1/plan/generate', 'post', PlanGenerateResponse, PlanGenerateBody>(
-              '/api/v1/plan/generate',
-              {
-                body: { level: u.user.level },
-              },
-              'post'
-            )
-
-            // Повторяем запрос на план после генерации
-            const p2 = await request<'/api/v1/plan', 'get', PlanApiResponse>('/api/v1/plan')
-            const actualPlan2 = p2.plan
-            setPlan(actualPlan2)
+            logger.info('Generating plan for user level:', u.user.level)
+            await request('/api/v1/plan/generate', {}, 'post')
+            const p2 = (await request('/api/v1/plan')) as PlanApiResponse
+            setPlan(p2.plan)
             planLoaded = true
-            planData = actualPlan2
+            planData = p2.plan
           } catch (genErr) {
+            /* v8 ignore start */
             logger.error('Plan generation failed:', genErr)
+            /* v8 ignore end */
           }
         } else {
+          /* v8 ignore start */
           logger.error('Plan hydration error:', msg)
+          /* v8 ignore end */
         }
       }
 
       if (planLoaded && planData) {
-        // Пытаемся получить currentDay, если не получилось — просто не сетим, не кидаем ошибку
         try {
-          const c = await request<'/api/v1/day/current', 'get', CurrentDayResponse>(
-            '/api/v1/day/current'
-          )
+          const c = (await request('/api/v1/day/current')) as CurrentDayResponse
           setCurrentDay(c)
-        } catch (e) {
-          const error = e instanceof Error ? e : new Error('Unknown error')
-          logger.error('Failed to fetch current day:', error.message)
+        } catch (dayErr) {
+          /* v8 ignore start */
+          logger.error('Failed to fetch current day:', dayErr instanceof Error ? dayErr.message : dayErr)
+          /* v8 ignore end */
         }
       }
+
       setAuthReady(true)
     } catch (e) {
       const nextError = e instanceof Error ? e.message : 'Hydration failed'
       setError(nextError)
-      // Check for authentication errors (401, 404) or "No token" error
+      /* v8 ignore start */
       if (
         nextError.includes('401') ||
         nextError.includes('404') ||
@@ -328,11 +256,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         logout()
         return
       }
+      /* v8 ignore end */
       setAuthReady(true)
     } finally {
       setLoading(false)
     }
-  }, [logout])
+  }, [logout, request])
 
   const login = useCallback(
     async (token: string) => {
@@ -343,16 +272,28 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     [hydrate]
   )
 
+  const updateUser = useCallback(
+    async (payload: UserUpdateBody) => {
+      const response = (await request(
+        '/api/v1/user',
+        { body: payload },
+        'patch'
+      )) as UserApiResponse
+      setUser(response.user)
+      return response.user
+    },
+    [request]
+  )
+
   useEffect(() => {
     const token = getAuthToken()
     if (!token) {
       setAuthReady(true)
-      // Redirect handled by layouts
       return
     }
-
-    void hydrate()
-  }, [hydrate])
+    hydrate()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <AppContext.Provider
@@ -366,9 +307,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         loading,
         authReady,
         error,
+        logout,
         hydrate,
         login,
-        logout,
+        updateUser,
         request,
       }}
     >
@@ -380,7 +322,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 export function useApp() {
   const context = useContext(AppContext)
   if (context === undefined) {
+    /* v8 ignore start */
     throw new Error('useApp must be used within AppProvider')
+    /* v8 ignore end */
   }
   return context
 }

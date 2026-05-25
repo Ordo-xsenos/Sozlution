@@ -41,3 +41,10 @@ class AiWordFullOut(BaseModel):
     uz_translation: str
     uz_description: str
     level: str = "B1"
+
+
+class AiTutorResponse(BaseModel):
+    explanation: str = Field(description="Main response text or explanation in user's language")
+    corrections: list[str] = Field(default_factory=list, description="List of corrections for user's grammar/vocabulary mistakes")
+    suggestions: list[str] = Field(default_factory=list, description="3 Power Words or advanced synonyms")
+    ielts_score: float | None = Field(default=None, description="Estimated IELTS band score for the user's input if applicable")

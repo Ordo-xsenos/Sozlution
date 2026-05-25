@@ -22,7 +22,7 @@ class StatsService:
 
     async def update_stats_after_day(self, db: AsyncSession, *, user_id: str) -> Stats:
         stats = await self.get_or_create_stats(db, user_id=user_id)
-        all_results = await day_result_repository.list_by_user(db, user_id=user_id)
+        all_results, _ = await day_result_repository.list_by_user(db, user_id=user_id)
         
         return await stats_repository.update(
             db,

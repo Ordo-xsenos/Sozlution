@@ -1,6 +1,7 @@
 import uuid
 
 from fastapi import APIRouter, Depends
+from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.ai.dependencies import get_ai_service
@@ -33,6 +34,25 @@ async def ai_chat(
 ):
     text = await service.chat(message=payload.message, history=[item.model_dump() for item in payload.history], lang=current_user.lang)
     return AiChatOut(text=text)
+
+
+@router.post("/ai/chat-stream")
+async def ai_chat_stream(
+    payload: AiChatIn,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    service: AIService = Depends(get_ai_service),
+):
+    return StreamingResponse(
+        service.stream_chat(
+            db=db,
+            user_id=current_user.id,
+            message=payload.message,
+            history=[item.model_dump() for item in payload.history],
+            lang=current_user.lang,
+        ),
+        media_type="text/event-stream",
+    )
 
 
 @router.post("/ai/word-assist", response_model=AiWordAssistOut)

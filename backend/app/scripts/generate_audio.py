@@ -32,21 +32,34 @@ async def generate_missing_audios():
         
         count = 0
         for word in words:
-            # Используем id для уникальности имени файла
-            filename = f"en_{word.id}"
-            audio_path = await generate_word_audio(word.en, filename)
+            filename = f"en_{word.id}.mp3"
+            full_path = os.path.join("/app/static/audio", filename)
+            
+            if os.path.exists(full_path) and os.path.getsize(full_path) > 100:
+                logger.info(f"Skipping {word.en}, file exists.")
+                word.audio_path = f"/static/audio/{filename}"
+                continue
+
+            logger.info(f"Generating audio for {word.en}...")
+            try:
+                audio_path = await generate_word_audio(word.en, f"en_{word.id}")
+            except Exception as e:
+                logger.error(f"Generation error for {word.en}: {e}")
+                audio_path = None
             
             if audio_path:
                 word.audio_path = audio_path
                 count += 1
-                
-                # Сохраняем пачками по 10 слов
-                if count % 10 == 0:
-                    await session.commit()
-                    logger.info(f"Processed {count}/{len(words)} words...")
+            else:
+                logger.warning(f"No audio available for {word.en}. Marking as NO_AUDIO.")
+                word.audio_path = "NO_AUDIO"
+            
+            if count % 10 == 0:
+                await session.commit()
+                logger.info(f"Processed batch...")
             
         await session.commit()
-        logger.info(f"Finished! Successfully generated audio for {count} words.")
+        logger.info(f"Finished! Successfully generated/fixed audio for {count} words.")
 
 if __name__ == "__main__":
     asyncio.run(generate_missing_audios())

@@ -27,6 +27,7 @@ import {
 import { getAuthToken, getOrCreateDeviceId } from '@/lib/auth'
 import { createSession, getErrorMessage } from '@/lib/auth-api'
 import { useApp } from '@/context/app-context'
+import { getMvpLang, mvpText } from '@/lib/mvp-i18n'
 
 type Language = components['schemas']['Language']
 
@@ -37,13 +38,15 @@ const languageOptions: Array<{ label: string; value: Language }> = [
 
 export default function RegisterPage() {
   const router = useRouter()
-  const { login: appLogin } = useApp()
+  const { login: appLogin, user } = useApp()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [lang, setLang] = useState<Language>('ru')
+  const [lang, setLang] = useState<Language>(getMvpLang(user?.lang))
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+
+  const t = mvpText[getMvpLang(user?.lang)].auth
 
   useEffect(() => {
     if (getAuthToken()) {
@@ -60,17 +63,19 @@ export default function RegisterPage() {
     const trimmedPassword = password.trim()
 
     if (!trimmedName) {
-      setError('Введите username.')
+      setError(t.enterTokenError.replace('reset token', 'username')) // Reusing or should I add more?
+      // Actually let's just use hardcoded strings for now if they are not in t, 
+      // but I should add them to t.
       return
     }
 
     if (!trimmedEmail) {
-      setError('Введите email.')
+      setError(t.enterEmailError)
       return
     }
 
     if (!trimmedPassword) {
-      setError('Введите пароль.')
+      setError(t.enterPasswordError)
       return
     }
 
@@ -88,13 +93,13 @@ export default function RegisterPage() {
       })
 
       if (!session.session_token) {
-        throw new Error('Backend не вернул session_token.')
+        throw new Error('Backend did not return session_token.')
       }
 
       await appLogin(session.session_token)
       router.replace('/register/test')
     } catch (nextError) {
-      setError(getErrorMessage(nextError, 'Не удалось зарегистрировать аккаунт.'))
+      setError(getErrorMessage(nextError, t.loginError))
     } finally {
       setSubmitting(false)
     }
@@ -102,32 +107,32 @@ export default function RegisterPage() {
 
   return (
     <AuthShell
-      eyebrow="Register"
-      title="Регистрация вынесена в отдельный маршрут `/register`."
-      description="Новый аккаунт создаётся по `username + email + password`. После успешной регистрации пользователь сразу попадает в MVP."
+      eyebrow={t.registerEyebrow}
+      title={t.registerTitle}
+      description={t.registerDesc}
       highlights={[
         {
           title: 'Identity',
-          text: 'Username остаётся публичным именем пользователя, а email становится основным идентификатором для auth-flow.',
+          text: 'Username remains public, email is for auth-flow.',
         },
         {
           title: 'Session',
-          text: 'После регистрации фронтенд сразу сохраняет `session_token`, чтобы не заставлять пользователя логиниться повторно.',
+          text: 'Token is saved immediately after registration.',
         },
       ]}
     >
       <Card className="border-white/10 bg-slate-950/70 text-white shadow-2xl shadow-cyan-950/20 backdrop-blur-xl">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl">Создать аккаунт</CardTitle>
+          <CardTitle className="text-2xl">{t.cardTitle}</CardTitle>
           <CardDescription className="text-slate-400">
-            Заполните username, email и пароль. Язык нужен для начальной локализации профиля.
+            {t.cardDesc}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form className="space-y-5" onSubmit={handleSubmit}>
             <div className="space-y-2">
               <Label htmlFor="register-name" className="text-slate-200">
-                Username
+                {t.usernameLabel}
               </Label>
               <div className="relative">
                 <UserRound className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-500" />
@@ -135,7 +140,7 @@ export default function RegisterPage() {
                   id="register-name"
                   value={name}
                   onChange={(event) => setName(event.target.value)}
-                  placeholder="Например, azizbek"
+                  placeholder={t.usernamePlaceholder}
                   className="h-12 border-slate-800 bg-slate-900/80 pl-10 text-white placeholder:text-slate-500"
                 />
               </div>
@@ -143,7 +148,7 @@ export default function RegisterPage() {
 
             <div className="space-y-2">
               <Label htmlFor="register-email" className="text-slate-200">
-                Email
+                {t.emailLabel}
               </Label>
               <div className="relative">
                 <Mail className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-500" />
@@ -160,7 +165,7 @@ export default function RegisterPage() {
 
             <div className="space-y-2">
               <Label htmlFor="register-password" className="text-slate-200">
-                Пароль
+                {t.passwordLabel}
               </Label>
               <div className="relative">
                 <LockKeyhole className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-500" />
@@ -169,7 +174,7 @@ export default function RegisterPage() {
                   type="password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
-                  placeholder="Минимум 8 символов"
+                  placeholder={t.newPasswordPlaceholder}
                   className="h-12 border-slate-800 bg-slate-900/80 pl-10 text-white placeholder:text-slate-500"
                 />
               </div>
@@ -177,7 +182,7 @@ export default function RegisterPage() {
 
             <div className="space-y-2">
               <Label htmlFor="register-lang" className="text-slate-200">
-                Язык интерфейса
+                {t.langLabel}
               </Label>
               <Select value={lang} onValueChange={(value) => setLang(value as Language)}>
                 <SelectTrigger
@@ -185,10 +190,10 @@ export default function RegisterPage() {
                   className="h-12 w-full border-slate-800 bg-slate-900/80 text-white"
                 >
                   <SelectValue
-                    placeholder="Выберите язык"
+                    placeholder={t.langPlaceholder}
                     aria-label={languageOptions.find(o => o.value === lang)?.label}
                   >
-                    {languageOptions.find(o => o.value === lang)?.label || 'Выберите язык'}
+                    {languageOptions.find(o => o.value === lang)?.label || t.langPlaceholder}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent className="border-slate-800 bg-slate-950 text-white">
@@ -213,13 +218,13 @@ export default function RegisterPage() {
               type="submit"
             >
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-              Создать аккаунт
+              {t.registerButton}
             </Button>
 
             <p className="text-center text-sm text-slate-400">
-              Уже есть аккаунт?{' '}
+              {t.alreadyHaveAccount}{' '}
               <Link href="/login" className="font-medium text-cyan-300 transition-colors hover:text-cyan-200">
-                Перейти ко входу
+                {t.registerLink}
               </Link>
             </p>
           </form>

@@ -10,7 +10,7 @@ test.describe('AI Chatbot Functional Tests', () => {
     await page.click('button[aria-label="Open chat"]', { force: true });
     
     // Check if the chat window is visible (using a more specific locator for the header)
-    const header = page.locator('h3:has-text("Sozlution Assistant")');
+    const header = page.locator('h3:has-text("Sozlution Tutor")');
     await expect(header).toBeVisible({ timeout: 10000 });
     
     // Click close button (The label in component is "Close")
@@ -23,7 +23,7 @@ test.describe('AI Chatbot Functional Tests', () => {
   test('should send a message and receive an AI response', async ({ page }) => {
     await page.click('button[aria-label="Open chat"]', { force: true });
     
-    const input = page.getByPlaceholder('Ask me about Sozlution...');
+    const input = page.getByPlaceholder('Ask your tutor...');
     await input.fill('What is the pricing model?', { force: true });
     await page.keyboard.press('Enter');
     

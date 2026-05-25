@@ -16,6 +16,7 @@ from app.core.config import settings
 from app.db.session import dispose_db, get_sessionmaker, init_db
 from app.main import app
 from app.study.models import DayResult, Stats, StudyPlan, TestQuestion, Word
+from app.auth.models import PasswordResetToken
 from app.users.models import User
 from app.ielts.models import IELTSWord, IELTSWritingTask, IELTSWritingAttempt, IELTSMockTest, IELTSMockTestSection, IELTSMockTestQuestion, IELTSMockTestAttempt, IELTSStats
 
@@ -43,6 +44,7 @@ async def _cleanup_tables() -> None:
             StudyPlan,
             TestQuestion,
             Word,
+            PasswordResetToken,
             User,
         )
         for model in models:
@@ -79,12 +81,14 @@ def client():
 
 @pytest.fixture(autouse=True)
 def mock_ai(monkeypatch):
-    monkeypatch.setattr(ai_service, "chat", lambda **kwargs: "stubbed-ai-chat")
-    monkeypatch.setattr(
-        ai_service,
-        "word_assist",
-        lambda **kwargs: {"translation": "перевод", "description": "краткое описание"},
-    )
+    async def _mock_chat(**kwargs):
+        return "stubbed-ai-chat"
+
+    async def _mock_word_assist(**kwargs):
+        return {"translation": "перевод", "description": "краткое описание"}
+
+    monkeypatch.setattr(ai_service, "chat", _mock_chat)
+    monkeypatch.setattr(ai_service, "word_assist", _mock_word_assist)
 
 
 @pytest.fixture

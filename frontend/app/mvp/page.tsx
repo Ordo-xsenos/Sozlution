@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { TrendingUp, Trophy, Flame, BookOpen, Loader2 } from 'lucide-react'
+import { getMvpLang, mvpText } from '@/lib/mvp-i18n'
 
 export default function DashboardPage() {
   const { user, stats, plan, loading } = useApp()
@@ -22,15 +23,17 @@ export default function DashboardPage() {
   const learnedWords = stats?.total_words_learned || 0
   const totalWords = (plan?.days.length || 0) * 20 // Assuming 20 words per day
   const learnedPercentage = totalWords > 0 ? Math.round((learnedWords / totalWords) * 100) : 0
-  const selectedDay = plan?.days.find((d) => d.status === 'current') || null
+  const selectedDay =
+    plan?.days?.find((d: { status?: string }) => d.status === 'current') ?? null
+  const t = mvpText[getMvpLang(user.lang)].dashboard
 
   return (
     <div className="min-h-screen bg-[#0f172a] p-4 md:p-8 text-white">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-2xl md:text-4xl font-bold mb-2">Привет, {user.name}!</h1>
-          <p className="text-sm md:text-base text-gray-400">Продолжайте изучение английского языка</p>
+          <h1 className="text-2xl md:text-4xl font-bold mb-2">{t.greeting(user.name)}</h1>
+          <p className="text-sm md:text-base text-gray-400">{t.subtitle}</p>
         </div>
 
         {/* Quick Stats */}
@@ -39,13 +42,13 @@ export default function DashboardPage() {
             <CardHeader className="pb-2 md:pb-3">
               <CardTitle className="text-xs md:text-sm font-medium text-gray-400 flex items-center gap-2">
                 <BookOpen className="w-4 h-4" />
-                <span className="hidden sm:inline">Выученные слова</span>
-                <span className="sm:hidden">Слова</span>
+                <span className="hidden sm:inline">{t.learnedWords}</span>
+                <span className="sm:hidden">{t.words}</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl md:text-3xl font-bold">{learnedWords}</div>
-              <div className="text-xs text-gray-400 mt-2">из {totalWords || '...'}</div>
+              <div className="text-xs text-gray-400 mt-2">{t.of} {totalWords || '...'}</div>
             </CardContent>
           </Card>
 
@@ -53,13 +56,13 @@ export default function DashboardPage() {
             <CardHeader className="pb-2 md:pb-3">
               <CardTitle className="text-xs md:text-sm font-medium text-gray-400 flex items-center gap-2">
                 <Flame className="w-4 h-4" />
-                <span className="hidden sm:inline">Текущая серия</span>
-                <span className="sm:hidden">Серия</span>
+                <span className="hidden sm:inline">{t.currentStreak}</span>
+                <span className="sm:hidden">{t.streak}</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl md:text-3xl font-bold text-orange-400">{stats?.streak || 0}</div>
-              <div className="text-xs text-gray-400 mt-2">дни подряд</div>
+              <div className="text-xs text-gray-400 mt-2">{t.daysInARow}</div>
             </CardContent>
           </Card>
 
@@ -67,12 +70,12 @@ export default function DashboardPage() {
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
                 <Trophy className="w-4 h-4" />
-                Прогресс
+                {t.progress}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-yellow-400">{learnedPercentage}%</div>
-              <div className="text-xs text-gray-400 mt-2">завершено</div>
+              <div className="text-xs text-gray-400 mt-2">{t.completed}</div>
             </CardContent>
           </Card>
 
@@ -80,12 +83,12 @@ export default function DashboardPage() {
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
                 <TrendingUp className="w-4 h-4" />
-                Уровень
+                {t.level}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-blue-400">{user.level}</div>
-              <div className="text-xs text-gray-400 mt-2">текущий уровень</div>
+              <div className="text-xs text-gray-400 mt-2">{t.currentLevel}</div>
             </CardContent>
           </Card>
         </div>
@@ -93,7 +96,7 @@ export default function DashboardPage() {
         {/* Progress Bar */}
         <Card className="bg-[#1a2744] border-[#334155] mb-8 text-white">
           <CardHeader>
-            <CardTitle>Текущий план: День {selectedDay?.day || 1}</CardTitle>
+            <CardTitle>{t.currentPlan(selectedDay?.day || 1)}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="w-full bg-[#334155] rounded-full h-3">
@@ -103,7 +106,7 @@ export default function DashboardPage() {
               />
             </div>
             <div className="mt-4 text-sm text-gray-400">
-              Вы выучили <span className="text-white font-semibold">{learnedWords} слов</span>
+              <span className="text-white font-semibold">{t.learnedSummary(learnedWords)}</span>
             </div>
           </CardContent>
         </Card>
@@ -112,12 +115,12 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Link href="/mvp/learn">
             <Button className="w-full h-24 text-lg bg-blue-500 hover:bg-blue-600">
-              📚 Начать урок
+              📚 {t.startLesson}
             </Button>
           </Link>
           <Link href="/mvp/progress">
             <Button variant="outline" className="w-full h-24 text-lg border-[#334155] text-white hover:bg-[#2a3f5f]">
-              📊 Посмотреть статистику
+              📊 {t.viewStats}
             </Button>
           </Link>
         </div>

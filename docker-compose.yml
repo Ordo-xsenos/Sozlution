@@ -13,6 +13,8 @@ services:
       retries: 10
     volumes:
        - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
     networks:
       - sozlution-network
 
@@ -25,6 +27,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      ollama:
+        condition: service_healthy
     volumes:
       - ./backend:/app
     environment:
@@ -32,9 +36,9 @@ services:
       TEST_POSTGRES_DSN: postgresql://sozlution:sozlution@postgres:5432/sozlution_test
       ENABLE_SQLITE_FALLBACK: "false"
       SECRET_KEY: ${SECRET_KEY:-change_me_in_production}
-      AI_API_KEY: ${AI_API_KEY}
-      AI_API_URL: ${AI_API_URL}
-      AI_MODEL: ${AI_MODEL:-gpt-3.5-turbo}
+      AI_API_KEY: ${AI_API_KEY:-ollama}
+      AI_API_URL: ${AI_API_URL:-http://ollama:11434/v1}
+      AI_MODEL: ${AI_MODEL:-qwen2.5:3b}
       BACKEND_CORS_ORIGINS: '["http://localhost","http://localhost:80","http://nginx"]'
       FRONTEND_BASE_URL: http://localhost
     expose:
@@ -48,18 +52,19 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_BASE_URL: http://localhost/api
-        AI_API_KEY: ${AI_API_KEY:-dummy-key-for-build}
-        AI_API_URL: ${AI_API_URL:-https://api.openai.com/v1}
-        AI_MODEL: ${AI_MODEL:-gpt-3.5-turbo}
+        NEXT_PUBLIC_API_BASE_URL: http://localhost
+        AI_API_KEY: ${AI_API_KEY:-ollama-local-key}
+        AI_API_URL: ${AI_API_URL:-http://ollama:11434/v1}
+        AI_MODEL: ${AI_MODEL:-qwen2.5:3b}
     container_name: sozlution-frontend
     depends_on:
       - backend
     environment:
-      NEXT_PUBLIC_API_BASE_URL: http://localhost/api
-      AI_API_KEY: ${AI_API_KEY}
-      AI_API_URL: ${AI_API_URL}
-      AI_MODEL: ${AI_MODEL:-gpt-3.5-turbo}
+      NEXT_PUBLIC_API_BASE_URL: http://localhost
+      BACKEND_INTERNAL_URL: http://backend:8000
+      AI_API_KEY: ${AI_API_KEY:-ollama-local-key}
+      AI_API_URL: ${AI_API_URL:-http://ollama:11434/v1}
+      AI_MODEL: ${AI_MODEL:-qwen2.5:3b}
     expose:
       - "3000"
     restart: unless-stopped
@@ -80,8 +85,50 @@ services:
     networks:
       - sozlution-network
 
+  ollama:
+    image: ollama/ollama:latest
+    container_name: sozlution-ollama
+    runtime: nvidia
+    privileged: true
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11435:11434"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+      - OLLAMA_NUM_PARALLEL=4
+      - OLLAMA_DEBUG=1
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    networks:
+      - sozlution-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "ollama serve &
+      sleep 10 &&
+      if ! ollama list | grep -q 'qwen2.5:3b'; then
+        echo 'Pulling qwen2.5:3b model...' &&
+        ollama pull qwen2.5:3b;
+      fi &&
+      wait"
+
 volumes:
   postgres_data:
+  ollama_data:
 
 networks:
   sozlution-network:

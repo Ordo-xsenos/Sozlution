@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -46,31 +46,34 @@ const mockTasks: Record<string, WritingTask> = {
 export default function IeltsWriting() {
   const [activeTask, setActiveTask] = useState<'task1' | 'task2'>('task1')
   const [text, setText] = useState('')
-  const [wordCount, setWordCount] = useState(0)
   const [timeLeft, setTimeLimit] = useState(mockTasks.task1.timeLimit * 60)
   const [isActive, setIsActive] = useState(false)
   const [showReport, setShowReport] = useState(false)
 
   const task = mockTasks[activeTask]
+  const wordCount = useMemo(
+    () => text.trim().split(/\s+/).filter(w => w.length > 0).length,
+    [text]
+  )
 
   useEffect(() => {
-    const words = text.trim().split(/\s+/).filter(w => w.length > 0)
-    setWordCount(words.length)
-  }, [text])
+    if (!isActive) return
 
-  useEffect(() => {
-    let interval: any = null
-    if (isActive && timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLimit((prev) => prev - 1)
-      }, 1000)
-    } else if (timeLeft === 0) {
-      setIsActive(false)
-      clearInterval(interval)
-      toast.error('Time is up!')
-    }
-    return () => clearInterval(interval)
-  }, [isActive, timeLeft])
+    const interval = window.setInterval(() => {
+      setTimeLimit((current) => {
+        if (current <= 1) {
+          window.clearInterval(interval)
+          setIsActive(false)
+          toast.error('Time is up!')
+          return 0
+        }
+
+        return current - 1
+      })
+    }, 1000)
+
+    return () => window.clearInterval(interval)
+  }, [isActive])
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60)

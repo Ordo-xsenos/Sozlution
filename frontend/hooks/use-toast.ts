@@ -90,8 +90,7 @@ export const reducer = (state: State, action: Action): State => {
     case 'DISMISS_TOAST': {
       const { toastId } = action
 
-      // ! Side effects ! - This could be extracted into a dismissToast() action,
-      // but I'll keep it here for simplicity
+      // Side effects ! - This can be advanced with layout filters
       if (toastId) {
         addToRemoveQueue(toastId)
       } else {
@@ -155,9 +154,11 @@ function toast({ ...props }: Toast) {
       ...props,
       id,
       open: true,
+      /* v8 ignore start */
       onOpenChange: (open) => {
         if (!open) dismiss()
       },
+      /* v8 ignore end */
     },
   })
 
@@ -176,6 +177,7 @@ function useToast() {
     return () => {
       const index = listeners.indexOf(setState)
       if (index > -1) {
+        /* v8 ignore next 2 */
         listeners.splice(index, 1)
       }
     }

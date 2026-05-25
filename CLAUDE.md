@@ -73,7 +73,7 @@ pnpm test:e2e
 
 **AI Chatbot**
 - `components/ai-chatbot.tsx` provides floating chat widget
-- Routes through `/app/api/chat/route.ts` which proxies to external AI API
+- Routes through `/app/api/stream/route.ts` which proxies to backend `chat-stream`
 - Topic filtering enforces Sozlution/English learning scope via keyword matching
 - Falls back to hardcoded responses if AI API unavailable
 
@@ -123,7 +123,7 @@ context/
 - `context/app-context.tsx` - Global state management for user data
 - `lib/api-types.ts` - Generated TypeScript types (do not edit manually)
 - `components/ai-chatbot.tsx` - Chatbot widget with topic filtering
-- `app/api/chat/route.ts` - AI proxy with keyword-based scope enforcement
+- `app/api/stream/route.ts` - AI SSE proxy to backend; landing chatbot uses local fallbacks when unauthenticated
 - `tailwind.config.ts` - Theme configuration with CSS variable integration
 
 ## Environment Variables
@@ -162,7 +162,7 @@ Required in `.env`:
 
 **AI Chatbot Scope**
 - Only responds to Sozlution/English learning topics
-- Keyword filtering in `app/api/chat/route.ts` (ALLOWED_KEYWORDS array)
+- Landing chatbot uses keyword-based local fallbacks in `components/ai-chatbot.tsx` when user is not logged in
 - Add new allowed topics by updating keyword list
 - Refusal messages localized for en/uz/ru
 

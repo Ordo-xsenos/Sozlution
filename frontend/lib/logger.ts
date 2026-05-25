@@ -1,10 +1,12 @@
 type LogLevel = 'log' | 'error' | 'warn' | 'info'
 
-const isDev = process.env.NODE_ENV === 'development'
-
 class Logger {
+  private get isDev() {
+    return process.env.NODE_ENV === 'development'
+  }
+
   private log(level: LogLevel, ...args: any[]) {
-    if (isDev) {
+    if (this.isDev) {
       console[level](...args)
     } else if (level === 'error') {
       // В продакшене логируем только ошибки
@@ -27,7 +29,7 @@ class Logger {
   }
 
   debug(...args: any[]) {
-    if (isDev) {
+    if (this.isDev) {
       this.log('log', '[DEBUG]', ...args)
     }
   }

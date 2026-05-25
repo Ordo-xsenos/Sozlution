@@ -14,6 +14,7 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import { Loader2 } from 'lucide-react'
+import { getMvpLang, mvpText } from '@/lib/mvp-i18n'
 
 export default function ProgressPage() {
   const { user, stats, plan, results, loading } = useApp()
@@ -31,10 +32,11 @@ export default function ProgressPage() {
   const learnedWords = stats?.total_words_learned || 0
   const totalWords = (plan?.days.length || 0) * 20
   const learnedPercentage = totalWords > 0 ? Math.round((learnedWords / totalWords) * 100) : 0
+  const t = mvpText[getMvpLang(user.lang)].progress
 
   // Тренды из реальных результатов
   const chartData = (results || []).slice(-7).map((r) => ({
-    day: `Д${r.day}`,
+    day: `${t.dayShort}${r.day}`,
     words: Math.round(r.accuracy),
   }))
 
@@ -50,9 +52,9 @@ export default function ProgressPage() {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-6 md:mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">Прогресс</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">{t.title}</h1>
           <p className="text-sm md:text-base text-gray-400">
-            Отслеживайте ваш прогресс в изучении английского
+            {t.subtitle}
           </p>
         </div>
 
@@ -60,7 +62,7 @@ export default function ProgressPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-8">
           <Card className="bg-[#1a2744] border-[#334155] text-white">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-400">Выученные слова</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-400">{t.learnedWords}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl md:text-3xl font-bold text-white">{learnedWords}</div>
@@ -70,41 +72,41 @@ export default function ProgressPage() {
 
           <Card className="bg-[#1a2744] border-[#334155] text-white">
             <CardHeader className="pb-2">
-              <CardTitle className="text-xs md:text-sm font-medium text-gray-400">Серия</CardTitle>
+              <CardTitle className="text-xs md:text-sm font-medium text-gray-400">{t.streak}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl md:text-3xl font-bold text-orange-400">
                 {stats?.streak || 0}
               </div>
-              <p className="text-xs text-gray-400 mt-2">дней</p>
+              <p className="text-xs text-gray-400 mt-2">{t.days}</p>
             </CardContent>
           </Card>
 
           <Card className="bg-[#1a2744] border-[#334155] text-white">
             <CardHeader className="pb-2">
               <CardTitle className="text-xs md:text-sm font-medium text-gray-400">
-                Успешность
+                {t.accuracy}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl md:text-3xl font-bold text-yellow-400">
                 {Math.round(stats?.avg_accuracy || 0)}%
               </div>
-              <p className="text-xs text-gray-400 mt-2">средняя</p>
+              <p className="text-xs text-gray-400 mt-2">{t.average}</p>
             </CardContent>
           </Card>
 
           <Card className="bg-[#1a2744] border-[#334155] text-white">
             <CardHeader className="pb-2">
               <CardTitle className="text-xs md:text-sm font-medium text-gray-400 whitespace-nowrap">
-                Уроков
+                {t.lessons}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl md:text-3xl font-bold text-blue-400">
                 {stats?.total_days_done || 0}
               </div>
-              <p className="text-xs text-gray-400 mt-2">всего</p>
+              <p className="text-xs text-gray-400 mt-2">{t.total}</p>
             </CardContent>
           </Card>
         </div>
@@ -113,7 +115,7 @@ export default function ProgressPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-6">
           <Card className="bg-[#1a2744] border-[#334155] text-white">
             <CardHeader className="pb-2 md:pb-4">
-              <CardTitle className="text-sm md:text-base">Точность по дням (%)</CardTitle>
+              <CardTitle className="text-sm md:text-base">{t.accuracyByDay}</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={250}>
@@ -138,7 +140,7 @@ export default function ProgressPage() {
 
           <Card className="bg-[#1a2744] border-[#334155] text-white">
             <CardHeader className="pb-2 md:pb-4">
-              <CardTitle className="text-sm md:text-base">Прогресс уровня</CardTitle>
+              <CardTitle className="text-sm md:text-base">{t.levelProgress}</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={250}>
@@ -159,20 +161,20 @@ export default function ProgressPage() {
         {/* Detailed Stats */}
         <Card className="bg-[#1a2744] border-[#334155] mt-6 text-white">
           <CardHeader>
-            <CardTitle>Детальная статистика</CardTitle>
+            <CardTitle>{t.detailedStats}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex justify-between items-center pb-4 border-b border-[#334155]">
-                <span className="text-gray-400">Уровень CEFR</span>
+                <span className="text-gray-400">{t.cefrLevel}</span>
                 <span className="text-white font-semibold">{user.level}</span>
               </div>
               <div className="flex justify-between items-center pb-4 border-b border-[#334155]">
-                <span className="text-gray-400">Выучено слов</span>
+                <span className="text-gray-400">{t.wordsLearned}</span>
                 <span className="text-white font-semibold">{learnedWords}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-gray-400">Средняя точность</span>
+                <span className="text-gray-400">{t.averageAccuracy}</span>
                 <span className="text-white font-semibold">
                   {Math.round(stats?.avg_accuracy || 0)}%
                 </span>

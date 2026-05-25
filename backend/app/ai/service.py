@@ -1,11 +1,13 @@
 import json
 import logging
 import httpx
-from typing import Any
+from typing import Any, AsyncGenerator
 from urllib.parse import urljoin
 from pydantic import ValidationError
 
 from app.core.config import settings
+from app.study.repository import stats_repository, study_plan_repository, day_result_repository
+from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +31,106 @@ class AIService:
             raw += "/"
         return raw
 
+    async def stream_chat(
+        self,
+        *,
+        db: AsyncSession,
+        user_id: str,
+        message: str,
+        history: list[dict],
+        lang: str
+    ) -> AsyncGenerator[str, None]:
+        api_key = (settings.AI_API_KEY or "").strip()
+        base = self._openai_base_url()
+        
+        # Collect context
+        stats = await stats_repository.get_by_user_id(db, user_id=user_id)
+        plan = await study_plan_repository.get_by_user_id(db, user_id=user_id)
+        results, _ = await day_result_repository.list_by_user(db, user_id=user_id, limit=5)
+        
+        mistakes = []
+        for res in results:
+            # Simple mistake heuristic: check if word IDs are in steps with negative results
+            # In our current schema, step1 and step2 are dicts {word_id: bool}
+            for word_id, is_correct in res.step1.items():
+                if not is_correct: mistakes.append(word_id)
+            for word_id, is_correct in res.step2.items():
+                if not is_correct: mistakes.append(word_id)
+        
+        context_msg = (
+            f"User context: Level {plan.level if plan else 'A1'}. "
+            f"Words learned: {stats.total_words_learned if stats else 0}. "
+            f"Accuracy: {stats.avg_accuracy if stats else 0.0:.2f}. "
+        )
+        if mistakes:
+            context_msg += f"Recent difficult words IDs: {', '.join(mistakes[:10])}."
+
+        system_prompt = (
+            "You are a Professional English Teacher. Respond ONLY in JSON format. "
+            "NEVER use Chinese or any language other than English and %s.\n\n"
+            "STRICT CONTENT RULES:\n"
+            "1. LANGUAGE: All grammar rules and feedback must be in %s. All essays, exercises, and examples must be strictly in English.\n"
+            "2. ESSAY STRUCTURE: If an essay is requested, you MUST write exactly 5 long paragraphs: Introduction, Body 1, Body 2, Body 3, and Conclusion. Start each with 'Paragraph X:'.\n"
+            "3. VOLUME: Each paragraph must be at least 80 words long. Aim for 500 words total for the essay part.\n"
+            "4. NO INTRO: Do not say 'Here is your essay'. Start the JSON immediately.\n\n"
+            "JSON KEYS:\n"
+            "- 'explanation': String. Detailed grammar in %s + 5-paragraph essay in English.\n"
+            "- 'suggestions': List of 3 advanced synonyms.\n"
+            "- 'corrections': List of fixed user mistakes.\n"
+            "- 'ielts_score': Number." % (lang, lang, lang)
+        )
+
+        messages: list[dict[str, str]] = [{"role": "system", "content": system_prompt}]
+        for turn in history[-2:]:
+            role = "user" if str(turn.get("role", "user")).lower() == "user" else "assistant"
+            text = str(turn.get("text", "")).strip()
+            if text:
+                messages.append({"role": role, "content": text})
+        
+        messages.append({"role": "user", "content": "TASK: " + message + ". REMEMBER: 5 long paragraphs in English for the essay part."})
+
+        payload = {
+            "model": "llama3.2:3b",
+            "messages": messages,
+            "temperature": 0.4,
+            "stream": True,
+            "options": {
+                "num_ctx": 8192,
+                "num_predict": 4096,
+                "repeat_penalty": 1.2,
+                "top_p": 0.9
+            },
+            "response_format": {"type": "json_object"}
+        }
+
+        url = urljoin(base, "chat/completions")
+        headers = {"Content-Type": "application/json"}
+        if api_key:
+            headers["Authorization"] = f"Bearer {api_key}"
+
+        async with httpx.AsyncClient(timeout=120.0) as client:
+            async with client.stream("POST", url, json=payload, headers=headers) as response:
+                response.raise_for_status()
+                print(f"DEBUG: Ollama stream started for user {user_id}", flush=True)
+                async for line in response.aiter_lines():
+                    if line.startswith("data: "):
+                        data_str = line[6:].strip()
+                        if data_str == "[DONE]":
+                            break
+                        try:
+                            chunk = json.loads(data_str)
+                            delta = chunk.get("choices", [{}])[0].get("delta", {})
+                            if "content" in delta:
+                                # Wrap content in a mini-OpenAI-like chunk for the frontend to parse
+                                print(f"DEBUG: Yielding content: {delta['content'][:20]}...", flush=True)
+                                sse_chunk = json.dumps({"choices": [{"delta": {"content": delta["content"]}}]})
+                                yield f"data: {sse_chunk}\n\n"
+                        except json.JSONDecodeError:
+                            continue
+                print(f"DEBUG: Ollama stream finished for user {user_id}", flush=True)
+                yield "data: [DONE]\n\n"
+
+
     async def _openai_chat_json(self, *, api_key: str, model: str, prompt: str) -> str:
         base = self._openai_base_url()
         if not base:
@@ -41,8 +143,10 @@ class AIService:
             "response_format": {"type": "json_object"},
         }
         url = urljoin(base, "chat/completions")
-        headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
-        async with httpx.AsyncClient(timeout=60.0) as client:
+        headers = {"Content-Type": "application/json"}
+        if api_key:
+            headers["Authorization"] = f"Bearer {api_key}"
+        async with httpx.AsyncClient(timeout=120.0) as client:
             response = await client.post(url, json=payload, headers=headers)
             response.raise_for_status()
             data = response.json()
@@ -69,8 +173,10 @@ class AIService:
             "max_tokens": max_tokens,
         }
         url = urljoin(base, "chat/completions")
-        headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
-        async with httpx.AsyncClient(timeout=60.0) as client:
+        headers = {"Content-Type": "application/json"}
+        if api_key:
+            headers["Authorization"] = f"Bearer {api_key}"
+        async with httpx.AsyncClient(timeout=120.0) as client:
             response = await client.post(url, json=payload, headers=headers)
             response.raise_for_status()
             data = response.json()
@@ -80,8 +186,6 @@ class AIService:
 
     async def chat(self, *, message: str, history: list[dict], lang: str) -> str:
         api_key = (settings.AI_API_KEY or "").strip()
-        if not api_key:
-            return "AI coach is not configured. Add AI_API_KEY for backend runtime."
         
         system_prompt = (
             "You are So'zlution AI English tutor. You only answer about English learning, "

@@ -218,6 +218,11 @@ const translations = {
     aiTools: 'AI & ML Tools',
     infrastructure: 'Infrastructure',
     demo: 'Demo & Prototype',
+    pricingDesc: 'Start free, upgrade anytime. No hidden fees.',
+    startFreeTrial: 'Start Free Trial',
+    scheduleDemo: 'Schedule Demo',
+    privacyPolicy: 'Privacy Policy',
+    termsOfService: 'Terms of Service',
   },
   uz: {
     tagline: 'Har kuni 20 ta yangi so\'z o\'rganing',
@@ -355,6 +360,11 @@ const translations = {
     aiTools: 'AI va ML vositalari',
     infrastructure: 'Infratuzilma',
     demo: 'Demo va Prototip',
+    pricingDesc: 'Bepul boshlang, istalgan vaqtda yangilanish. Yashirin to\'lov yo\'q.',
+    startFreeTrial: 'Bepul sinab ko\'ring',
+    scheduleDemo: 'Demo rejalashtiring',
+    privacyPolicy: 'Shaxsiylik siyosati',
+    termsOfService: 'Foydalanish shartlari',
   },
   ru: {
     tagline: 'Учите 20 новых слов каждый день',
@@ -492,6 +502,11 @@ const translations = {
     aiTools: 'AI и ML инструменты',
     infrastructure: 'Инфраструктура',
     demo: 'Демо и прототип',
+    pricingDesc: 'Начните бесплатно, обновляйте в любое время. Нет скрытых платежей.',
+    startFreeTrial: 'Начать бесплатную пробную версию',
+    scheduleDemo: 'Запланировать демо',
+    privacyPolicy: 'Политика конфиденциальности',
+    termsOfService: 'Условия обслуживания',
   },
 }
 
@@ -1137,7 +1152,7 @@ export default function Home() {
               {t.pricingTitle}
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              {language === 'uz' ? 'Bepul boshlang, istalgan vaqtda yangilanish. Yashirin to\'lov yo\'q.' : language === 'ru' ? 'Начните бесплатно, обновляйте в любое время. Нет скрытых платежей.' : 'Start free, upgrade anytime. No hidden fees.'}
+              {t.pricingDesc}
             </p>
           </div>
           <div className="grid md:grid-cols-2 gap-8 max-w-2xl mx-auto">
@@ -1187,7 +1202,7 @@ export default function Home() {
                   variant={plan.popular ? 'default' : 'outline'}
                 >
                   <Link href="/register">
-                    {plan.popular ? (language === 'uz' ? 'Bepul sinab ko\'ring' : language === 'ru' ? 'Начать бесплатную пробную версию' : 'Start Free Trial') : t.startFree}
+                    {plan.popular ? t.startFreeTrial : t.startFree}
                   </Link>
                 </Button>
                 <ul className="space-y-3">
@@ -1228,7 +1243,7 @@ export default function Home() {
               className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10 text-lg font-semibold bg-transparent"
             >
               <Link href="/demo">
-                {language === 'uz' ? 'Demo rejalashtiring' : language === 'ru' ? 'Запланировать демо' : 'Schedule Demo'}
+                {t.scheduleDemo}
               </Link>
             </Button>
           </div>
@@ -1351,10 +1366,10 @@ export default function Home() {
             <p>&copy; 2024 So&apos;zlution. {t.allRightsReserved}</p>
             <div className="flex gap-6">
               <Link href="#" className="hover:text-foreground transition">
-                {language === 'uz' ? 'Shaxsiylik siyosati' : language === 'ru' ? 'Политика конфиденциальности' : 'Privacy Policy'}
+                {t.privacyPolicy}
               </Link>
               <Link href="#" className="hover:text-foreground transition">
-                {language === 'uz' ? 'Foydalanish shartlari' : language === 'ru' ? 'Условия обслуживания' : 'Terms of Service'}
+                {t.termsOfService}
               </Link>
             </div>
           </div>

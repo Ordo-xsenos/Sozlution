@@ -14,6 +14,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { getAuthToken, getOrCreateDeviceId } from '@/lib/auth'
 import { createSession, getErrorMessage, requestPasswordReset } from '@/lib/auth-api'
 import { useApp } from '@/context/app-context'
+import { getMvpLang, mvpText } from '@/lib/mvp-i18n'
 
 type LoginMode = 'password' | 'reset'
 
@@ -27,6 +28,8 @@ export default function LoginPage() {
   const [success, setSuccess] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
+  const t = mvpText[getMvpLang(user?.lang)].auth
+
   useEffect(() => {
     if (authReady && user) {
       router.replace('/mvp')
@@ -38,12 +41,12 @@ export default function LoginPage() {
     const trimmedPassword = password.trim()
 
     if (!trimmedEmail) {
-      setError('Введите email.')
+      setError(t.enterEmailError)
       return
     }
 
     if (!trimmedPassword) {
-      setError('Введите пароль.')
+      setError(t.enterPasswordError)
       return
     }
 
@@ -51,12 +54,12 @@ export default function LoginPage() {
       mode: 'login',
       email: trimmedEmail,
       password: trimmedPassword,
-      lang: 'ru',
+      lang: getMvpLang(user?.lang),
       device_id: getOrCreateDeviceId(),
     })
 
     if (!session.session_token) {
-      throw new Error('Backend не вернул session_token.')
+      throw new Error('Backend did not return session_token.')
     }
 
     await appLogin(session.session_token)
@@ -67,14 +70,12 @@ export default function LoginPage() {
     const trimmedEmail = email.trim()
 
     if (!trimmedEmail) {
-      setError('Введите email для сброса пароля.')
+      setError(t.enterEmailResetError)
       return
     }
 
     await requestPasswordReset({ email: trimmedEmail })
-    setSuccess(
-      'Если email существует, ссылка для сброса уже отправлена. После получения письма откройте страницу обновления пароля.'
-    )
+    setSuccess(t.successReset)
   }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -93,7 +94,7 @@ export default function LoginPage() {
       setError(
         getErrorMessage(
           nextError,
-          mode === 'password' ? 'Не удалось войти в аккаунт.' : 'Не удалось запросить сброс пароля.'
+          mode === 'password' ? t.loginError : t.resetError
         )
       )
     } finally {
@@ -104,16 +105,16 @@ export default function LoginPage() {
   return (
     <AuthShell
       eyebrow="Login"
-      title="Вход по email и отдельный сценарий сброса пароля."
-      description="Экран входа теперь работает только через email. Из него же можно запросить reset-link и перейти на отдельную страницу обновления пароля."
+      title={t.loginTitle}
+      description={t.loginDesc}
       highlights={[
         {
-          title: 'Логин',
-          text: 'Вход выполняется по `email + password` и создаёт новую сессию через `/api/v1/session`.',
+          title: t.loginButton,
+          text: t.loginDesc,
         },
         {
-          title: 'Сброс',
-          text: 'Вторая вкладка отправляет запрос на reset-password и ведёт пользователя на отдельную страницу обновления.',
+          title: t.resetTitle,
+          text: t.resetDesc,
         },
       ]}
     >
@@ -129,18 +130,16 @@ export default function LoginPage() {
             className="w-full"
           >
             <TabsList className="grid h-11 w-full grid-cols-2 bg-slate-900/80">
-              <TabsTrigger value="password">Email + пароль</TabsTrigger>
-              <TabsTrigger value="reset">Email + сброс</TabsTrigger>
+              <TabsTrigger value="password">{t.loginTab}</TabsTrigger>
+              <TabsTrigger value="reset">{t.resetTab}</TabsTrigger>
             </TabsList>
           </Tabs>
           <div className="space-y-1">
             <CardTitle className="text-2xl">
-              {mode === 'password' ? 'Войти в аккаунт' : 'Запросить сброс пароля'}
+              {mode === 'password' ? t.loginTitle : t.resetTitle}
             </CardTitle>
             <CardDescription className="text-slate-400">
-              {mode === 'password'
-                ? 'Используйте email и пароль, чтобы продолжить обучение.'
-                : 'Введите email, и backend должен отправить reset-token или ссылку для обновления пароля.'}
+              {mode === 'password' ? t.loginDesc : t.resetDesc}
             </CardDescription>
           </div>
         </CardHeader>
@@ -148,7 +147,7 @@ export default function LoginPage() {
           <form className="space-y-5" onSubmit={handleSubmit}>
             <div className="space-y-2">
               <Label htmlFor="login-email" className="text-slate-200">
-                Email
+                {t.emailLabel}
               </Label>
               <div className="relative">
                 <Mail className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-500" />
@@ -167,13 +166,13 @@ export default function LoginPage() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-3">
                   <Label htmlFor="login-password" className="text-slate-200">
-                    Пароль
+                    {t.passwordLabel}
                   </Label>
                   <Link
                     href="/reset-password"
                     className="text-xs text-cyan-300 transition-colors hover:text-cyan-200"
                   >
-                    Уже есть reset token?
+                    {t.openReset}
                   </Link>
                 </div>
                 <div className="relative">
@@ -183,7 +182,7 @@ export default function LoginPage() {
                     type="password"
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
-                    placeholder="Ваш пароль"
+                    placeholder={t.passwordPlaceholder}
                     className="h-12 border-slate-800 bg-slate-900/80 pl-10 text-white placeholder:text-slate-500"
                   />
                 </div>
@@ -208,26 +207,26 @@ export default function LoginPage() {
               type="submit"
             >
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-              {mode === 'password' ? 'Войти' : 'Отправить reset-link'}
+              {mode === 'password' ? t.loginButton : t.resetButton}
             </Button>
 
             <div className="space-y-2 text-center text-sm text-slate-400">
               <p>
-                Нет аккаунта?{' '}
+                {t.noAccount}{' '}
                 <Link
                   href="/register"
                   className="font-medium text-cyan-300 transition-colors hover:text-cyan-200"
                 >
-                  Перейти к регистрации
+                  {t.registerLink}
                 </Link>
               </p>
               <p>
-                Нужно обновить пароль вручную?{' '}
+                {t.updateManual}{' '}
                 <Link
                   href="/reset-password"
                   className="font-medium text-cyan-300 transition-colors hover:text-cyan-200"
                 >
-                  Открыть reset-password
+                  {t.openReset}
                 </Link>
               </p>
             </div>

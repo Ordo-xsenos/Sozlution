@@ -15,58 +15,60 @@ import {
   LogOut,
   Sparkles,
 } from 'lucide-react'
+import { getMvpLang, mvpText } from '@/lib/mvp-i18n'
 
 const menuItems = [
   {
-    name: 'Дашбород',
+    labelKey: 'dashboard',
     href: '/mvp',
     icon: LayoutDashboard,
   },
   {
-    name: 'Учить сейчас',
+    labelKey: 'learnNow',
     href: '/mvp/learn',
     icon: BookOpen,
   },
   {
-    name: 'So\'zlution AI Coach',
+    labelKey: 'coach',
     href: '/mvp/coach',
     icon: Zap,
   },
   {
-    name: 'Прогресс',
+    labelKey: 'progress',
     href: '/mvp/progress',
     icon: TrendingUp,
   },
   {
-    name: 'Достижения',
+    labelKey: 'achievements',
     href: '/mvp/achievements',
     icon: Trophy,
   },
   {
-    name: 'Сдать тест уровня',
+    labelKey: 'levelTest',
     href: '/mvp/test',
     icon: Sparkles,
   },
   {
-    name: 'Советы',
+    labelKey: 'tips',
     href: '/mvp/tips',
     icon: Lightbulb,
   },
   {
-    name: 'Помощь',
+    labelKey: 'help',
     href: '/mvp/help',
     icon: HelpCircle,
   },
   {
-    name: 'Настройки',
+    labelKey: 'settings',
     href: '/mvp/settings',
     icon: Settings,
   },
-]
+] as const
 
 export function Sidebar() {
   const pathname = usePathname()
   const { user, logout } = useApp()
+  const t = mvpText[getMvpLang(user?.lang)].nav
 
   return (
     <aside className="hidden md:flex w-64 bg-[#1a2744] border-r border-[#334155] flex-col h-screen">
@@ -94,7 +96,7 @@ export function Sidebar() {
                   }`}
                 >
                   <Icon className="w-5 h-5" />
-                  <span>{item.name}</span>
+                  <span>{t[item.labelKey]}</span>
                 </Link>
               </li>
             )
@@ -106,7 +108,7 @@ export function Sidebar() {
       <div className="border-t border-[#334155] p-6 space-y-4">
         {user && (
           <div className="bg-[#0f172a] rounded-lg p-4 border border-[#334155]">
-            <div className="text-sm text-gray-400 mb-2">Current Proficiency</div>
+            <div className="text-sm text-gray-400 mb-2">{t.currentProficiency}</div>
             <div className="text-2xl font-bold text-blue-400">{user.level}</div>
           </div>
         )}
@@ -116,7 +118,7 @@ export function Sidebar() {
           type="button"
         >
           <LogOut className="w-5 h-5" />
-          <span>Выход</span>
+          <span>{t.logout}</span>
         </button>
       </div>
     </aside>
