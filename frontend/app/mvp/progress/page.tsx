@@ -22,7 +22,7 @@ export default function ProgressPage() {
   if (loading && !user) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-[#0f172a]">
-        <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
+        <Loader2 className="h-8 w-8 text-violet-500 animate-spin" />
       </div>
     )
   }
@@ -30,7 +30,8 @@ export default function ProgressPage() {
   if (!user) return null
 
   const learnedWords = stats?.total_words_learned || 0
-  const totalWords = (plan?.days.length || 0) * 20
+  // Har daraja uchun 600 ta yangi so'z rejasi
+  const totalWords = plan ? 600 : 0
   const learnedPercentage = totalWords > 0 ? Math.round((learnedWords / totalWords) * 100) : 0
   const t = mvpText[getMvpLang(user.lang)].progress
 
@@ -60,7 +61,7 @@ export default function ProgressPage() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-8">
-          <Card className="bg-[#1a2744] border-[#334155] text-white">
+          <Card className="bg-[#1a2744]/80 border-white/10 shadow-xl backdrop-blur-xl text-white">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-gray-400">{t.learnedWords}</CardTitle>
             </CardHeader>
@@ -70,7 +71,7 @@ export default function ProgressPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-[#1a2744] border-[#334155] text-white">
+          <Card className="bg-[#1a2744]/80 border-white/10 shadow-xl backdrop-blur-xl text-white">
             <CardHeader className="pb-2">
               <CardTitle className="text-xs md:text-sm font-medium text-gray-400">{t.streak}</CardTitle>
             </CardHeader>
@@ -82,7 +83,7 @@ export default function ProgressPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-[#1a2744] border-[#334155] text-white">
+          <Card className="bg-[#1a2744]/80 border-white/10 shadow-xl backdrop-blur-xl text-white">
             <CardHeader className="pb-2">
               <CardTitle className="text-xs md:text-sm font-medium text-gray-400">
                 {t.accuracy}
@@ -96,14 +97,14 @@ export default function ProgressPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-[#1a2744] border-[#334155] text-white">
+          <Card className="bg-[#1a2744]/80 border-white/10 shadow-xl backdrop-blur-xl text-white">
             <CardHeader className="pb-2">
               <CardTitle className="text-xs md:text-sm font-medium text-gray-400 whitespace-nowrap">
                 {t.lessons}
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl md:text-3xl font-bold text-blue-400">
+              <div className="text-2xl md:text-3xl font-bold text-violet-400">
                 {stats?.total_days_done || 0}
               </div>
               <p className="text-xs text-gray-400 mt-2">{t.total}</p>
@@ -113,7 +114,7 @@ export default function ProgressPage() {
 
         {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-6">
-          <Card className="bg-[#1a2744] border-[#334155] text-white">
+          <Card className="bg-[#1a2744]/80 border-white/10 shadow-xl backdrop-blur-xl text-white">
             <CardHeader className="pb-2 md:pb-4">
               <CardTitle className="text-sm md:text-base">{t.accuracyByDay}</CardTitle>
             </CardHeader>
@@ -138,7 +139,7 @@ export default function ProgressPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-[#1a2744] border-[#334155] text-white">
+          <Card className="bg-[#1a2744]/80 border-white/10 shadow-xl backdrop-blur-xl text-white">
             <CardHeader className="pb-2 md:pb-4">
               <CardTitle className="text-sm md:text-base">{t.levelProgress}</CardTitle>
             </CardHeader>
@@ -159,7 +160,7 @@ export default function ProgressPage() {
         </div>
 
         {/* Detailed Stats */}
-        <Card className="bg-[#1a2744] border-[#334155] mt-6 text-white">
+        <Card className="bg-[#1a2744]/80 border-white/10 shadow-xl backdrop-blur-xl mt-6 text-white">
           <CardHeader>
             <CardTitle>{t.detailedStats}</CardTitle>
           </CardHeader>

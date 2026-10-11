@@ -77,7 +77,7 @@ export default function TipsPage() {
         </div>
 
         {/* AI Tip Section */}
-        <Card className="mb-10 bg-gradient-to-br from-blue-600 to-blue-800 border-0 overflow-hidden shadow-2xl relative">
+        <Card className="mb-10 bg-gradient-to-br from-violet-600 to-violet-800 border-0 overflow-hidden shadow-2xl relative">
           <div className="absolute top-0 right-0 p-8 opacity-10">
             <Sparkles className="w-32 h-32" />
           </div>
@@ -107,7 +107,7 @@ export default function TipsPage() {
             <Button
               onClick={generateTip}
               disabled={isGenerating || !user}
-              className="bg-white text-blue-700 hover:bg-slate-100 h-14 rounded-2xl px-8 text-lg font-bold shadow-lg"
+              className="bg-white text-violet-700 hover:bg-slate-100 h-14 rounded-2xl px-8 text-lg font-bold shadow-lg"
             >
               {isGenerating ? (
                 <Loader2 className="animate-spin mr-2" />
@@ -130,11 +130,11 @@ export default function TipsPage() {
             return (
               <Card
                 key={idx}
-                className="bg-[#1a2744] border-[#334155] hover:border-blue-500/50 transition-all group"
+                className="bg-[#1a2744]/80 border-white/10 shadow-xl backdrop-blur-xl hover:border-violet-500/50 transition-all group"
               >
                 <CardHeader>
                   <div className="flex items-start justify-between mb-4">
-                    <div className="p-3 rounded-xl bg-blue-500/10 text-blue-400 group-hover:bg-blue-500/20 transition-colors">
+                    <div className="p-3 rounded-xl bg-violet-500/10 text-violet-400 group-hover:bg-violet-500/20 transition-colors">
                       <Icon className="w-6 h-6" />
                     </div>
                     <span className="text-[10px] font-black px-3 py-1 bg-slate-800 text-slate-400 rounded-full uppercase tracking-tighter">

@@ -44,7 +44,7 @@ export default function AchievementsPage() {
   if (loading && !user) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-[#0f172a]">
-        <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
+        <Loader2 className="h-8 w-8 text-violet-500 animate-spin" />
       </div>
     )
   }
@@ -76,7 +76,7 @@ export default function AchievementsPage() {
                 key={achievement.id}
                 className={`border-[#334155] transition-all text-white ${
                   isUnlocked
-                    ? 'bg-[#1a2744] border-blue-500/50'
+                    ? 'bg-[#1a2744] border-violet-500/50'
                     : 'bg-[#0f172a] border-gray-700 opacity-50'
                 }`}
               >

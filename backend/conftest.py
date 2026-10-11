@@ -55,14 +55,20 @@ async def _cleanup_tables() -> None:
 @pytest.fixture(autouse=True)
 def isolated_db(tmp_path, monkeypatch):
     db_file = Path(tmp_path) / "test.sqlite3"
-    
+
     # Use the DSN from settings if available (Docker environment), otherwise fallback to local dev default
     default_dsn = settings.POSTGRES_DSN or "postgresql://sozlution:sozlution@127.0.0.1:54329/sozlution_test"
-    
+
     test_postgres_dsn = os.getenv(
         "TEST_POSTGRES_DSN",
         default_dsn,
     )
+    if test_postgres_dsn == settings.POSTGRES_DSN:
+        pytest.exit(
+            "Refusing to run tests against the app database. "
+            "Set TEST_POSTGRES_DSN to an isolated test database.",
+            returncode=1,
+        )
     monkeypatch.setattr(settings, "POSTGRES_DSN", test_postgres_dsn)
     monkeypatch.setattr(settings, "ENABLE_SQLITE_FALLBACK", False)
     monkeypatch.setattr(settings, "SQLITE_DATABASE_URI", f"sqlite+aiosqlite:///{db_file}")

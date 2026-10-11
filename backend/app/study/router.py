@@ -137,12 +137,14 @@ async def submit_test(
 
 @router.post("/plan/generate")
 async def generate_plan(
-    payload: PlanGenerateIn,
+    payload: PlanGenerateIn | None = None,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
     service: StudyService = Depends(get_study_service),
 ):
-    plan = await service.generate_plan(db, user=current_user, level=payload.level.value)
+    # Level kelmasa — foydalanuvchining o'z darajasidan plan tuziladi
+    level = payload.level.value if payload and payload.level else current_user.level
+    plan = await service.generate_plan(db, user=current_user, level=level)
     return {"plan": StudyPlanOut.model_validate(plan)}
 
 
@@ -177,14 +179,14 @@ async def complete_day(
     return {"result": DayResultOut.model_validate(result), "stats": StatsOut.model_validate(stats), "plan": StudyPlanOut.model_validate(plan) if plan else None}
 
 
-@router.get("/stats", response_model=StatsOut)
+@router.get("/stats")
 async def get_stats(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
     service: StudyService = Depends(get_study_service),
 ):
     stats = await service.get_or_create_stats(db, user_id=current_user.id)
-    return stats
+    return {"stats": stats}
 
 
 @router.get("/results")
@@ -199,7 +201,7 @@ async def get_results(
         db, user_id=current_user.id, skip=skip, limit=limit
     )
     return {
-        "items": [DayResultOut.model_validate(r) for r in results],
+        "results": [DayResultOut.model_validate(r) for r in results],
         "total": total,
         "skip": skip,
         "limit": limit

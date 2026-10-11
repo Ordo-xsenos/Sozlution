@@ -12,9 +12,10 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { getAuthToken, getOrCreateDeviceId } from '@/lib/auth'
-import { createSession, getErrorMessage, requestPasswordReset } from '@/lib/auth-api'
+import { createGoogleSession, createSession, getErrorMessage, requestPasswordReset } from '@/lib/auth-api'
 import { useApp } from '@/context/app-context'
 import { getMvpLang, mvpText } from '@/lib/mvp-i18n'
+import GoogleSignInButton from '@/components/auth/google-signin-button'
 
 type LoginMode = 'password' | 'reset'
 
@@ -102,6 +103,33 @@ export default function LoginPage() {
     }
   }
 
+  const handleGoogleCredential = async (idToken: string) => {
+    setSubmitting(true)
+    setError('')
+    setSuccess('')
+
+    try {
+      const session = await createGoogleSession({
+        id_token: idToken,
+        lang: getMvpLang(user?.lang),
+        device_id: getOrCreateDeviceId(),
+      })
+
+      if (!session.session_token) {
+        throw new Error('Backend did not return session_token.')
+      }
+
+      await appLogin(session.session_token)
+      const isNew =
+        Date.now() - new Date(session.user.created_at).getTime() < 120_000
+      router.replace(isNew ? '/register/test' : '/mvp')
+    } catch (nextError) {
+      setError(getErrorMessage(nextError, t.googleError))
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
   return (
     <AuthShell
       eyebrow="Login"
@@ -118,7 +146,7 @@ export default function LoginPage() {
         },
       ]}
     >
-      <Card className="border-white/10 bg-slate-950/70 text-white shadow-2xl shadow-cyan-950/20 backdrop-blur-xl">
+      <Card className="border-violet-500/20 bg-slate-950/60 text-white shadow-2xl shadow-violet-950/30 backdrop-blur-xl rounded-3xl overflow-hidden">
         <CardHeader className="space-y-4">
           <Tabs
             value={mode}
@@ -135,7 +163,7 @@ export default function LoginPage() {
             </TabsList>
           </Tabs>
           <div className="space-y-1">
-            <CardTitle className="text-2xl">
+            <CardTitle className="text-xl sm:text-2xl break-words">
               {mode === 'password' ? t.loginTitle : t.resetTitle}
             </CardTitle>
             <CardDescription className="text-slate-400">
@@ -144,7 +172,7 @@ export default function LoginPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <form className="space-y-5" onSubmit={handleSubmit}>
+          <form className="space-y-4 sm:space-y-5" onSubmit={handleSubmit}>
             <div className="space-y-2">
               <Label htmlFor="login-email" className="text-slate-200">
                 {t.emailLabel}
@@ -157,7 +185,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   placeholder="you@example.com"
-                  className="h-12 border-slate-800 bg-slate-900/80 pl-10 text-white placeholder:text-slate-500"
+                  className="h-11 sm:h-12 text-sm sm:text-base border-slate-800 bg-slate-900/80 pl-10 text-white placeholder:text-slate-500"
                 />
               </div>
             </div>
@@ -183,32 +211,42 @@ export default function LoginPage() {
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
                     placeholder={t.passwordPlaceholder}
-                    className="h-12 border-slate-800 bg-slate-900/80 pl-10 text-white placeholder:text-slate-500"
+                    className="h-11 sm:h-12 text-sm sm:text-base border-slate-800 bg-slate-900/80 pl-10 text-white placeholder:text-slate-500"
                   />
                 </div>
               </div>
             ) : null}
 
             {error ? (
-              <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+              <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm break-words text-red-200">
                 {error}
               </div>
             ) : null}
 
             {success ? (
-              <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+              <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm break-words text-emerald-200">
                 {success}
               </div>
             ) : null}
 
             <Button
-              className="h-12 w-full rounded-xl bg-cyan-500 text-slate-950 hover:bg-cyan-400"
+              className="h-12 w-full rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white hover:from-violet-500 hover:to-fuchsia-500 shadow-lg shadow-violet-600/30"
               disabled={submitting}
               type="submit"
             >
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               {mode === 'password' ? t.loginButton : t.resetButton}
             </Button>
+
+            <div className="flex items-center gap-3 text-xs text-slate-500">
+              <div className="h-px flex-1 bg-slate-800" />
+              <span>{t.orText}</span>
+              <div className="h-px flex-1 bg-slate-800" />
+            </div>
+            <GoogleSignInButton
+              onCredential={handleGoogleCredential}
+              onError={(message) => setError(message)}
+            />
 
             <div className="space-y-2 text-center text-sm text-slate-400">
               <p>

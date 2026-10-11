@@ -13,7 +13,7 @@ export default function DashboardPage() {
   if (loading && !user) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-[#0f172a]">
-        <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
+        <Loader2 className="h-8 w-8 text-violet-500 animate-spin" />
       </div>
     )
   }
@@ -21,7 +21,8 @@ export default function DashboardPage() {
   if (!user) return null
 
   const learnedWords = stats?.total_words_learned || 0
-  const totalWords = (plan?.days.length || 0) * 20 // Assuming 20 words per day
+  // Har daraja uchun 600 ta yangi so'z rejasi
+  const totalWords = plan ? 600 : 0
   const learnedPercentage = totalWords > 0 ? Math.round((learnedWords / totalWords) * 100) : 0
   const selectedDay =
     plan?.days?.find((d: { status?: string }) => d.status === 'current') ?? null
@@ -38,7 +39,7 @@ export default function DashboardPage() {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-8">
-          <Card className="bg-[#1a2744] border-[#334155] text-white">
+          <Card className="bg-[#1a2744]/80 border-white/10 shadow-xl backdrop-blur-xl hover:border-violet-500/40 transition-colors text-white">
             <CardHeader className="pb-2 md:pb-3">
               <CardTitle className="text-xs md:text-sm font-medium text-gray-400 flex items-center gap-2">
                 <BookOpen className="w-4 h-4" />
@@ -52,7 +53,7 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-[#1a2744] border-[#334155] text-white">
+          <Card className="bg-[#1a2744]/80 border-white/10 shadow-xl backdrop-blur-xl hover:border-violet-500/40 transition-colors text-white">
             <CardHeader className="pb-2 md:pb-3">
               <CardTitle className="text-xs md:text-sm font-medium text-gray-400 flex items-center gap-2">
                 <Flame className="w-4 h-4" />
@@ -66,7 +67,7 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-[#1a2744] border-[#334155] text-white">
+          <Card className="bg-[#1a2744]/80 border-white/10 shadow-xl backdrop-blur-xl hover:border-violet-500/40 transition-colors text-white">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
                 <Trophy className="w-4 h-4" />
@@ -79,7 +80,7 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-[#1a2744] border-[#334155] text-white">
+          <Card className="bg-[#1a2744]/80 border-white/10 shadow-xl backdrop-blur-xl hover:border-violet-500/40 transition-colors text-white">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
                 <TrendingUp className="w-4 h-4" />
@@ -87,21 +88,21 @@ export default function DashboardPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-blue-400">{user.level}</div>
+              <div className="text-3xl font-bold text-violet-400">{user.level}</div>
               <div className="text-xs text-gray-400 mt-2">{t.currentLevel}</div>
             </CardContent>
           </Card>
         </div>
 
         {/* Progress Bar */}
-        <Card className="bg-[#1a2744] border-[#334155] mb-8 text-white">
+        <Card className="bg-[#1a2744]/80 border-white/10 shadow-xl backdrop-blur-xl mb-8 text-white">
           <CardHeader>
             <CardTitle>{t.currentPlan(selectedDay?.day || 1)}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="w-full bg-[#334155] rounded-full h-3">
               <div
-                className="bg-gradient-to-r from-blue-500 to-blue-400 h-3 rounded-full transition-all duration-500"
+                className="bg-gradient-to-r from-violet-500 via-fuchsia-500 to-cyan-400 h-3 rounded-full transition-all duration-500"
                 style={{ width: `${learnedPercentage}%` }}
               />
             </div>
@@ -114,7 +115,7 @@ export default function DashboardPage() {
         {/* Action Buttons */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Link href="/mvp/learn">
-            <Button className="w-full h-24 text-lg bg-blue-500 hover:bg-blue-600">
+            <Button className="w-full h-24 text-lg bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 shadow-xl shadow-violet-600/25 rounded-2xl">
               📚 {t.startLesson}
             </Button>
           </Link>

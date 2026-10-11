@@ -15,14 +15,14 @@ function FAQItem({ question, answer }: FAQItemProps) {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <Card className="bg-[#1a2744] border-[#334155]">
+    <Card className="bg-[#1a2744]/80 border-white/10 shadow-xl backdrop-blur-xl">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center justify-between p-4 md:p-6 hover:bg-[#2a3f5f] transition-colors"
       >
         <h3 className="text-left font-semibold text-white text-sm md:text-base">{question}</h3>
         <ChevronDown
-          className={`w-4 h-4 md:w-5 md:h-5 text-blue-400 transition-transform flex-shrink-0 ml-2 ${isOpen ? 'rotate-180' : ''}`}
+          className={`w-4 h-4 md:w-5 md:h-5 text-violet-400 transition-transform flex-shrink-0 ml-2 ${isOpen ? 'rotate-180' : ''}`}
         />
       </button>
       {isOpen && (
@@ -55,7 +55,7 @@ export default function HelpPage() {
         </div>
 
         {/* Contact Section */}
-        <Card className="bg-gradient-to-r from-blue-600 to-blue-700 border-0">
+        <Card className="bg-gradient-to-r from-violet-600 to-violet-700 border-0">
           <CardHeader className="pb-3 md:pb-4">
             <CardTitle className="text-lg md:text-xl text-white">{t.contactTitle}</CardTitle>
           </CardHeader>
@@ -66,7 +66,7 @@ export default function HelpPage() {
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
               <a
                 href="mailto:support@sozlution.com"
-                className="flex-1 px-4 py-2 bg-white text-blue-600 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-center text-sm md:text-base"
+                className="flex-1 px-4 py-2 bg-white text-violet-600 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-center text-sm md:text-base"
               >
                 Email
               </a>

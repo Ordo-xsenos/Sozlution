@@ -213,7 +213,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         if (msg.includes('404') || msg.includes('Not found') || msg.includes('Empty plan')) {
           try {
             logger.info('Generating plan for user level:', u.user.level)
-            await request('/api/v1/plan/generate', {}, 'post')
+            // Daraja bo'yicha plan: A1..C1 bo'lsa yuboramiz, aks holda backend user darajasini oladi
+            const planBody =
+              ['A1', 'A2', 'B1', 'B2', 'C1'].includes(u.user.level) ? { level: u.user.level } : {}
+            await request('/api/v1/plan/generate', { body: planBody }, 'post')
             const p2 = (await request('/api/v1/plan')) as PlanApiResponse
             setPlan(p2.plan)
             planLoaded = true

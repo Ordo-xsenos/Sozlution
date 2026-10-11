@@ -26,7 +26,7 @@ class TestSubmitOut(BaseModel):
 
 
 class PlanGenerateIn(BaseModel):
-    level: Level
+    level: Level | None = None
 
 
 class StudyPlanOut(BaseModel):

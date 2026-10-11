@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.email_service import email_service
 from app.auth.schemas import (
+    GoogleSessionIn,
     PasswordResetConfirmIn,
     PasswordResetRequestIn,
     SessionCreate,
@@ -38,6 +39,16 @@ async def create_session(
     service: AuthService = Depends(get_auth_service),
 ):
     user, token = await service.create_session(db, payload)
+    return SessionResponse(user=user, session_token=token)
+
+
+@router.post("/session/google", response_model=SessionResponse)
+async def create_google_session(
+    payload: GoogleSessionIn,
+    db: AsyncSession = Depends(get_db),
+    service: AuthService = Depends(get_auth_service),
+):
+    user, token = await service.create_google_session(db, payload)
     return SessionResponse(user=user, session_token=token)
 
 

@@ -42,6 +42,9 @@ class Settings(BaseSettings):
     AI_API_URL: str = ""
     AI_MODEL: str = ""
 
+    # Google OAuth (Sign in with Google)
+    GOOGLE_CLIENT_ID: str = ""
+
     @field_validator("SECRET_KEY")
     @classmethod
     def validate_secret_key(cls, v: str) -> str:

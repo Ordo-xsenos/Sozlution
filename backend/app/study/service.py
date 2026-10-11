@@ -76,9 +76,9 @@ class StudyService:
         else:
             result = await day_result_repository.update(db, db_obj=result, obj_in=result_payload)
 
-        stats = await self.stats_service.update_stats_after_day(db, user_id=user.id)
         plan = await self.plan_service.advance_plan(db, user_id=user.id, completed_day=payload.day)
-        
+        stats = await self.stats_service.update_stats_after_day(db, user_id=user.id)
+
         return result, stats, plan
 
     async def get_results(
@@ -94,10 +94,15 @@ class StudyService:
         )
 
     async def export_data(self, db: AsyncSession, *, user: User) -> dict:
+        try:
+            plan = await self.plan_service.get_plan(db, user_id=user.id)
+        except HTTPException:
+            plan = None
+        results, _ = await self.get_results(db, user_id=user.id)
         return {
             "user": user,
-            "plan": await self.plan_service.get_plan(db, user_id=user.id),
-            "results": await self.get_results(db, user_id=user.id),
+            "plan": plan,
+            "results": results,
             "stats": await self.get_or_create_stats(db, user_id=user.id),
         }
 

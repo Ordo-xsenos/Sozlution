@@ -3,6 +3,7 @@ import { z } from 'zod'
 // Client-side env schema (only NEXT_PUBLIC_* variables)
 const clientEnvSchema = z.object({
   NEXT_PUBLIC_API_BASE_URL: z.string().url('NEXT_PUBLIC_API_BASE_URL must be a valid URL'),
+  NEXT_PUBLIC_GOOGLE_CLIENT_ID: z.string().min(10).optional(),
 })
 
 // Server-side env schema (includes server-only variables)

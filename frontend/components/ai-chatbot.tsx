@@ -312,7 +312,7 @@ export default function AIChatbot({ language = 'en' }: ChatbotProps) {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-gradient-to-r from-cyan-500 to-purple-500 text-white shadow-lg hover:shadow-xl transition-all flex items-center justify-center hover:scale-110 z-40"
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-r from-violet-600 to-cyan-400 text-white shadow-lg shadow-violet-500/40 hover:shadow-xl transition-all flex items-center justify-center hover:scale-110 z-40"
         aria-label="Open chat"
       >
         <MessageCircle className="w-6 h-6" />
@@ -321,8 +321,8 @@ export default function AIChatbot({ language = 'en' }: ChatbotProps) {
   }
 
   return (
-    <div className={`fixed bottom-6 right-6 z-40 transition-all duration-200 ${isMinimized ? 'w-auto' : 'w-96'}`}>
-      <div className="bg-card border-2 border-cyan-500/30 rounded-2xl shadow-2xl flex flex-col h-[600px] overflow-hidden">
+    <div className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 transition-all duration-200 ${isMinimized ? 'w-auto' : 'w-[calc(100vw-2rem)] sm:w-96 max-w-96'}`}>
+      <div className="bg-card border-2 border-cyan-500/30 rounded-2xl shadow-2xl flex flex-col h-[min(600px,calc(100vh-5rem))] sm:h-[600px] overflow-hidden">
         {/* Header */}
         <div className="bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border-b border-cyan-500/30 p-4 flex items-center justify-between">
           <div className="flex items-center gap-2">

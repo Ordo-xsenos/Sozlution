@@ -136,12 +136,12 @@ export function determineLevelFromScore(answers: Record<string | number, number>
     }
   })
 
-  const ratio = score / questions.length
+  // Backend (map_score_to_level) bilan bir xil chegara: 20 savollik test
   let level = 'A1'
-  if (ratio >= 0.9) level = 'C1'
-  else if (ratio >= 0.7) level = 'B2'
-  else if (ratio >= 0.5) level = 'B1'
-  else if (ratio >= 0.3) level = 'A2'
+  if (score >= 18) level = 'C1'
+  else if (score >= 15) level = 'B2'
+  else if (score >= 11) level = 'B1'
+  else if (score >= 7) level = 'A2'
 
   return { score, level }
 }

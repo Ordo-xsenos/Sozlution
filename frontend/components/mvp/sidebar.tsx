@@ -75,7 +75,7 @@ export function Sidebar() {
       {/* Logo */}
       <div className="p-6 border-b border-[#334155]">
         <h1 className="text-2xl font-bold text-white">
-          So&apos;<span className="text-blue-400">zlution</span>
+          <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 via-fuchsia-500 to-cyan-400 text-lg shadow-lg shadow-violet-500/30 mr-2">S</span>So&apos;<span className="text-violet-300">zlution</span>
         </h1>
       </div>
 
@@ -89,9 +89,9 @@ export function Sidebar() {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
                     isActive
-                      ? 'bg-blue-500 text-white'
+                      ? 'bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white shadow-lg shadow-violet-600/25'
                       : 'text-gray-300 hover:bg-[#2a3f5f] hover:text-white'
                   }`}
                 >
@@ -109,7 +109,7 @@ export function Sidebar() {
         {user && (
           <div className="bg-[#0f172a] rounded-lg p-4 border border-[#334155]">
             <div className="text-sm text-gray-400 mb-2">{t.currentProficiency}</div>
-            <div className="text-2xl font-bold text-blue-400">{user.level}</div>
+            <div className="text-2xl font-bold text-violet-400">{user.level}</div>
           </div>
         )}
         <button

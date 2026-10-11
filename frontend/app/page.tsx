@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import AIChatbot from '@/components/ai-chatbot'
-import { Check, TrendingUp, Brain, Headphones, BookOpen, Award, Globe, Phone, Send } from 'lucide-react'
+import { Check, TrendingUp, Brain, Headphones, BookOpen, Award, Globe, Phone, Send, Menu, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import ThemeToggle from '@/components/theme-toggle'
 import Antigravity from '@/components/effects/antigravity'
@@ -16,60 +16,36 @@ type CountUpProps = {
 
 function CountUp({ value, suffix = '', formatter }: CountUpProps) {
   const [display, setDisplay] = useState(0)
-  const [started, setStarted] = useState(false)
   const ref = useRef<HTMLSpanElement>(null)
-  const rafRef = useRef<number | null>(null)
 
   useEffect(() => {
     const node = ref.current
     if (!node) return
+    let raf = 0
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setStarted(true)
-          observer.disconnect()
+        if (!entry.isIntersecting) return
+        observer.disconnect()
+        const duration = 1500
+        const t0 = performance.now()
+        const tick = (now: number) => {
+          const p = Math.min((now - t0) / duration, 1)
+          const eased = 1 - Math.pow(1 - p, 3)
+          setDisplay(Math.round(value * eased))
+          if (p < 1) raf = requestAnimationFrame(tick)
         }
+        raf = requestAnimationFrame(tick)
       },
       { threshold: 0.4 },
     )
 
     observer.observe(node)
-    return () => observer.disconnect()
-  }, [])
-
-  useEffect(() => {
-    if (!started) return
-    const node = ref.current
-    if (!node) return
-
-    const update = () => {
-      const rect = node.getBoundingClientRect()
-      const viewport = window.innerHeight || 1
-      const elementCenter = rect.top + rect.height / 2
-      const start = viewport
-      const end = viewport / 2
-      const progressRaw = 1 - (elementCenter - end) / (start - end)
-      const progress = Math.min(Math.max(progressRaw, 0), 1)
-      const current = Math.round(value * progress)
-      setDisplay(current)
-    }
-
-    const onScroll = () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current)
-      rafRef.current = requestAnimationFrame(update)
-    }
-
-    update()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', onScroll)
-
     return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current)
-      window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', onScroll)
+      observer.disconnect()
+      cancelAnimationFrame(raf)
     }
-  }, [started, value])
+  }, [value])
 
   const formatted = formatter ? formatter(display) : display.toString()
 
@@ -191,7 +167,6 @@ const translations = {
     ourTeam: 'Our Team',
     teamLeader: 'Project Manager',
     teamBackend: 'Full-stack Developer',
-    teamFrontend: 'Content-strategist',
     whyUs: 'Why We Can Solve This',
     whyUsDesc: 'Our team combines expertise in AI/ML, education technology, and product development with a passion for making quality English education accessible to everyone.',
     roadmap: 'Our Roadmap',
@@ -333,7 +308,6 @@ const translations = {
     ourTeam: 'Bizning Jamoamiz',
     teamLeader: 'Project Manager',
     teamBackend: 'Full-stack Developer',
-    teamFrontend: 'Content-strategist',
     whyUs: 'Nima uchun biz buni yecha olamiz',
     whyUsDesc: 'Bizning jamoamiz AI/ML, ta\'lim texnologiyalari va mahsulot ishlab chiqarishda tajribani birlashtirib, barcha uchun sifatli ingliz tilini ta\'lim qilinishini oson qilishni xohlaymiz.',
     roadmap: 'Bizning yo\'l xaritamiz',
@@ -475,7 +449,6 @@ const translations = {
     ourTeam: 'Наша команда',
     teamLeader: 'Project Manager',
     teamBackend: 'Full-stack Developer',
-    teamFrontend: 'Content-strategist',
     whyUs: 'Почему мы можем это решить',
     whyUsDesc: 'Наша команда сочетает опыт в области AI/ML, образовательных технологий и разработки продуктов с желанием сделать качественное образование доступным для всех.',
     roadmap: 'Наша дорожная карта',
@@ -511,8 +484,9 @@ const translations = {
 }
 
 export default function Home() {
-  const [language, setLanguage] = useState<'en' | 'uz' | 'ru'>('en')
+  const [language, setLanguage] = useState<'en' | 'uz' | 'ru'>('ru')
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
+  const [menuOpen, setMenuOpen] = useState(false)
 
 
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -630,14 +604,14 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background/80 relative z-10 overflow-hidden" onMouseMove={handleMouseMove}>
       {/* Antigravity Background Animation */}
-      <div className="fixed inset-0 z-0 opacity-60">
+      <div className="fixed inset-0 -z-10 opacity-25 pointer-events-none" aria-hidden="true">
         <Antigravity
-          count={150}
+          count={60}
           magnetRadius={15}
           ringRadius={12}
           waveSpeed={0.2}
           waveAmplitude={0.85}
-          particleSize={1.4}
+          particleSize={1.0}
           lerpSpeed={0.05}
           color="#5227FF"
           autoAnimate={true}
@@ -658,40 +632,40 @@ export default function Home() {
         }}
       />
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-background border-b border-border">
+      <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+          <div className="flex justify-between items-center h-16 gap-2">
+            <div className="flex items-center gap-2 shrink-0">
+              <div className="w-8 h-8 bg-gradient-to-br from-violet-500 via-fuchsia-500 to-cyan-400 rounded-xl flex items-center justify-center shadow-lg shadow-violet-500/30">
                 <span className="text-primary-foreground font-bold text-lg">S</span>
               </div>
-              <span className="font-bold text-xl text-foreground">So&apos;zlution</span>
+              <span className="font-bold text-lg sm:text-xl text-foreground whitespace-nowrap">So&apos;zlution</span>
             </div>
-            <div className="hidden md:flex items-center gap-6 text-sm">
-              <button onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })} className="text-foreground hover:text-primary transition">
+            <div className="hidden lg:flex items-center gap-6 text-sm">
+              <button onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })} className="text-foreground hover:text-primary transition whitespace-nowrap">
                 {t.features}
               </button>
-              <button onClick={() => document.getElementById('problem-solution')?.scrollIntoView({ behavior: 'smooth' })} className="text-foreground hover:text-primary transition">
+              <button onClick={() => document.getElementById('problem-solution')?.scrollIntoView({ behavior: 'smooth' })} className="text-foreground hover:text-primary transition whitespace-nowrap">
                 {t.problemSolution}
               </button>
-              <button onClick={() => document.getElementById('team')?.scrollIntoView({ behavior: 'smooth' })} className="text-foreground hover:text-primary transition">
+              <button onClick={() => document.getElementById('team')?.scrollIntoView({ behavior: 'smooth' })} className="text-foreground hover:text-primary transition whitespace-nowrap">
                 {t.ourTeam}
               </button>
-              <button onClick={() => document.getElementById('roadmap')?.scrollIntoView({ behavior: 'smooth' })} className="text-foreground hover:text-primary transition">
+              <button onClick={() => document.getElementById('roadmap')?.scrollIntoView({ behavior: 'smooth' })} className="text-foreground hover:text-primary transition whitespace-nowrap">
                 {t.roadmap}
               </button>
-              <button onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })} className="text-foreground hover:text-primary transition">
+              <button onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })} className="text-foreground hover:text-primary transition whitespace-nowrap">
                 {t.pricing}
               </button>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
               <ThemeToggle />
-              <div className="flex gap-2">
+              <div className="hidden sm:flex gap-1 sm:gap-2">
                 {(['en', 'uz', 'ru'] as const).map((lang) => (
                   <button
                     key={lang}
                     onClick={() => setLanguage(lang)}
-                    className={`px-2 py-1 rounded text-sm font-medium transition ${
+                    className={`px-2 py-1 rounded text-xs sm:text-sm font-medium transition ${
                       language === lang
                         ? 'bg-primary text-primary-foreground'
                         : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
@@ -701,52 +675,156 @@ export default function Home() {
                   </button>
                 ))}
               </div>
-              <Button asChild variant="outline" className="hidden sm:inline-flex bg-transparent">
+              <Button asChild variant="outline" className="hidden md:inline-flex bg-transparent">
                 <Link href="/login">{t.signIn}</Link>
               </Button>
-              <Button asChild className="bg-primary hover:bg-primary/90">
-                <Link href="/register">{t.startFree}</Link>
+              <Button asChild className="hidden min-[420px]:inline-flex bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white shadow-lg shadow-violet-600/30 text-sm sm:text-base px-3 sm:px-4">
+                <Link href="/register" className="whitespace-nowrap">{t.startFree}</Link>
               </Button>
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                className="lg:hidden p-2 rounded-md hover:bg-secondary transition"
+                aria-label="Toggle menu"
+              >
+                {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
             </div>
           </div>
+          {menuOpen && (
+            <div className="lg:hidden py-4 border-t border-border flex flex-col gap-1">
+              {[
+                { label: t.features, id: 'features' },
+                { label: t.problemSolution, id: 'problem-solution' },
+                { label: t.ourTeam, id: 'team' },
+                { label: t.roadmap, id: 'roadmap' },
+                { label: t.pricing, id: 'pricing' },
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' })
+                    setMenuOpen(false)
+                  }}
+                  className="text-left px-2 py-2.5 rounded-md text-foreground hover:bg-secondary transition text-sm sm:text-base"
+                >
+                  {item.label}
+                </button>
+              ))}
+              <div className="flex sm:hidden gap-2 px-2 pt-2">
+                {(['en', 'uz', 'ru'] as const).map((lang) => (
+                  <button
+                    key={lang}
+                    onClick={() => setLanguage(lang)}
+                    className={`px-3 py-1.5 rounded text-sm font-medium transition ${
+                      language === lang
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                    }`}
+                  >
+                    {lang.toUpperCase()}
+                  </button>
+                ))}
+              </div>
+              <Link
+                href="/login"
+                className="md:hidden px-2 py-2.5 rounded-md text-foreground hover:bg-secondary transition text-sm sm:text-base"
+                onClick={() => setMenuOpen(false)}
+              >
+                {t.signIn}
+              </Link>
+              <Link
+                href="/register"
+                className="min-[420px]:hidden px-2 py-2.5 rounded-md font-semibold text-primary hover:bg-secondary transition text-sm sm:text-base"
+                onClick={() => setMenuOpen(false)}
+              >
+                {t.startFree}
+              </Link>
+            </div>
+          )}
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-20 pb-32 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-background to-background"></div>
+      <section className="relative pt-12 sm:pt-20 pb-16 sm:pb-32 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-violet-600/10 via-background to-background"></div>
+          <div className="absolute -top-24 -left-24 w-96 h-96 bg-violet-600/20 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="absolute top-1/3 -right-24 w-96 h-96 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
             <div className="flex flex-col justify-center">
-              <h1 className="text-6xl sm:text-7xl font-bold text-foreground mb-6 leading-tight text-balance">
+              <div className="inline-flex items-center gap-2 self-start rounded-full border border-violet-500/30 bg-violet-500/10 px-4 py-1.5 text-xs sm:text-sm font-medium text-violet-300 mb-6">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-fuchsia-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-fuchsia-400"></span>
+                </span>
+                {t.tagline}
+              </div>
+              <h1 className="text-3xl sm:text-4xl lg:text-6xl xl:text-7xl font-extrabold mb-6 leading-[1.05] tracking-tight text-balance text-white drop-shadow-[0_2px_20px_rgba(139,92,246,0.35)]">
                 {t.hero}
               </h1>
-              <p className="text-xl text-muted-foreground mb-10 leading-relaxed max-w-xl">
+              <p className="text-base sm:text-lg lg:text-xl text-muted-foreground mb-8 sm:mb-10 leading-relaxed max-w-xl">
                 {t.description}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-lg px-8 py-6 rounded-full font-semibold">
+                <Button asChild size="lg" className="bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white shadow-xl shadow-violet-600/30 text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 rounded-full font-semibold w-full sm:w-auto">
                   <Link href="/register">{t.startFree}</Link>
                 </Button>
                 <Button
                   asChild
                   size="lg"
                   variant="outline"
-                  className="text-lg border-2 border-foreground text-foreground hover:bg-foreground/5 bg-transparent rounded-full px-8 py-6 font-semibold"
+                  className="text-base sm:text-lg border border-white/15 bg-white/5 backdrop-blur text-foreground hover:bg-white/10 rounded-full px-6 sm:px-8 py-5 sm:py-6 font-semibold w-full sm:w-auto"
                 >
                   <Link href="/demo">{t.watchDemo}</Link>
                 </Button>
               </div>
               <p className="text-sm text-muted-foreground">{t.noCardRequired}</p>
-            </div>
-            <div className="relative h-96">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/15 to-primary/5 rounded-3xl"></div>
-              <div className="relative z-10 h-full flex flex-col items-center justify-center px-8 text-center">
-                <div className="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center mb-6">
-                  <Brain className="w-10 h-10 text-primary" />
+              <div className="mt-6 flex items-center gap-3">
+                <div className="flex -space-x-2.5">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-600 border-2 border-background flex items-center justify-center text-xs font-bold text-white">A</div>
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 border-2 border-background flex items-center justify-center text-xs font-bold text-white">F</div>
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-400 to-orange-600 border-2 border-background flex items-center justify-center text-xs font-bold text-white">M</div>
                 </div>
-                <p className="text-2xl font-semibold text-foreground mb-2">{t.learnSystematically}</p>
-                <p className="text-muted-foreground">{t.aiPowered}</p>
+                <div>
+                  <div className="flex gap-0.5 text-amber-400 text-sm leading-none">★★★★★</div>
+                  <p className="text-xs text-muted-foreground mt-1">{t.studentSuccessStories}</p>
+                </div>
+              </div>
+            </div>
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-violet-600/25 via-fuchsia-500/10 to-cyan-400/20 rounded-3xl blur-2xl"></div>
+              <div className="glass relative z-10 rounded-3xl shadow-2xl overflow-hidden text-left">
+                <div className="flex items-center gap-2 border-b border-white/10 px-4 sm:px-5 py-3">
+                  <span className="w-2.5 h-2.5 rounded-full bg-rose-400/80"></span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-amber-400/80"></span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400/80"></span>
+                  <span className="ml-2 text-[11px] sm:text-xs font-semibold text-muted-foreground">Sozlution · A1 · Day 12</span>
+                  <span className="ml-auto inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-[10px] sm:text-xs font-bold text-emerald-300">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>LIVE
+                  </span>
+                </div>
+                <div className="p-4 sm:p-6">
+                  <p className="text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-violet-300 mb-1">Translate the word</p>
+                  <p className="text-2xl sm:text-3xl font-extrabold tracking-tight mb-4">Resilient <span className="text-xs sm:text-sm font-medium text-muted-foreground">/rɪˈzɪljənt/</span></p>
+                  <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                    <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-xs sm:text-sm"><span className="font-bold text-muted-foreground mr-2">A</span>mo&apos;rt</div>
+                    <div className="rounded-xl border border-emerald-500/50 bg-emerald-500/15 px-3 py-2.5 text-xs sm:text-sm font-semibold text-emerald-200"><span className="font-bold mr-2">B</span>bardoshli ✓</div>
+                    <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-xs sm:text-sm"><span className="font-bold text-muted-foreground mr-2">C</span>qattiq</div>
+                    <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-xs sm:text-sm"><span className="font-bold text-muted-foreground mr-2">D</span>yumshoq</div>
+                  </div>
+                  <div className="mt-4 h-2 rounded-full bg-white/10 overflow-hidden">
+                    <div className="h-full w-2/3 rounded-full bg-gradient-to-r from-violet-500 via-fuchsia-500 to-cyan-400"></div>
+                  </div>
+                  <div className="mt-2 flex justify-between text-[10px] sm:text-xs text-muted-foreground"><span>13 / 20 words</span><span>65%</span></div>
+                </div>
+              </div>
+              <div className="absolute -top-4 right-2 sm:-right-4 z-20 rounded-2xl border border-white/10 bg-card/90 backdrop-blur px-3 sm:px-4 py-2 shadow-xl animate-float-slow">
+                <div className="text-lg sm:text-xl font-extrabold text-gradient">86%</div>
+                <div className="text-[10px] sm:text-xs text-muted-foreground">mastery</div>
+              </div>
+              <div className="absolute -bottom-4 left-2 sm:-left-4 z-20 rounded-2xl border border-white/10 bg-card/90 backdrop-blur px-3 sm:px-4 py-2 shadow-xl animate-float-slow" style={{ animationDelay: '1.2s' }}>
+                <div className="text-lg sm:text-xl font-extrabold">🔥 24</div>
+                <div className="text-[10px] sm:text-xs text-muted-foreground">day streak</div>
               </div>
             </div>
           </div>
@@ -754,12 +832,12 @@ export default function Home() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 sm:py-20 border-b border-border bg-secondary/30">
+      <section className="py-10 sm:py-16 lg:py-20 border-b border-border bg-secondary/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="rounded-3xl border border-white/10 bg-card/60 backdrop-blur p-6 sm:p-10 grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:divide-x lg:divide-white/10 shadow-xl">
             {stats.map((item) => (
               <div key={item.id} className="text-center">
-                <div className="text-4xl sm:text-5xl font-bold text-primary mb-3">
+                <div className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gradient mb-3">
                   {item.type === 'count' ? (
                     <CountUp
                       value={item.value ?? 0}
@@ -770,7 +848,7 @@ export default function Home() {
                     item.text
                   )}
                 </div>
-                <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground uppercase tracking-wide">
                   {item.label}
                 </p>
               </div>
@@ -780,30 +858,39 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-20 sm:py-32">
+      <section id="features" className="py-12 sm:py-20 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-20">
-            <h2 className="text-5xl sm:text-6xl font-bold text-foreground mb-6 max-w-3xl">
+          <div className="mb-10 sm:mb-16 lg:mb-20">
+            <span className="inline-block rounded-full border border-violet-500/30 bg-violet-500/10 px-4 py-1.5 text-xs sm:text-sm font-semibold text-violet-300 mb-4">{t.features}</span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground mb-6 max-w-3xl">
               {t.powerfullFeatures}
             </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl">
+            <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-2xl">
               {t.allYouNeed}
             </p>
           </div>
-          <div className="grid md:grid-cols-2 gap-12">
+          <div className="grid md:grid-cols-2 gap-8 sm:gap-10 lg:gap-12">
             {features.map((feature, idx) => {
               const Icon = feature.icon
+              const chips = [
+                'from-violet-500 to-purple-600 shadow-violet-500/30',
+                'from-cyan-400 to-blue-600 shadow-cyan-500/30',
+                'from-fuchsia-500 to-pink-600 shadow-fuchsia-500/30',
+                'from-amber-400 to-orange-600 shadow-amber-500/30',
+                'from-emerald-400 to-teal-600 shadow-emerald-500/30',
+                'from-blue-500 to-indigo-600 shadow-blue-500/30',
+              ]
               return (
-                <div key={idx} className="group">
+                <div key={idx} className="group rounded-2xl border border-white/5 bg-card/60 backdrop-blur p-6 transition-all duration-300 hover:-translate-y-1 hover:border-violet-500/40 hover:shadow-[0_20px_50px_-12px_rgba(139,92,246,0.35)]">
                   <div className="flex gap-4">
                     <div className="flex-shrink-0">
-                      <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                        <Icon className="w-7 h-7 text-primary" />
+                      <div className={`w-14 h-14 bg-gradient-to-br ${chips[idx % chips.length]} rounded-2xl flex items-center justify-center shadow-lg transition-transform duration-300 group-hover:scale-110`}>
+                        <Icon className="w-7 h-7 text-white" />
                       </div>
                     </div>
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <h3 className="text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
-                      <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
+                      <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">{feature.description}</p>
                     </div>
                   </div>
                 </div>
@@ -814,16 +901,16 @@ export default function Home() {
       </section>
 
       {/* Problem & Solution Section */}
-      <section id="problem-solution" className="py-20 sm:py-32">
+      <section id="problem-solution" className="py-12 sm:py-20 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-20">
-            <h2 className="text-5xl sm:text-6xl font-bold text-foreground mb-6">
+          <div className="mb-10 sm:mb-16 lg:mb-20">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground mb-6">
               {t.problemSolution}
             </h2>
           </div>
-          <div className="grid md:grid-cols-2 gap-12 lg:gap-20">
+          <div className="grid md:grid-cols-2 gap-6 sm:gap-8 lg:gap-20">
             {/* Problem */}
-            <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-8 lg:p-12">
+            <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-6 sm:p-8 lg:p-12">
               <h3 className="text-3xl font-bold text-foreground mb-6">{t.problemTitle}</h3>
               <p className="text-lg text-muted-foreground leading-relaxed mb-6">{t.problemDesc}</p>
               <div className="space-y-4">
@@ -849,7 +936,7 @@ export default function Home() {
             </div>
 
             {/* Solution */}
-            <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-2xl p-8 lg:p-12">
+            <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-2xl p-6 sm:p-8 lg:p-12">
               <h3 className="text-3xl font-bold text-foreground mb-6">{t.solutionTitle}</h3>
               <p className="text-lg text-muted-foreground leading-relaxed mb-6">{t.solutionDesc}</p>
               <div className="space-y-4">
@@ -878,13 +965,14 @@ export default function Home() {
       </section>
 
       {/* How it Works Section */}
-      <section id="how-it-works" className="py-20 sm:py-32 bg-secondary/30">
+      <section id="how-it-works" className="py-12 sm:py-20 lg:py-32 bg-secondary/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-20">
-            <h2 className="text-5xl sm:text-6xl font-bold text-foreground mb-6">
+          <div className="mb-10 sm:mb-16 lg:mb-20">
+            <span className="inline-block rounded-full border border-violet-500/30 bg-violet-500/10 px-4 py-1.5 text-xs sm:text-sm font-semibold text-violet-300 mb-4">{t.howItWorks}</span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground mb-6">
               {t.howItWorksTitle}
             </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl">
+            <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-2xl">
               {t.howItWorksDesc}
             </p>
           </div>
@@ -892,28 +980,35 @@ export default function Home() {
           {/* Timeline Container */}
           <div className="relative">
             {/* Vertical line for desktop (hidden on mobile) */}
-            <div className="hidden lg:block absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-gradient-to-b from-primary via-accent to-primary opacity-30"></div>
+            <div className="hidden lg:block absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-gradient-to-b from-violet-500 via-fuchsia-500 to-cyan-400 opacity-40 rounded-full"></div>
 
             {/* Timeline Items */}
             <div className="space-y-12 lg:space-y-16">
              {steps.map((item, idx) => {
                  const borderColors = ['border-pink-500', 'border-cyan-500', 'border-yellow-500', 'border-purple-500', 'border-orange-500', 'border-indigo-500'];
-                const circleColors = ['bg-pink-500', 'bg-cyan-500', 'bg-yellow-500', 'bg-purple-500', 'bg-orange-500', 'bg-indigo-500'];
+                const circleColors = ['bg-gradient-to-br from-pink-500 to-rose-600', 'bg-gradient-to-br from-cyan-400 to-blue-600', 'bg-gradient-to-br from-amber-400 to-orange-600', 'bg-gradient-to-br from-violet-500 to-purple-700', 'bg-gradient-to-br from-orange-500 to-red-600', 'bg-gradient-to-br from-indigo-500 to-violet-700'];
                 const isLeft = idx % 2 === 0;
 
                 return (
                   <div key={idx} className="timeline-item">
-                    <div className={`flex ${isLeft ? 'lg:flex-row' : 'lg:flex-row-reverse'} items-center gap-4 lg:gap-12`}>
+                    {/* Mobile Step Number - shown first on mobile */}
+                    <div className="flex lg:hidden items-center gap-3 mb-3">
+                      <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full ${circleColors[idx]} text-white font-bold text-base sm:text-lg flex items-center justify-center shrink-0`}>
+                        {item.step}
+                      </div>
+                      <h3 className="text-base sm:text-lg font-bold text-foreground">{item.title}</h3>
+                    </div>
+                    <div className={`flex flex-col ${isLeft ? 'lg:flex-row' : 'lg:flex-row-reverse'} lg:items-center gap-4 lg:gap-12`}>
                       {/* Card Content */}
-                      <div className="w-full lg:w-1/2">
-                        <div className={`bg-card border-2 ${borderColors[idx]} rounded-2xl p-6 lg:p-8 hover:shadow-lg transition-all`}>
-                          <h3 className="text-xl font-bold text-foreground mb-3">{item.title}</h3>
+                      <div className="w-full lg:w-1/2 min-w-0">
+                        <div className={`bg-card border-2 ${borderColors[idx]} rounded-2xl p-5 sm:p-6 lg:p-8 hover:shadow-lg transition-all`}>
+                          <h3 className="hidden lg:block text-xl font-bold text-foreground mb-3">{item.title}</h3>
                           <p className="text-muted-foreground leading-relaxed text-sm lg:text-base">{item.desc}</p>
                         </div>
                       </div>
 
                       {/* Center Circle */}
-                      <div className="hidden lg:flex justify-center items-center z-10">
+                      <div className="hidden lg:flex justify-center items-center z-10 shrink-0">
                         <div className={`w-16 h-16 rounded-full ${circleColors[idx]} text-white font-bold text-xl flex items-center justify-center shadow-lg border-4 border-background relative`}>
                           {item.step}
                         </div>
@@ -921,14 +1016,6 @@ export default function Home() {
 
                       {/* Spacer for desktop */}
                       <div className="hidden lg:block w-1/2"></div>
-                    </div>
-
-                    {/* Mobile Step Number */}
-                    <div className="flex lg:hidden items-center gap-3 mb-4">
-                      <div className={`w-12 h-12 rounded-full ${circleColors[idx]} text-white font-bold text-lg flex items-center justify-center`}>
-                        {item.step}
-                      </div>
-                      <h3 className="text-lg font-bold text-foreground">{item.title}</h3>
                     </div>
                   </div>
                 );
@@ -939,18 +1026,18 @@ export default function Home() {
       </section>
 
       {/* Team Section */}
-      <section id="team" className="py-20 sm:py-32 bg-secondary/30">
+      <section id="team" className="py-12 sm:py-20 lg:py-32 bg-secondary/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-20">
-            <h2 className="text-5xl sm:text-6xl font-bold text-foreground mb-6">
+          <div className="mb-10 sm:mb-16 lg:mb-20">
+            <span className="inline-block rounded-full border border-violet-500/30 bg-violet-500/10 px-4 py-1.5 text-xs sm:text-sm font-semibold text-violet-300 mb-4">{t.company}</span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground mb-6">
               {t.ourTeam}
             </h2>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid sm:grid-cols-2 gap-6 sm:gap-8 max-w-4xl">
             {[
               { role: t.teamLeader, skills: ['Project Planning', 'Team Coordination', 'Delivery Management'], color: 'from-cyan-500' },
               { role: t.teamBackend, skills: ['Python & Django', 'React & Next.js', 'API Integration'], color: 'from-purple-500' },
-              { role: t.teamFrontend, skills: ['Content Strategy', 'Editorial Planning', 'Audience Growth'], color: 'from-pink-500' },
             ].map((member, idx) => (
               <div key={idx} className="bg-card border border-border rounded-2xl p-8 hover:shadow-lg transition-all">
                 <div className={`w-16 h-16 rounded-full bg-gradient-to-r ${member.color} to-transparent mb-6`}></div>
@@ -970,18 +1057,18 @@ export default function Home() {
       </section>
 
       {/* Why Us Section */}
-      <section id="why-us" className="py-20 sm:py-32">
+      <section id="why-us" className="py-12 sm:py-20 lg:py-32">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-5xl sm:text-6xl font-bold text-foreground mb-6">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground mb-6">
               {t.whyUs}
             </h2>
-            <p className="text-xl text-muted-foreground leading-relaxed">
+            <p className="text-base sm:text-lg lg:text-xl text-muted-foreground leading-relaxed">
               {t.whyUsDesc}
             </p>
           </div>
-          <div className="bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border border-cyan-500/20 rounded-2xl p-12">
-            <div className="grid md:grid-cols-3 gap-8">
+          <div className="bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border border-cyan-500/20 rounded-2xl p-6 sm:p-8 lg:p-12">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
               <div>
                 <h3 className="text-2xl font-bold text-cyan-400 mb-3">3+</h3>
                 <p className="text-muted-foreground">Years combined experience</p>
@@ -1000,14 +1087,15 @@ export default function Home() {
       </section>
 
       {/* Roadmap Section */}
-      <section id="roadmap" className="py-20 sm:py-32 bg-secondary/30">
+      <section id="roadmap" className="py-12 sm:py-20 lg:py-32 bg-secondary/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-20">
-            <h2 className="text-5xl sm:text-6xl font-bold text-foreground mb-6">
+          <div className="mb-10 sm:mb-16 lg:mb-20">
+            <span className="inline-block rounded-full border border-violet-500/30 bg-violet-500/10 px-4 py-1.5 text-xs sm:text-sm font-semibold text-violet-300 mb-4">{t.about}</span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground mb-6">
               {t.roadmap}
             </h2>
           </div>
-          <div className="grid md:grid-cols-4 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {[
               { title: t.roadmapIdea, desc: t.roadmapIdeaDesc, status: 'complete', num: '1' },
               { title: t.roadmapPrototype, desc: t.roadmapPrototypeDesc, status: 'complete', num: '2' },
@@ -1035,22 +1123,22 @@ export default function Home() {
       </section>
 
       {/* Implementation Section */}
-      <section id="implementation" className="py-20 sm:py-32">
+      <section id="implementation" className="py-12 sm:py-20 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-20">
-            <h2 className="text-5xl sm:text-6xl font-bold text-foreground mb-6">
+          <div className="mb-10 sm:mb-16 lg:mb-20">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground mb-6">
               {t.implementation}
             </h2>
           </div>
-          <div className="grid md:grid-cols-2 gap-8 mb-16">
+          <div className="grid md:grid-cols-2 gap-6 sm:gap-8 mb-10 sm:mb-16">
             {[
-              { title: t.phase1, desc: t.phase1Desc, color: 'cyan' },
-              { title: t.phase2, desc: t.phase2Desc, color: 'purple' },
-              { title: t.phase3, desc: t.phase3Desc, color: 'pink' },
-              { title: t.phase4, desc: t.phase4Desc, color: 'orange' },
+              { title: t.phase1, desc: t.phase1Desc, card: 'bg-cyan-500/10 border-cyan-500/30', badge: 'bg-cyan-500/20 text-cyan-400' },
+              { title: t.phase2, desc: t.phase2Desc, card: 'bg-purple-500/10 border-purple-500/30', badge: 'bg-purple-500/20 text-purple-400' },
+              { title: t.phase3, desc: t.phase3Desc, card: 'bg-pink-500/10 border-pink-500/30', badge: 'bg-pink-500/20 text-pink-400' },
+              { title: t.phase4, desc: t.phase4Desc, card: 'bg-orange-500/10 border-orange-500/30', badge: 'bg-orange-500/20 text-orange-400' },
             ].map((phase, idx) => (
-              <div key={idx} className={`bg-${phase.color}-500/10 border border-${phase.color}-500/30 rounded-2xl p-8`}>
-                <div className={`inline-block px-4 py-2 rounded-lg bg-${phase.color}-500/20 text-${phase.color}-400 font-semibold mb-4`}>
+              <div key={idx} className={`${phase.card} border rounded-2xl p-6 sm:p-8`}>
+                <div className={`inline-block px-4 py-2 rounded-lg ${phase.badge} font-semibold mb-4`}>
                   Phase {idx + 1}
                 </div>
                 <h3 className="text-2xl font-bold text-foreground mb-4">{phase.title}</h3>
@@ -1060,9 +1148,9 @@ export default function Home() {
           </div>
 
           {/* Tech Stack */}
-          <div className="bg-secondary/30 rounded-2xl p-12 border border-border">
+          <div className="bg-secondary/30 rounded-2xl p-6 sm:p-8 lg:p-12 border border-border">
             <h3 className="text-3xl font-bold text-foreground mb-12">{t.techStack}</h3>
-            <div className="grid md:grid-cols-4 gap-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
               <div>
                 <h4 className="text-lg font-semibold text-cyan-400 mb-4">{t.frontend}</h4>
                 <ul className="space-y-2">
@@ -1113,45 +1201,60 @@ export default function Home() {
       </section>
 
       {/* Testimonials Section */}
-      <section id="testimonials" className="py-20 sm:py-32">
+      <section id="testimonials" className="py-12 sm:py-20 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-4">
+          <div className="text-center mb-10 sm:mb-16">
+            <span className="inline-block rounded-full border border-violet-500/30 bg-violet-500/10 px-4 py-1.5 text-xs sm:text-sm font-semibold text-violet-300 mb-4">{t.testimonials}</span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
               {t.studentSuccessStories}
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
               {t.realLearners}
             </p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, idx) => (
-              <div key={idx} className="bg-card border border-border rounded-xl p-8 hover:border-primary/50 transition-all">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            {testimonials.map((testimonial, idx) => {
+              const avatarGrads = [
+                'from-violet-500 to-fuchsia-600',
+                'from-cyan-400 to-blue-600',
+                'from-amber-400 to-orange-600',
+              ]
+              const initials = testimonial.name.split(' ').map((w: string) => w[0]).slice(0, 2).join('')
+              return (
+              <div key={idx} className="rounded-2xl border border-white/10 bg-card/60 backdrop-blur p-6 sm:p-8 transition-all duration-300 hover:-translate-y-1 hover:border-violet-500/40 hover:shadow-[0_20px_50px_-12px_rgba(139,92,246,0.35)]">
                 <div className="flex gap-1 mb-4">
                   {[1, 2, 3, 4, 5].map((i) => (
-                    <span key={i} className="text-primary">
+                    <span key={i} className="text-amber-400">
                       ★
                     </span>
                   ))}
                 </div>
-                <p className="text-muted-foreground mb-4 italic">{testimonial.content}</p>
-                <div>
-                  <p className="font-semibold text-foreground">{testimonial.name}</p>
-                  <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                <p className="text-muted-foreground mb-6 italic leading-relaxed text-sm sm:text-base">{testimonial.content}</p>
+                <div className="flex items-center gap-3">
+                  <div className={`w-11 h-11 rounded-full bg-gradient-to-br ${avatarGrads[idx % avatarGrads.length]} flex items-center justify-center font-bold text-white text-sm shadow-lg shrink-0`}>
+                    {initials}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-semibold text-foreground truncate">{testimonial.name}</p>
+                    <p className="text-sm text-muted-foreground truncate">{testimonial.role}</p>
+                  </div>
                 </div>
               </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="py-20 sm:py-32">
+      <section id="pricing" className="py-12 sm:py-20 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-4">
+          <div className="text-center mb-10 sm:mb-16">
+            <span className="inline-block rounded-full border border-violet-500/30 bg-violet-500/10 px-4 py-1.5 text-xs sm:text-sm font-semibold text-violet-300 mb-4">{t.pricing}</span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
               {t.pricingTitle}
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
               {t.pricingDesc}
             </p>
           </div>
@@ -1175,8 +1278,11 @@ export default function Home() {
             ].map((plan, idx) => (
               <div
                 key={idx}
-                className={`bg-card rounded-xl p-8 ${
-                  plan.popular ? 'border-2 border-primary shadow-lg relative' : 'border border-border'
+                className={plan.popular ? 'rounded-2xl bg-gradient-to-b from-violet-500 via-fuchsia-500 to-cyan-400 p-[2px] shadow-2xl shadow-violet-600/25 relative' : ''}
+              >
+              <div
+                className={`bg-card rounded-2xl p-6 sm:p-8 h-full ${
+                  plan.popular ? '' : 'border border-border'
                 }`}
               >
                 {plan.popular && (
@@ -1214,25 +1320,29 @@ export default function Home() {
                   ))}
                 </ul>
               </div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 sm:py-32 bg-primary text-primary-foreground">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl sm:text-5xl font-bold mb-6 text-primary-foreground/90">
+      <section className="py-12 sm:py-20 lg:py-32">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-violet-600 via-indigo-600 to-cyan-500 px-6 py-14 sm:p-14 text-center shadow-2xl shadow-violet-900/40">
+          <div className="absolute -top-20 -right-20 w-72 h-72 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="absolute -bottom-24 -left-16 w-80 h-80 bg-fuchsia-400/20 rounded-full blur-3xl pointer-events-none"></div>
+          <h2 className="relative text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-6 text-white">
             {t.readyToMaster}
           </h2>
-          <p className="text-lg mb-8 text-primary-foreground/70 max-w-2xl mx-auto">
+          <p className="relative text-base sm:text-lg mb-8 text-white/80 max-w-2xl mx-auto">
             {t.join100k}
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="relative flex flex-col sm:flex-row gap-4 justify-center">
             <Button
               asChild
               size="lg"
-              className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 text-lg font-semibold"
+              className="bg-white text-violet-700 hover:bg-white/90 text-base sm:text-lg font-bold shadow-xl rounded-full px-8"
             >
               <Link href="/register">{t.startFree}</Link>
             </Button>
@@ -1240,7 +1350,7 @@ export default function Home() {
               asChild
               size="lg"
               variant="outline"
-              className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10 text-lg font-semibold bg-transparent"
+              className="border-white/40 text-white hover:bg-white/10 text-base sm:text-lg font-semibold bg-white/5 backdrop-blur rounded-full px-8"
             >
               <Link href="/demo">
                 {t.scheduleDemo}
@@ -1248,20 +1358,21 @@ export default function Home() {
             </Button>
           </div>
         </div>
+        </div>
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="py-20 sm:py-32 bg-secondary/30">
+      <section id="contact" className="py-12 sm:py-20 lg:py-32 bg-secondary/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-4">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
             {t.contact1Title}
           </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
               {t.contact1Desc}
             </p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8 max-w-3xl mx-auto">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-3xl mx-auto">
             <div className="bg-card border border-border rounded-xl p-8 text-center hover:border-primary/50 transition-all">
               <Phone className="w-12 h-12 text-primary mx-auto mb-4" />
               <h3 className="font-semibold text-foreground mb-2">{t.contactPhone}</h3>
@@ -1289,17 +1400,18 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer id="about" className="bg-card border-t border-border py-12">
+      <footer id="about" className="relative bg-card/60 backdrop-blur border-t border-border py-12 sm:py-16">
+      <div className="absolute top-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-violet-500/60 to-transparent" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
+          <div className="grid grid-cols-1 min-[500px]:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 mb-8">
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold">S</span>
+                <div className="w-10 h-10 bg-gradient-to-br from-violet-500 via-fuchsia-500 to-cyan-400 rounded-2xl flex items-center justify-center shadow-lg shadow-violet-500/30">
+                  <span className="text-white font-extrabold text-lg">S</span>
                 </div>
-                <span className="font-bold text-foreground">So&apos;zlution</span>
+                <span className="font-extrabold text-lg text-foreground">So&apos;zlution</span>
               </div>
-              <p className="text-sm text-muted-foreground">Master English with AI-powered spaced repetition and IELTS preparation.</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">Master English with AI-powered spaced repetition and IELTS preparation.</p>
             </div>
             <div>
               <h4 className="font-semibold text-foreground mb-4">{t.product}</h4>
@@ -1343,23 +1455,17 @@ export default function Home() {
             </div>
              <div>
                <h4 className="font-semibold text-foreground mb-4">{t.followUs}</h4>
-               <ul className="space-y-2 text-sm text-muted-foreground">
-                 <li>
-                   <Link href="#" className="hover:text-primary transition flex items-center gap-2">
-                     <Globe className="w-4 h-4" /> Facebook
-                   </Link>
-                 </li>
-                 <li>
-                   <Link href="#" className="hover:text-primary transition flex items-center gap-2">
-                     <Send className="w-4 h-4" /> Telegram
-                   </Link>
-                 </li>
-                 <li>
-                   <Link href="#" className="hover:text-primary transition flex items-center gap-2">
-                     <Phone className="w-4 h-4" /> Instagram
-                   </Link>
-                 </li>
-               </ul>
+               <div className="flex gap-3">
+                 <Link href="#" aria-label="Facebook" className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-muted-foreground transition hover:border-violet-500/50 hover:text-white hover:shadow-lg hover:shadow-violet-500/20">
+                   <Globe className="w-4 h-4" />
+                 </Link>
+                 <Link href="#" aria-label="Telegram" className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-muted-foreground transition hover:border-violet-500/50 hover:text-white hover:shadow-lg hover:shadow-violet-500/20">
+                   <Send className="w-4 h-4" />
+                 </Link>
+                 <Link href="#" aria-label="Instagram" className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-muted-foreground transition hover:border-violet-500/50 hover:text-white hover:shadow-lg hover:shadow-violet-500/20">
+                   <Phone className="w-4 h-4" />
+                 </Link>
+               </div>
              </div>
           </div>
           <div className="border-t border-border pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">

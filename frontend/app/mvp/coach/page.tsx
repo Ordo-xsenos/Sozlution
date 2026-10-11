@@ -196,7 +196,7 @@ export default function CoachPage() {
     <div className="min-h-screen bg-[#0f172a] flex flex-col text-white">
       <div className="max-w-4xl mx-auto w-full flex flex-col h-screen p-4 md:p-8">
         <div className="mb-6 flex items-center gap-4">
-          <div className="p-3 rounded-2xl bg-blue-500/10 text-blue-400">
+          <div className="p-3 rounded-2xl bg-violet-500/10 text-violet-400">
             <Bot className="w-8 h-8" />
           </div>
           <div>
@@ -205,22 +205,22 @@ export default function CoachPage() {
           </div>
         </div>
 
-        <Card className="flex-1 bg-[#1a2744] border-[#334155] rounded-3xl overflow-hidden flex flex-col mb-6 shadow-2xl">
+        <Card className="flex-1 bg-[#1a2744]/80 border-white/10 shadow-xl backdrop-blur-xl rounded-3xl overflow-hidden flex flex-col mb-6 shadow-2xl">
           <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 scroll-smooth">
             {messages.map((msg) => (
               <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`flex gap-3 max-w-[85%] ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-                  <div className={`mt-1 flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${msg.role === 'user' ? 'bg-blue-600' : 'bg-slate-700'}`}>
+                  <div className={`mt-1 flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${msg.role === 'user' ? 'bg-violet-600' : 'bg-slate-700'}`}>
                     {msg.role === 'user' ? <UserIcon className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
                   </div>
                   <div className={`rounded-2xl px-4 py-3 text-sm md:text-base ${
-                    msg.role === 'user' ? 'bg-blue-600 text-white' : 'bg-[#2a3f5f] text-slate-100'
+                    msg.role === 'user' ? 'bg-violet-600 text-white' : 'bg-[#2a3f5f] text-slate-100'
                   }`}>
                     <div className="space-y-4">
                       {msg.text.split('\n').filter(Boolean).map((para, i) => {
                         const isHeader = para.startsWith('Paragraph') || para.startsWith('Theory:')
                         return (
-                          <p key={i} className={`leading-relaxed ${isHeader ? 'font-bold text-blue-300 mt-4' : ''}`}>
+                          <p key={i} className={`leading-relaxed ${isHeader ? 'font-bold text-violet-300 mt-4' : ''}`}>
                             {para}
                           </p>
                         )
@@ -228,7 +228,7 @@ export default function CoachPage() {
                     </div>
                     
                     {msg.structured && (
-                      <div className="mt-3 pt-3 border-t border-blue-400/20 space-y-3">
+                      <div className="mt-3 pt-3 border-t border-violet-400/20 space-y-3">
                         {msg.structured.corrections.length > 0 && (
                           <div>
                             <p className="text-[10px] font-bold uppercase tracking-wider text-red-400 mb-1">
@@ -282,7 +282,7 @@ export default function CoachPage() {
               <div className="flex justify-start">
                 <div className="flex gap-3">
                   <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center">
-                    <Loader2 className="w-4 h-4 animate-spin text-blue-400" />
+                    <Loader2 className="w-4 h-4 animate-spin text-violet-400" />
                   </div>
                   <div className="bg-[#2a3f5f] px-4 py-3 rounded-2xl">
                     <span className="text-sm text-slate-400 animate-pulse">{t.thinking}</span>
@@ -299,12 +299,12 @@ export default function CoachPage() {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
                 placeholder={t.placeholder}
-                className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none focus:border-blue-500 transition-colors"
+                className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500 transition-colors"
               />
               <Button 
                 onClick={handleSendMessage}
                 disabled={isLoading || !input.trim()}
-                className="bg-blue-600 hover:bg-blue-700 rounded-xl px-6 h-12"
+                className="rounded-xl px-6 h-12 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 shadow-lg shadow-violet-600/25"
               >
                 <Send className="w-5 h-5" />
               </Button>

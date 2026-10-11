@@ -100,15 +100,15 @@ function ResetPasswordContent() {
         },
       ]}
     >
-      <Card className="border-white/10 bg-slate-950/70 text-white shadow-2xl shadow-cyan-950/20 backdrop-blur-xl">
+      <Card className="border-violet-500/20 bg-slate-950/60 text-white shadow-2xl shadow-violet-950/30 backdrop-blur-xl rounded-3xl overflow-hidden">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl">{t.updateButton}</CardTitle>
+          <CardTitle className="text-xl sm:text-2xl break-words">{t.updateButton}</CardTitle>
           <CardDescription className="text-slate-400">
             {t.cardDesc}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form className="space-y-5" onSubmit={handleSubmit}>
+          <form className="space-y-4 sm:space-y-5" onSubmit={handleSubmit}>
             <div className="space-y-2">
               <Label htmlFor="reset-token" className="text-slate-200">
                 {t.tokenLabel}
@@ -120,7 +120,7 @@ function ResetPasswordContent() {
                   value={token}
                   onChange={(event) => setToken(event.target.value)}
                   placeholder={t.tokenPlaceholder}
-                  className="h-12 border-slate-800 bg-slate-900/80 pl-10 text-white placeholder:text-slate-500"
+                  className="h-11 sm:h-12 text-sm sm:text-base border-slate-800 bg-slate-900/80 pl-10 text-white placeholder:text-slate-500"
                 />
               </div>
             </div>
@@ -137,7 +137,7 @@ function ResetPasswordContent() {
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
                   placeholder={t.newPasswordPlaceholder}
-                  className="h-12 border-slate-800 bg-slate-900/80 pl-10 text-white placeholder:text-slate-500"
+                  className="h-11 sm:h-12 text-sm sm:text-base border-slate-800 bg-slate-900/80 pl-10 text-white placeholder:text-slate-500"
                 />
               </div>
             </div>
@@ -152,24 +152,24 @@ function ResetPasswordContent() {
                 value={confirm}
                 onChange={(event) => setConfirm(event.target.value)}
                 placeholder={t.confirmPasswordPlaceholder}
-                className="h-12 border-slate-800 bg-slate-900/80 text-white placeholder:text-slate-500"
+                className="h-11 sm:h-12 text-sm sm:text-base border-slate-800 bg-slate-900/80 text-white placeholder:text-slate-500"
               />
             </div>
 
             {error ? (
-              <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+              <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm break-words text-red-200">
                 {error}
               </div>
             ) : null}
 
             {success ? (
-              <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+              <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm break-words text-emerald-200">
                 {success}
               </div>
             ) : null}
 
             <Button
-              className="h-12 w-full rounded-xl bg-cyan-500 text-slate-950 hover:bg-cyan-400"
+              className="h-12 w-full rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white hover:from-violet-500 hover:to-fuchsia-500 shadow-lg shadow-violet-600/30"
               disabled={submitting}
               type="submit"
             >

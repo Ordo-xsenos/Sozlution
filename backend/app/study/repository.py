@@ -25,12 +25,12 @@ class WordRepository(CRUDBase[Word, object, object]):
 
     async def list_for_level(self, db: AsyncSession, *, level: str, limit: int = 700) -> list[Word]:
         result = await db.execute(
-            select(Word).where(Word.id.like("dict-%"), Word.level_tag == level).order_by(Word.id).limit(limit)
+            select(Word).where(Word.level_tag == level).order_by(Word.en).limit(limit)
         )
         return list(result.scalars().all())
 
     async def list_dictionary_words(self, db: AsyncSession, *, limit: int = 700) -> list[Word]:
-        result = await db.execute(select(Word).where(Word.id.like("dict-%")).order_by(Word.id).limit(limit))
+        result = await db.execute(select(Word).order_by(Word.id).limit(limit))
         return list(result.scalars().all())
 
     async def list_all(self, db: AsyncSession, *, limit: int = 700) -> list[Word]:

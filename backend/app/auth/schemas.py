@@ -26,6 +26,12 @@ class SessionResponse(BaseModel):
     session_token: str
 
 
+class GoogleSessionIn(BaseModel):
+    id_token: str = Field(min_length=1)
+    lang: str
+    device_id: str = Field(max_length=128)
+
+
 class PasswordResetRequestIn(BaseModel):
     email: EmailField
 

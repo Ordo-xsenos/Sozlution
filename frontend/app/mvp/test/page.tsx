@@ -75,7 +75,7 @@ export default function LevelTestPage() {
   if (appLoading && !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0f172a]">
-        <Loader2 className="w-12 h-12 text-blue-500 animate-spin" />
+        <Loader2 className="w-12 h-12 text-violet-500 animate-spin" />
       </div>
     )
   }
@@ -107,13 +107,13 @@ export default function LevelTestPage() {
         )}
 
         <Card
-          className={`max-w-md w-full bg-[#1a2744] border-blue-500/30 text-white p-8 text-center shadow-2xl transition-all duration-[2000ms] ease-in-out ${isTransitioning ? 'scale-[10] rotate-[15deg] opacity-0 blur-2xl' : ''}`}
+          className={`max-w-md w-full bg-[#1a2744] border-violet-500/30 text-white p-8 text-center shadow-2xl transition-all duration-[2000ms] ease-in-out ${isTransitioning ? 'scale-[10] rotate-[15deg] opacity-0 blur-2xl' : ''}`}
         >
           <div className="mb-6 flex justify-center">
             {isPassed ? (
               <div className="relative">
                 <Trophy className="w-20 h-20 text-yellow-400" />
-                <Sparkles className="absolute -top-2 -right-2 w-8 h-8 text-blue-400 animate-pulse" />
+                <Sparkles className="absolute -top-2 -right-2 w-8 h-8 text-violet-400 animate-pulse" />
               </div>
             ) : (
               <XCircle className="w-20 h-20 text-red-500" />
@@ -124,7 +124,7 @@ export default function LevelTestPage() {
             {isPassed ? t.passed : t.almost}
           </h2>
           <p className="text-gray-400 mb-6">
-            {t.score} <span className="text-blue-400 font-bold">{result.score}</span> {t.of}{' '}
+            {t.score} <span className="text-violet-400 font-bold">{result.score}</span> {t.of}{' '}
             {questions.length}
           </p>
 
@@ -132,7 +132,7 @@ export default function LevelTestPage() {
             <p className="text-sm text-gray-400 uppercase tracking-widest mb-1">
               {t.newLevel}
             </p>
-            <p className="text-4xl font-black text-blue-500">
+            <p className="text-4xl font-black text-violet-500">
               {isIELTS ? 'IELTS MODE' : result.level}
             </p>
           </div>
@@ -197,7 +197,7 @@ export default function LevelTestPage() {
               </p>
               <Button
                 onClick={handleEnterIelts}
-                className="w-full h-14 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-2xl text-lg font-bold shadow-lg shadow-blue-900/20"
+                className="w-full h-14 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 rounded-2xl text-lg font-bold shadow-lg shadow-violet-900/20"
               >
                 {t.enterIelts} <ArrowRight className="ml-2" />
               </Button>
@@ -205,7 +205,7 @@ export default function LevelTestPage() {
           ) : (
             <Button
               onClick={() => router.push('/mvp')}
-              className="w-full h-14 bg-blue-600 hover:bg-blue-700 rounded-2xl text-lg font-bold"
+              className="w-full h-14 rounded-2xl text-lg font-bold bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 shadow-lg shadow-violet-600/25"
             >
               {t.backHome}
             </Button>
@@ -231,13 +231,13 @@ export default function LevelTestPage() {
               </p>
             </div>
             <div className="text-right">
-              <span className="text-blue-400 font-bold">{Math.round(progress)}%</span>
+              <span className="text-violet-400 font-bold">{Math.round(progress)}%</span>
             </div>
           </div>
           <Progress value={progress} className="h-2 bg-slate-800" />
         </div>
 
-        <Card className="bg-[#1e293b] border-slate-800 p-6 md:p-10 rounded-[32px] shadow-xl mb-8">
+        <Card className="bg-[#1a2744]/80 backdrop-blur-xl border border-white/10 p-6 md:p-10 rounded-[32px] shadow-xl mb-8">
           <h2 className="text-2xl md:text-3xl font-medium mb-10 leading-relaxed text-center">
             {currentQuestion?.text}
           </h2>
@@ -250,7 +250,7 @@ export default function LevelTestPage() {
                   onClick={() => handleSelect(idx)}
                   className={`w-full p-5 rounded-2xl text-left transition-all border-2 text-lg ${
                     answers[currentQuestion.id] === idx
-                      ? 'border-blue-500 bg-blue-500/10 text-white'
+                      ? 'border-violet-500 bg-violet-500/10 text-white'
                       : 'border-slate-800 bg-slate-900/50 text-gray-400 hover:border-slate-700 hover:bg-slate-800/50'
                   }`}
                 >
@@ -258,7 +258,7 @@ export default function LevelTestPage() {
                     <div
                       className={`w-8 h-8 rounded-full flex items-center justify-center border-2 font-bold ${
                         answers[currentQuestion.id] === idx
-                          ? 'border-blue-500 bg-blue-500 text-white'
+                          ? 'border-violet-500 bg-violet-500 text-white'
                           : 'border-slate-700'
                       }`}
                     >
@@ -285,7 +285,7 @@ export default function LevelTestPage() {
             <Button
               onClick={handleNext}
               disabled={!isAnswered}
-              className="flex-[2] bg-blue-600 hover:bg-blue-700 h-14 rounded-2xl text-lg font-bold"
+              className="flex-[2] h-14 rounded-2xl text-lg font-bold bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 shadow-lg shadow-violet-600/25"
             >
               {t.next}
             </Button>

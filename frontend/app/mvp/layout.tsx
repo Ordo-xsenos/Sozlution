@@ -26,7 +26,7 @@ function MVPFrame({ children }: { children: React.ReactNode }) {
   if (!authReady || (loading && !user)) {
     return (
       <div className="relative flex min-h-screen items-center justify-center bg-[#0f172a]">
-        <Loader2 className="h-12 w-12 animate-spin text-blue-500" />
+        <Loader2 className="h-12 w-12 animate-spin text-violet-500" />
       </div>
     )
   }

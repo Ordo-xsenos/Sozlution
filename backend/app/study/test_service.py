@@ -28,7 +28,20 @@ class TestService:
         if len(words) < 20:
             return
 
-        sample = words[:20]
+        # 20 savol: har darajadan 4 tadan (A1 -> C1 qiyinligi oshib boradi)
+        sample: list = []
+        for level in ("A1", "A2", "B1", "B2", "C1"):
+            pool = await word_repository.list_for_level(db, level=level, limit=200)
+            sample.extend(pool[:4])
+        if len(sample) < 20:
+            seen = {word.id for word in sample}
+            for word in words:
+                if word.id not in seen:
+                    sample.append(word)
+                    seen.add(word.id)
+                if len(sample) >= 20:
+                    break
+        sample = sample[:20]
         ru_pool = [word.ru for word in words if word.ru]
         uz_pool = [word.uz for word in words if word.uz]
         for index, word in enumerate(sample, start=1):

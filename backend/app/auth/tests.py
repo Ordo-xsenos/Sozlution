@@ -147,6 +147,66 @@ def test_password_reset_flow(client, monkeypatch):
     assert new_login.status_code == 200
 
 
+def test_google_session_login(client, monkeypatch):
+    from app.core.config import settings
+
+    monkeypatch.setattr(settings, "GOOGLE_CLIENT_ID", "test-google-client-id")
+
+    def fake_verify(*args, **kwargs):
+        return {
+            "email": "guser@example.com",
+            "email_verified": True,
+            "name": "G User",
+        }
+
+    monkeypatch.setattr(
+        "app.auth.service.google_id_token.verify_oauth2_token", fake_verify
+    )
+
+    first = client.post(
+        "/api/v1/session/google",
+        json={"id_token": "fake-token", "lang": "ru", "device_id": "google-device-1"},
+    )
+    assert first.status_code == 200
+    assert first.json()["user"]["email"] == "guser@example.com"
+    assert first.json()["session_token"]
+
+    second = client.post(
+        "/api/v1/session/google",
+        json={"id_token": "fake-token", "lang": "uz", "device_id": "google-device-2"},
+    )
+    assert second.status_code == 200
+    assert second.json()["user"]["id"] == first.json()["user"]["id"]
+    assert second.json()["user"]["lang"] == "uz"
+
+
+def test_google_session_unverified_email_rejected(client, monkeypatch):
+    from app.core.config import settings
+
+    monkeypatch.setattr(settings, "GOOGLE_CLIENT_ID", "test-google-client-id")
+
+    def fake_verify(*args, **kwargs):
+        return {"email": "bad@example.com", "email_verified": False}
+
+    monkeypatch.setattr(
+        "app.auth.service.google_id_token.verify_oauth2_token", fake_verify
+    )
+
+    response = client.post(
+        "/api/v1/session/google",
+        json={"id_token": "fake-token", "lang": "ru", "device_id": "google-device-3"},
+    )
+    assert response.status_code == 400
+
+
+def test_google_session_not_configured(client):
+    response = client.post(
+        "/api/v1/session/google",
+        json={"id_token": "fake-token", "lang": "ru", "device_id": "google-device-4"},
+    )
+    assert response.status_code in (400, 401)
+
+
 def test_password_reset_invalid_token(client):
     confirm = client.post(
         "/api/v1/password-reset/confirm",

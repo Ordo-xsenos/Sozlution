@@ -208,7 +208,7 @@ export default function LearnPage() {
   if (appLoading && !currentDay) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-[#0f172a]">
-        <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
+        <Loader2 className="h-8 w-8 text-violet-500 animate-spin" />
       </div>
     )
   }
@@ -216,12 +216,12 @@ export default function LearnPage() {
   if (!currentDay || words.length === 0) {
     return (
       <div className="min-h-screen bg-[#0f172a] p-4 flex items-center justify-center">
-        <Card className="bg-[#1a2744] border-[#334155] text-center p-8 max-w-md">
+        <Card className="bg-[#1a2744]/80 border-white/10 shadow-xl backdrop-blur-xl text-center p-8 max-w-md">
           <div className="text-5xl mb-4">🗓️</div>
           <h1 className="text-2xl font-bold text-white mb-4">{t.noPlanTitle}</h1>
           <p className="text-gray-400 mb-6">{t.noPlanDescription}</p>
           <Link href="/mvp">
-            <Button className="w-full bg-blue-500 hover:bg-blue-600">{t.goHome}</Button>
+            <Button className="w-full bg-violet-500 hover:bg-violet-600">{t.goHome}</Button>
           </Link>
         </Card>
       </div>
@@ -239,7 +239,7 @@ export default function LearnPage() {
             {(['study', 'step1', 'step2', 'step3'] as const).map((s) => (
               <div
                 key={s}
-                className={`h-1.5 w-6 rounded-full transition-colors ${step === s ? 'bg-blue-500' : 'bg-slate-700'}`}
+                className={`h-1.5 w-6 rounded-full transition-colors ${step === s ? 'bg-violet-500' : 'bg-slate-700'}`}
               />
             ))}
           </div>
@@ -270,7 +270,7 @@ export default function LearnPage() {
               >
                 {/* Front */}
                 <Card
-                  className="absolute inset-0 backface-hidden bg-[#1e293b] border-2 border-blue-500/30 flex flex-col items-center justify-center p-8 rounded-[32px]"
+                  className="absolute inset-0 backface-hidden bg-gradient-to-b from-[#232f4d]/95 to-[#1a2744]/95 backdrop-blur-xl border-2 border-violet-500/30 shadow-[0_0_60px_-12px_rgba(139,92,246,0.45)] flex flex-col items-center justify-center p-8 rounded-[32px]"
                   style={{ backfaceVisibility: 'hidden' }}
                 >
                   <button
@@ -278,18 +278,18 @@ export default function LearnPage() {
                       e.stopPropagation()
                       if (active) playAudio(active.audio_url, active.en)
                     }}
-                    className="absolute right-6 top-6 p-3 rounded-full bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-all"
+                    className="absolute right-6 top-6 p-3 rounded-full bg-violet-500/10 text-violet-400 hover:bg-violet-500/20 transition-all"
                     title={t.playAudio}
                   >
                     <Volume2 className="h-6 w-6" />
                   </button>
-                  <span className="text-[10px] font-black tracking-[0.2em] text-blue-400/60 uppercase mb-4">
+                  <span className="text-[10px] font-black tracking-[0.2em] text-violet-400/60 uppercase mb-4">
                     English word
                   </span>
                   <h2 className="text-5xl md:text-6xl font-black text-white text-center break-words mb-6">
                     {active?.en}
                   </h2>
-                  <div className="w-full bg-blue-500/5 rounded-2xl p-4 text-center border border-blue-500/10">
+                  <div className="w-full bg-violet-500/5 rounded-2xl p-4 text-center border border-violet-500/10">
                     <p className="text-slate-300 italic leading-relaxed text-sm">
                       {pronunciationText}
                     </p>
@@ -298,7 +298,7 @@ export default function LearnPage() {
 
                 {/* Back */}
                 <Card
-                  className="absolute inset-0 backface-hidden rotate-y-180 bg-[#1e293b] border-2 border-emerald-500/30 flex flex-col items-center justify-center p-8 rounded-[32px]"
+                  className="absolute inset-0 backface-hidden rotate-y-180 bg-gradient-to-b from-[#1d2f2b]/95 to-[#1a2744]/95 backdrop-blur-xl border-2 border-emerald-500/30 shadow-[0_0_60px_-12px_rgba(16,185,129,0.35)] flex flex-col items-center justify-center p-8 rounded-[32px]"
                   style={{ backfaceVisibility: 'hidden' }}
                 >
                   <span className="text-[10px] font-black tracking-[0.2em] text-emerald-400/60 uppercase mb-4">
@@ -344,7 +344,7 @@ export default function LearnPage() {
                     setLearnIndex((i) => i + 1)
                     setFlipped(false)
                   }}
-                  className="flex-[2] bg-blue-600 hover:bg-blue-700 h-14 rounded-2xl text-lg font-bold"
+                  className="flex-[2] h-14 rounded-2xl text-lg font-bold bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 shadow-lg shadow-violet-600/25"
                 >
                   {t.next} <ChevronRight className="ml-2" />
                 </Button>
@@ -354,7 +354,7 @@ export default function LearnPage() {
                     setStep('step1')
                     setLearnIndex(0)
                   }}
-                  className={`flex-[2] h-14 rounded-2xl text-lg font-bold ${Object.keys(studyCompleted).length === words.length ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-blue-600'}`}
+                  className={`flex-[2] h-14 rounded-2xl text-lg font-bold ${Object.keys(studyCompleted).length === words.length ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-violet-600 hover:bg-violet-700'}`}
                 >
                   {t.startPractice} <RotateCw className="ml-2" />
                 </Button>
@@ -363,8 +363,8 @@ export default function LearnPage() {
           </div>
         ) : (
           <div className="space-y-6">
-            <Card className="bg-[#1e293b] border-slate-800 p-8 rounded-[32px] text-center relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-1 bg-blue-500 h-full" />
+            <Card className="bg-[#1a2744]/80 backdrop-blur-xl border border-white/10 shadow-xl p-8 rounded-[32px] text-center relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-1 bg-violet-500 h-full" />
               <button
                 onClick={() => {
                   if (active) playAudio(active.audio_url, active.en)
@@ -395,7 +395,7 @@ export default function LearnPage() {
                         ? 'border-emerald-500'
                         : checkState === 'wrong'
                           ? 'border-red-500'
-                          : 'border-slate-800 focus:border-blue-500'
+                          : 'border-slate-800 focus:border-violet-500'
                     }`}
                   />
                   {checkState !== 'idle' && (
@@ -415,7 +415,7 @@ export default function LearnPage() {
                       ? 'bg-emerald-600'
                       : checkState === 'wrong'
                         ? 'bg-red-600'
-                        : 'bg-blue-600 hover:bg-blue-700'
+                        : 'bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 shadow-lg shadow-violet-600/25'
                   }`}
                 >
                   {checkState === 'idle'
@@ -437,7 +437,7 @@ export default function LearnPage() {
                       if (!active) return
                       handleCheckStep2(opt, active.id)
                     }}
-                    className="h-16 rounded-2xl border-slate-800 bg-slate-900/50 hover:bg-blue-600 hover:border-blue-500 text-lg transition-all"
+                    className="h-16 rounded-2xl border-slate-800 bg-slate-900/50 hover:bg-violet-600 hover:border-violet-500 text-lg transition-all"
                   >
                     {opt}
                   </Button>
@@ -457,7 +457,7 @@ export default function LearnPage() {
                         handleCheckStep3(rating, active.id)
                       }}
                       variant="outline"
-                      className="w-14 h-14 rounded-full border-slate-700 bg-slate-900 flex items-center justify-center font-black text-xl hover:bg-blue-600 hover:border-blue-500 transition-all"
+                      className="w-14 h-14 rounded-full border-slate-700 bg-slate-900 flex items-center justify-center font-black text-xl hover:bg-violet-600 hover:border-violet-500 transition-all"
                     >
                       {rating}
                     </Button>

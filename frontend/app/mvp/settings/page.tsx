@@ -66,7 +66,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Profile Section */}
-        <Card className="bg-[#1a2744] border-[#334155] mb-6 overflow-hidden">
+        <Card className="bg-[#1a2744]/80 border-white/10 shadow-xl backdrop-blur-xl mb-6 overflow-hidden">
           <CardHeader className="bg-slate-900/30 border-b border-[#334155]">
             <CardTitle>{t.profile}</CardTitle>
           </CardHeader>
@@ -89,7 +89,7 @@ export default function SettingsPage() {
                   onClick={() => setSelectedLang('uz')}
                   className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
                     selectedLang === 'uz'
-                      ? 'border-blue-500 bg-blue-500/10 text-blue-400'
+                      ? 'border-violet-500 bg-violet-500/10 text-violet-400'
                       : 'border-slate-700 bg-slate-900 text-slate-400 hover:border-slate-600'
                   }`}
                 >
@@ -101,7 +101,7 @@ export default function SettingsPage() {
                   onClick={() => setSelectedLang('ru')}
                   className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
                     selectedLang === 'ru'
-                      ? 'border-blue-500 bg-blue-500/10 text-blue-400'
+                      ? 'border-violet-500 bg-violet-500/10 text-violet-400'
                       : 'border-slate-700 bg-slate-900 text-slate-400 hover:border-slate-600'
                   }`}
                 >
@@ -126,7 +126,7 @@ export default function SettingsPage() {
             <Button
               onClick={handleSaveProfile}
               disabled={isSaving || loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 h-12 rounded-xl font-bold"
+              className="w-full h-12 rounded-xl font-bold bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 shadow-lg shadow-violet-600/25"
             >
               {isSaving ? <Loader2 className="animate-spin mr-2" /> : <Check className="mr-2 h-4 w-4" />}
               {t.saveChanges}

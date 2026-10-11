@@ -4,11 +4,13 @@ from datetime import datetime, timedelta, timezone
 from urllib.parse import quote
 
 from fastapi import BackgroundTasks, HTTPException, status
+from google.auth.transport import requests as google_requests
+from google.oauth2 import id_token as google_id_token
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.email_service import EmailService
 from app.auth.repository import PasswordResetTokenRepository, password_reset_token_repository
-from app.auth.schemas import PasswordResetConfirmIn, PasswordResetRequestIn, SessionCreate
+from app.auth.schemas import GoogleSessionIn, PasswordResetConfirmIn, PasswordResetRequestIn, SessionCreate
 from app.core.config import settings
 from app.core.security import create_access_token, get_password_hash, verify_password
 from app.study.service import StudyService
@@ -58,6 +60,59 @@ class AuthService:
                     lang=payload.lang,
                 ),
             )
+
+        await self.study_service.get_or_create_stats(db, user_id=user.id)
+        return user, create_access_token(user.id)
+
+    async def create_google_session(self, db: AsyncSession, payload: GoogleSessionIn):
+        if not settings.GOOGLE_CLIENT_ID:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Google sign-in is not configured",
+            )
+        try:
+            claims = google_id_token.verify_oauth2_token(
+                payload.id_token,
+                google_requests.Request(),
+                settings.GOOGLE_CLIENT_ID,
+                clock_skew_in_seconds=10,
+            )
+        except Exception:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid Google token",
+            )
+        if not claims.get("email_verified"):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Google email is not verified",
+            )
+
+        email = str(claims.get("email", "")).strip().lower()
+        if not email:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Google account has no email",
+            )
+
+        user = await self.user_service.get_by_email(db, email=email)
+        if user is None:
+            raw_name = str(claims.get("name") or email.split("@")[0]).strip()[:120] or "user"
+            name = raw_name
+            if await self.user_service.get_by_name(db, name=name):
+                name = f"{raw_name}-{secrets.token_hex(3)}"
+            user = await self.user_service.create_user(
+                db,
+                user_in=UserCreate(
+                    name=name,
+                    email=email,
+                    password=secrets.token_urlsafe(32),
+                    device_id=payload.device_id,
+                    lang=payload.lang,
+                ),
+            )
+        else:
+            user = await self.user_service.update_language(db, user=user, lang=payload.lang)
 
         await self.study_service.get_or_create_stats(db, user_id=user.id)
         return user, create_access_token(user.id)

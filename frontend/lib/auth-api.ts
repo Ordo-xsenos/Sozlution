@@ -37,6 +37,10 @@ export function createSession(payload: SessionCreate) {
   return postJson<SessionResponse>('/api/v1/session', payload)
 }
 
+export function createGoogleSession(payload: { id_token: string; lang: string; device_id: string }) {
+  return postJson<SessionResponse>('/api/v1/session/google', payload)
+}
+
 export function requestPasswordReset(payload: PasswordResetRequestIn) {
   return postJson<OkOut>('/api/v1/password-reset/request', payload)
 }

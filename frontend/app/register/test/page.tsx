@@ -77,24 +77,24 @@ export default function PlacementTestPage() {
   if (result) {
     return (
       <div className="min-h-screen bg-[#050810] p-4 flex items-center justify-center">
-        <Card className="max-w-md w-full bg-[#0a0f1d] border-cyan-500/30 text-white p-10 text-center shadow-2xl rounded-[40px]">
+        <Card className="max-w-md w-full bg-[#0a0f1d] border-cyan-500/30 text-white p-5 sm:p-8 lg:p-10 text-center shadow-2xl rounded-3xl sm:rounded-[40px]">
           <div className="mb-8 flex justify-center">
             <div className="relative">
-              <Trophy className="w-24 h-24 text-yellow-400" />
-              <Sparkles className="absolute -top-2 -right-2 w-10 h-10 text-cyan-400 animate-pulse" />
+              <Trophy className="w-16 h-16 sm:w-24 sm:h-24 text-yellow-400" />
+              <Sparkles className="absolute -top-2 -right-2 w-7 h-7 sm:w-10 sm:h-10 text-cyan-400 animate-pulse" />
             </div>
           </div>
 
-          <h2 className="text-4xl font-black mb-4 tracking-tighter">{t.testCompleted}</h2>
-          <p className="text-gray-400 mb-8 text-lg">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black mb-3 sm:mb-4 tracking-tighter break-words">{t.testCompleted}</h2>
+          <p className="text-gray-400 mb-6 sm:mb-8 text-sm sm:text-base lg:text-lg break-words">
             {t.testFeedback}
           </p>
 
-          <div className="bg-cyan-500/10 rounded-[32px] p-8 mb-10 border border-cyan-500/20">
+          <div className="bg-cyan-500/10 rounded-3xl sm:rounded-[32px] p-5 sm:p-8 mb-6 sm:mb-10 border border-cyan-500/20">
             <p className="text-[10px] text-cyan-500/60 uppercase font-black tracking-[0.2em] mb-2">
               {t.yourLevel}
             </p>
-            <p className="text-6xl font-black text-cyan-400">{result.level}</p>
+            <p className="text-4xl sm:text-5xl lg:text-6xl font-black text-cyan-400">{result.level}</p>
           </div>
 
           {/* Detailed Results Review */}
@@ -152,7 +152,7 @@ export default function PlacementTestPage() {
 
           <Button
             onClick={() => router.push('/mvp')}
-            className="w-full h-16 bg-cyan-500 hover:bg-cyan-400 text-black font-black rounded-2xl text-xl shadow-lg shadow-cyan-900/20 transition-all active:scale-95"
+            className="w-full h-12 sm:h-16 bg-cyan-500 hover:bg-cyan-400 text-black font-black rounded-2xl text-base sm:text-xl shadow-lg shadow-cyan-900/20 transition-all active:scale-95"
           >
             {t.startLearning} <ArrowRight className="ml-2 w-6 h-6" />
           </Button>
@@ -168,11 +168,11 @@ export default function PlacementTestPage() {
   return (
     <div className="min-h-screen bg-[#050810] text-white p-4 md:p-10">
       <div className="max-w-3xl mx-auto">
-        <div className="mb-12 space-y-6">
+        <div className="mb-8 sm:mb-12 space-y-4 sm:space-y-6">
           <div className="flex justify-between items-end">
             <div className="space-y-1">
-              <h1 className="text-3xl font-black tracking-tighter flex items-center gap-3">
-                <BrainCircuit className="w-8 h-8 text-cyan-500" />
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tighter flex items-center gap-2 sm:gap-3 break-words">
+                <BrainCircuit className="w-6 h-6 sm:w-8 sm:h-8 text-cyan-500 shrink-0" />
                 {t.placementTitle}
               </h1>
               <p className="text-gray-500 font-medium">
@@ -186,9 +186,9 @@ export default function PlacementTestPage() {
           <Progress value={progress} className="h-1.5 bg-slate-900" />
         </div>
 
-        <Card className="bg-[#0a0f1d] border-white/5 p-8 md:p-14 rounded-[48px] shadow-2xl mb-10 relative overflow-hidden">
+        <Card className="bg-[#0a0f1d] border-white/5 p-4 sm:p-8 lg:p-14 rounded-3xl sm:rounded-[48px] shadow-2xl mb-6 sm:mb-10 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-2 h-full bg-cyan-500" />
-          <h2 className="text-2xl md:text-3xl font-bold mb-12 leading-tight text-center text-gray-200">
+          <h2 className="text-lg sm:text-2xl lg:text-3xl font-bold mb-6 sm:mb-12 leading-tight text-center text-gray-200 break-words">
             {currentQuestion?.text}
           </h2>
 
@@ -197,15 +197,15 @@ export default function PlacementTestPage() {
               <button
                 key={idx}
                 onClick={() => handleSelect(idx)}
-                className={`w-full p-6 rounded-3xl text-left transition-all border-2 text-lg font-medium ${
+                className={`w-full p-3 sm:p-5 lg:p-6 rounded-2xl sm:rounded-3xl text-left transition-all border-2 text-sm sm:text-base lg:text-lg font-medium break-words ${
                   answers[currentQuestion.id] === idx
                     ? 'border-cyan-500 bg-cyan-500/10 text-white'
                     : 'border-white/5 bg-black/20 text-gray-400 hover:border-white/10 hover:bg-white/5'
                 }`}
               >
-                <div className="flex items-center gap-5">
+                <div className="flex items-center gap-3 sm:gap-5">
                   <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center border-2 font-black transition-all ${
+                    className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center border-2 font-black transition-all shrink-0 text-sm sm:text-base ${
                       answers[currentQuestion.id] === idx
                         ? 'border-cyan-500 bg-cyan-500 text-black'
                         : 'border-slate-800'
@@ -225,7 +225,7 @@ export default function PlacementTestPage() {
             variant="outline"
             onClick={handleBack}
             disabled={currentIndex === 0}
-            className="flex-1 border-white/5 h-16 rounded-2xl text-white hover:bg-white/5 disabled:opacity-30 font-bold"
+            className="flex-1 border-white/5 h-12 sm:h-16 rounded-2xl text-sm sm:text-base text-white hover:bg-white/5 disabled:opacity-30 font-bold"
           >
             {t.back}
           </Button>
